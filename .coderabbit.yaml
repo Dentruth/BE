@@ -1,0 +1,65 @@
+language: "ko-KR"
+early_access: false
+chat:
+  auto_reply: true
+reviews:
+  profile: "chill"
+  request_changes_workflow: false
+  high_level_summary: true
+  poem: false
+  review_status: true
+  collapse_walkthrough: false
+  auto_review:
+    enabled: true
+    drafts: false
+  path_instructions:
+    - path: "**/*.java"
+      instructions: >
+        Our team follows Layered Architecture principles,
+        referencing the book "Domain-Driven Design".
+        The core principle is that all dependencies must flow inward toward the domain.
+        (presentation → application → domain, in this order only)
+
+
+        Package structure is as follows.
+        - presentation: Controller, Request DTO (for external input)
+        - application: Service, Request DTO (for service logic), Response DTO
+        - domain: Entity (contains core business logic), Repository (JPA Interface)
+        - infra: External API implementations (interfaces in application, implementations in infra)
+        - common: Shared logic (exception, response, aop, etc.)
+        - config: Configuration files
+
+
+        Please follow the rules below strictly.
+
+
+        [1. Domain Protection]
+        - presentation must only reference application, never domain directly.
+        - domain (Entity, Repository) must be completely isolated from external environments (DB, framework, UI).
+        - domain layer must not be affected by changes in other layers.
+
+
+        [2. Business Logic Placement]
+        - Calculation logic, state update logic, etc. must be implemented in Entity, not in Service.
+        - Service (application) is only responsible for calling Entity business logic and guaranteeing transactions.
+
+
+        [3. Minimize Transaction Scope]
+        - Tasks such as external API calls must be performed outside of transactions, not inside.
+        - External API interfaces belong in the application layer; implementations belong in the infra layer.
+        - Since we use JPA for DB access, the Repository interface in the domain layer is used directly without a separate implementation.
+
+
+        [4. DTO Management]
+        - Request DTOs exist in both presentation and application layers.
+          - presentation Request: minimal validation only (e.g. field length via @Valid)
+          - application Request: for service logic, maintains decoupling between Controller and Service
+        - Response DTOs exist only in the application layer.
+        - Business validation (e.g. duplicate user check) must be handled in application, not presentation.
+
+
+        [5. Role of Each Layer]
+        - presentation: receives external requests, performs minimal format validation, calls application layer
+        - application: implements business logic, guarantees transactions, responsible for atomicity of work units
+        - domain: holds core business logic, Entity implements creation and mutation logic
+        - infra: external API integration implementations
