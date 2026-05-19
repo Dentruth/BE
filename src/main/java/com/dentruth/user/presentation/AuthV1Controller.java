@@ -7,6 +7,7 @@ import com.dentruth.user.presentation.dto.request.SignupRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -24,7 +25,7 @@ public class AuthV1Controller {
     @Operation(summary = "로컬 회원가입")
     public ResponseEntity<ApiResponse<?>> signup(@Valid @RequestBody SignupRequest signupRequest) {
         authService.signup(signupRequest.toApplicationRequest());
-        return ResponseEntity.created(null).body(ApiResponse.onSuccess(SuccessStatus.CREATED, null));
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.onSuccess(SuccessStatus.CREATED, null));
     }
 
 }
