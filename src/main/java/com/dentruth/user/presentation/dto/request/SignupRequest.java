@@ -6,6 +6,7 @@ import com.dentruth.user.domain.entity.enums.Gender;
 import com.dentruth.user.domain.entity.enums.InsuranceStatus;
 import com.dentruth.user.domain.entity.enums.Language;
 import com.dentruth.user.domain.entity.enums.StayDuration;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -48,7 +49,7 @@ public class SignupRequest {
     @ValidEnum(enumClass = Gender.class, message = "유효한 성별이 아닙니다.")
     private String gender;
 
-    @NotNull(message = "거주지역은 필수입니다.")
+    @NotBlank(message = "거주지역은 필수입니다.")
     private String residentialArea;
 
     @NotNull(message = "체류기간은 필수입니다.")
