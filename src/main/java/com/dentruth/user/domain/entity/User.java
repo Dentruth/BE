@@ -64,6 +64,7 @@ public class User extends BaseEntity {
     private InsuranceStatus insuranceStatus;
 
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private UserStatus status;
 
     public static User localSignupUser(UUID id, String email, String address, String password, String name, LocalDate birth,
