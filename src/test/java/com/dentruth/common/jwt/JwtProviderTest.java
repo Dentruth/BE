@@ -77,7 +77,7 @@ class JwtProviderTest {
         String token = jwtProvider.generateAccessToken(USER_ID);
 
         //when
-        boolean validateToken = jwtProvider.validateToken(token);
+        boolean validateToken = jwtProvider.validateAccessToken(token);
 
         //then
         assertThat(validateToken).isTrue();
@@ -96,7 +96,7 @@ class JwtProviderTest {
                 .compact();
 
         //when, then
-        assertThatThrownBy(() -> jwtProvider.validateToken(expiredToken))
+        assertThatThrownBy(() -> jwtProvider.validateAccessToken(expiredToken))
                 .isInstanceOf(JwtAuthenticationException.class)
                 .satisfies(e -> {
                     JwtAuthenticationException ex = (JwtAuthenticationException) e;
@@ -111,7 +111,7 @@ class JwtProviderTest {
         String invalidToken = "this.is.invalid";
 
         //when, then
-        assertThatThrownBy(() -> jwtProvider.validateToken(invalidToken))
+        assertThatThrownBy(() -> jwtProvider.validateAccessToken(invalidToken))
                 .isInstanceOf(JwtAuthenticationException.class)
                 .satisfies(e -> {
                     JwtAuthenticationException ex = (JwtAuthenticationException) e;
@@ -134,7 +134,7 @@ class JwtProviderTest {
                 .compact();
 
         //when, then
-        assertThatThrownBy(() -> jwtProvider.validateToken(wrongToken))
+        assertThatThrownBy(() -> jwtProvider.validateAccessToken(wrongToken))
                 .isInstanceOf(JwtAuthenticationException.class)
                 .satisfies(e -> {
                     JwtAuthenticationException ex = (JwtAuthenticationException) e;

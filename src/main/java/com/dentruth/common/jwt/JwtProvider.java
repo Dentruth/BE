@@ -19,6 +19,9 @@ public class JwtProvider {
 
     private static final long ACCESS_TOKEN_EXPIRE = 1000 * 60 * 60;
     private static final long REFRESH_TOKEN_EXPIRE = 1000 * 60 * 60 * 24 * 7;
+    private static final String TOKEN_TYPE_CLAIM = "token_type";
+    private static final String ACCESS_TOKEN_TYPE = "access";
+    private static final String REFRESH_TOKEN_TYPE = "refresh";
 
     private SecretKey getSigningKey() {
         return Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
@@ -28,6 +31,7 @@ public class JwtProvider {
         return Jwts.builder()
                 .subject(String.valueOf(userId))
                 .issuedAt(new Date())
+                .claim(TOKEN_TYPE_CLAIM, ACCESS_TOKEN_TYPE)
                 .expiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_EXPIRE))
                 .signWith(getSigningKey())
                 .compact();
@@ -37,6 +41,7 @@ public class JwtProvider {
         return Jwts.builder()
                 .subject(String.valueOf(userId))
                 .issuedAt(new Date())
+                .claim(TOKEN_TYPE_CLAIM, REFRESH_TOKEN_TYPE)
                 .expiration(new Date(System.currentTimeMillis() + REFRESH_TOKEN_EXPIRE))
                 .signWith(getSigningKey())
                 .compact();
@@ -44,19 +49,24 @@ public class JwtProvider {
 
     public String getUserId(String token) {
         return Jwts.parser()
-                        .verifyWith(getSigningKey())
-                        .build()
-                        .parseSignedClaims(token)
-                        .getPayload()
-                        .getSubject();
+                .verifyWith(getSigningKey())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload()
+                .getSubject();
     }
 
-    public boolean validateToken(String token) {
+    public boolean validateAccessToken(String token) {
         try {
-            Jwts.parser()
+            String tokenType = Jwts.parser()
                     .verifyWith(getSigningKey())
                     .build()
-                    .parseSignedClaims(token);
+                    .parseSignedClaims(token)
+                    .getPayload()
+                    .get(TOKEN_TYPE_CLAIM, String.class);
+            if (!ACCESS_TOKEN_TYPE.equals(tokenType)) {
+                throw new JwtAuthenticationException(ErrorStatus.INVALID_TOKEN);
+            }
             return true;
         } catch (ExpiredJwtException e) {
             throw new JwtAuthenticationException(ErrorStatus.EXPIRED_ACCESS_TOKEN);
