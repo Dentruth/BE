@@ -36,7 +36,7 @@ public class ApiResponse<T> {
     }
 
     // 실패한 경우 (result 포함)
-    public static <T> ApiResponse<T> onFailure(BaseErrorCode code, T result ) {
+    public static <T> ApiResponse<T> onFailure(BaseErrorCode code, T result) {
         return new ApiResponse<>(
                 false,
                 code.getCode(),
