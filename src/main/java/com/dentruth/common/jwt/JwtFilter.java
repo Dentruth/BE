@@ -52,10 +52,12 @@ public class JwtFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getRequestURI();
-        return path.startsWith("/api/v1/auth/signup/local") ||
-                path.startsWith("/api/v1/auth/login") ||
-                path.startsWith("/api/v1/auth/refresh") ||
-                path.startsWith("/api/v1/users/email") ||
+        return path.equals("/api/v1/auth/signup/local") ||
+                path.equals("/api/v1/auth/login") ||
+                path.equals("/api/v1/auth/login/google") ||
+                path.equals("/api/v1/auth/refresh") ||
+                path.equals("/api/v1/users/email/verification") ||
+                path.equals("/api/v1/users/email/check") ||
                 path.startsWith("/swagger-ui") ||
                 path.startsWith("/v3/api-docs");
     }
