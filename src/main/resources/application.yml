@@ -35,3 +35,6 @@ cloud:
       static: ${S3_REGION}
     stack:
       auto: false
+
+jwt:
+  secret: ${JWT_SECRET}
