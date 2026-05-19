@@ -1,5 +1,6 @@
 package com.dentruth.common.jwt;
 
+import com.dentruth.common.exception.JwtAuthenticationException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,16 +24,18 @@ public class JwtFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         String token = resolveToken(request);
 
-        if (token != null && jwtProvider.validateToken(token)) {
-            String userId = jwtProvider.getUserId(token);
-
-            CustomUserDetails userDetails = new CustomUserDetails(userId);
-            UsernamePasswordAuthenticationToken authentication =
-                    new UsernamePasswordAuthenticationToken(
-                            userDetails, null, userDetails.getAuthorities()
-                    );
-
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+        try {
+            if (token != null && jwtProvider.validateToken(token)) {
+                String userId = jwtProvider.getUserId(token);
+                CustomUserDetails userDetails = new CustomUserDetails(userId);
+                UsernamePasswordAuthenticationToken authentication =
+                        new UsernamePasswordAuthenticationToken(
+                                userDetails, null, userDetails.getAuthorities()
+                        );
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            }
+        } catch (JwtAuthenticationException e) {
+            SecurityContextHolder.clearContext();
         }
 
         filterChain.doFilter(request, response);
@@ -44,6 +47,17 @@ public class JwtFilter extends OncePerRequestFilter {
             return bearer.substring(7);
         }
         return null;
+    }
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getRequestURI();
+        return path.startsWith("/api/v1/auth/signup/local") ||
+                path.startsWith("/api/v1/auth/login") ||
+                path.startsWith("/api/v1/auth/refresh") ||
+                path.startsWith("/api/v1/users/email") ||
+                path.startsWith("/swagger-ui") ||
+                path.startsWith("/v3/api-docs");
     }
 
 }
