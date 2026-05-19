@@ -26,7 +26,7 @@ import lombok.ToString;
 @Table(name = "users")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-@ToString
+@ToString(exclude = {"password", "email", "address"})
 @Getter
 @Builder
 public class User extends BaseEntity {
