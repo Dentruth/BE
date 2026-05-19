@@ -4,6 +4,7 @@ import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 public class EnumValidator implements ConstraintValidator<ValidEnum, String> {
 
@@ -19,7 +20,7 @@ public class EnumValidator implements ConstraintValidator<ValidEnum, String> {
     @Override
     public boolean isValid(String value, ConstraintValidatorContext context) {
         if (value == null) return true; // null은 @NotNull이 처리
-        return enumValues.contains(value.toUpperCase());
+        return enumValues.contains(value.toUpperCase(Locale.ROOT));
     }
 
 }
