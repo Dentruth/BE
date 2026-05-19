@@ -24,7 +24,7 @@ public class AuthService {
     @Transactional
     public void signup(SignupApplicationRequest request) {
         UUID userId = UUID.randomUUID();
-        log.info("회원가입을 진행합니다. id : {}, email : {}", userId, request.getEmail());
+        log.info("회원가입을 진행합니다. id : {}", userId);
 
         validSignUp(request);
 
