@@ -7,7 +7,6 @@ import com.dentruth.common.exception.JwtAuthenticationException;
 import com.dentruth.common.response.code.ErrorStatus;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
-import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import javax.crypto.SecretKey;
@@ -29,10 +28,17 @@ class JwtProviderTest {
 
     @BeforeEach
     void setUp() throws Exception {
-        jwtProvider = new JwtProvider();
-        Field field = JwtProvider.class.getDeclaredField("secret");
-        field.setAccessible(true);
-        field.set(jwtProvider, SECRET);
+        JwtProperties jwtProperties = new JwtProperties(
+                SECRET,
+                3600000L,
+                604800000L,
+                "token_type",
+                "access",
+                "refresh",
+                "test:refreshToken:"
+        );
+
+        jwtProvider = new JwtProvider(jwtProperties);
     }
 
     @DisplayName("access Token을 생성할 수 있다.")

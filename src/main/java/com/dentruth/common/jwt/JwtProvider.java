@@ -8,31 +8,25 @@ import io.jsonwebtoken.security.Keys;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import javax.crypto.SecretKey;
-import org.springframework.beans.factory.annotation.Value;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class JwtProvider {
 
-    @Value("${jwt.secret}")
-    private String secret;
-
-    private static final long ACCESS_TOKEN_EXPIRE = 1000 * 60 * 60;
-    private static final long REFRESH_TOKEN_EXPIRE = 1000 * 60 * 60 * 24 * 7;
-    private static final String TOKEN_TYPE_CLAIM = "token_type";
-    private static final String ACCESS_TOKEN_TYPE = "access";
-    private static final String REFRESH_TOKEN_TYPE = "refresh";
+    private final JwtProperties jwtProperties;
 
     private SecretKey getSigningKey() {
-        return Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+        return Keys.hmacShaKeyFor(jwtProperties.secret().getBytes(StandardCharsets.UTF_8));
     }
 
     public String generateAccessToken(String userId) {
         return Jwts.builder()
                 .subject(String.valueOf(userId))
                 .issuedAt(new Date())
-                .claim(TOKEN_TYPE_CLAIM, ACCESS_TOKEN_TYPE)
-                .expiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_EXPIRE))
+                .claim(jwtProperties.tokenTypeClaim(), jwtProperties.accessTokenType())
+                .expiration(new Date(System.currentTimeMillis() + jwtProperties.accessTokenExpiration()))
                 .signWith(getSigningKey())
                 .compact();
     }
@@ -41,8 +35,8 @@ public class JwtProvider {
         return Jwts.builder()
                 .subject(String.valueOf(userId))
                 .issuedAt(new Date())
-                .claim(TOKEN_TYPE_CLAIM, REFRESH_TOKEN_TYPE)
-                .expiration(new Date(System.currentTimeMillis() + REFRESH_TOKEN_EXPIRE))
+                .claim(jwtProperties.tokenTypeClaim(), jwtProperties.refreshTokenType())
+                .expiration(new Date(System.currentTimeMillis() + jwtProperties.refreshTokenExpiration()))
                 .signWith(getSigningKey())
                 .compact();
     }
@@ -63,8 +57,8 @@ public class JwtProvider {
                     .build()
                     .parseSignedClaims(token)
                     .getPayload()
-                    .get(TOKEN_TYPE_CLAIM, String.class);
-            if (!ACCESS_TOKEN_TYPE.equals(tokenType)) {
+                    .get(jwtProperties.tokenTypeClaim(), String.class);
+            if (!jwtProperties.accessTokenType().equals(tokenType)) {
                 throw new JwtAuthenticationException(ErrorStatus.INVALID_TOKEN);
             }
             return true;
