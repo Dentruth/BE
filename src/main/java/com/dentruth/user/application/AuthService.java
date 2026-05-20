@@ -48,4 +48,10 @@ public class AuthService {
         });
     }
 
+    public void verifyPassword(String inputPassword, String storedPassword) {
+        if (!passwordEncoder.matches(inputPassword, storedPassword)) {
+            throw new DentruthException(ErrorStatus.WRONG_PASSWORD);
+        }
+    }
+
 }

@@ -16,3 +16,5 @@ spring:
 
 jwt:
   secret: testteasfjlasjfl123182739874397akjljsdfasdfasfwearqwe2345365373524gfadfdasdfasdf21324567afasdfasdfadft5fasdf
+  redis-prefix-refresh: "test:dentruth:refreshToken:"
+

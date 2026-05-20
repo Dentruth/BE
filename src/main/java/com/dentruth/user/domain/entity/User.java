@@ -1,6 +1,8 @@
 package com.dentruth.user.domain.entity;
 
 import com.dentruth.common.domain.BaseEntity;
+import com.dentruth.common.exception.DentruthException;
+import com.dentruth.common.response.code.ErrorStatus;
 import com.dentruth.user.domain.entity.enums.Gender;
 import com.dentruth.user.domain.entity.enums.InsuranceStatus;
 import com.dentruth.user.domain.entity.enums.Language;
@@ -84,6 +86,15 @@ public class User extends BaseEntity {
                 .insuranceStatus(insuranceStatus)
                 .status(UserStatus.ACTIVE)
                 .build();
+    }
+
+    public void validateStatus() {
+        switch (this.status) {
+            case SUSPENDED -> throw new DentruthException(ErrorStatus.SUSPENDED_USER);
+            case BLOCKED   -> throw new DentruthException(ErrorStatus.BLOCKED_USER);
+            case WITHDRAWN, DELETED -> throw new DentruthException(ErrorStatus.USER_NOT_FOUND);
+            default -> {}
+        }
     }
 
 }

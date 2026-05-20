@@ -2,8 +2,11 @@ package com.dentruth.user.presentation;
 
 import com.dentruth.common.response.ApiResponse;
 import com.dentruth.common.response.code.SuccessStatus;
+import com.dentruth.user.application.AuthFacade;
 import com.dentruth.user.application.AuthService;
+import com.dentruth.user.presentation.dto.request.LoginRequest;
 import com.dentruth.user.presentation.dto.request.SignupRequest;
+import com.dentruth.user.presentation.dto.response.LoginResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/auth")
 public class AuthV1Controller {
 
+    private final AuthFacade authFacade;
     private final AuthService authService;
 
     @PostMapping("/signup/local")
@@ -26,6 +30,12 @@ public class AuthV1Controller {
     public ResponseEntity<ApiResponse<?>> signup(@Valid @RequestBody SignupRequest signupRequest) {
         authService.signup(signupRequest.toApplicationRequest());
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.onSuccess(SuccessStatus.CREATED, null));
+    }
+
+    @PostMapping("/login")
+    @Operation(summary = "로컬 로그인")
+    public ApiResponse<LoginResponse> login(@Valid @RequestBody LoginRequest loginRequest) {
+        return ApiResponse.onSuccess(SuccessStatus.OK, authFacade.login(loginRequest.toApplicationRequest()));
     }
 
 }
