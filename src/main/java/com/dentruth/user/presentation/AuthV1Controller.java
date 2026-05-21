@@ -7,7 +7,8 @@ import com.dentruth.user.application.AuthFacade;
 import com.dentruth.user.application.AuthService;
 import com.dentruth.user.presentation.dto.request.LoginRequest;
 import com.dentruth.user.presentation.dto.request.SignupRequest;
-import com.dentruth.user.presentation.dto.response.LoginResponse;
+import com.dentruth.user.presentation.dto.request.TokenRefreshRequest;
+import com.dentruth.user.presentation.dto.response.TokenResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import java.util.UUID;
@@ -37,7 +38,7 @@ public class AuthV1Controller {
 
     @PostMapping("/login")
     @Operation(summary = "로컬 로그인")
-    public ApiResponse<LoginResponse> login(@Valid @RequestBody LoginRequest loginRequest) {
+    public ApiResponse<TokenResponse> login(@Valid @RequestBody LoginRequest loginRequest) {
         return ApiResponse.onSuccess(SuccessStatus.OK, authFacade.login(loginRequest.toApplicationRequest()));
     }
 
@@ -47,6 +48,13 @@ public class AuthV1Controller {
         UUID userId = UUID.fromString(userDetails.getUserId());
         authFacade.logout(userId);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/refresh")
+    @Operation(summary = "토큰 재발급", description = "만료된 Access Token을 Refresh Token을 통해 재발급합니다.")
+    public ApiResponse<TokenResponse> reissueToken(@RequestBody @Valid TokenRefreshRequest request) {
+        TokenResponse response = authFacade.reissue(request.getRefreshToken());
+        return ApiResponse.onSuccess(SuccessStatus.OK, response);
     }
 
 }

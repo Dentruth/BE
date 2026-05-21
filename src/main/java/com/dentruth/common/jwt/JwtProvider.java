@@ -69,4 +69,24 @@ public class JwtProvider {
         }
     }
 
+    public boolean validateRefreshToken(String token) {
+        try {
+            String tokenType = Jwts.parser()
+                    .verifyWith(getSigningKey())
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload()
+                    .get(jwtProperties.tokenTypeClaim(), String.class);
+
+            if (!jwtProperties.refreshTokenType().equals(tokenType)) {
+                throw new JwtAuthenticationException(ErrorStatus.INVALID_TOKEN);
+            }
+            return true;
+        } catch (ExpiredJwtException e) {
+            throw new JwtAuthenticationException(ErrorStatus.EXPIRED_REFRESH_TOKEN);
+        } catch (Exception e) {
+            throw new JwtAuthenticationException(ErrorStatus.INVALID_TOKEN);
+        }
+    }
+
 }
