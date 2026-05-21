@@ -28,4 +28,10 @@ public class UserService {
                 });
     }
 
+    @Transactional(readOnly = true)
+    public void checkEmailDuplication(String email) {
+        userRepository.findByEmail(email)
+                .ifPresent(User::validateDuplicationEmailByStatus);
+    }
+
 }
