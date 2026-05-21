@@ -213,7 +213,7 @@ class AuthV1ControllerLoginTest extends ControllerTestSupport {
         UUID userId = UUID.randomUUID();
         String email = "test@test.com";
         String password = "password1234!!";
-        String encodePassword = "testest1234";
+        String encodePassword = passwordEncoder.encode("differentPassword1234!!");
 
         saveUser(userId, email, encodePassword, UserStatus.ACTIVE);
 
