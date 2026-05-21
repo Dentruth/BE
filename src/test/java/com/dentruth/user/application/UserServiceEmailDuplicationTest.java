@@ -2,6 +2,8 @@ package com.dentruth.user.application;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 
 import com.dentruth.common.exception.DentruthException;
@@ -34,7 +36,7 @@ class UserServiceEmailDuplicationTest {
         //given
         String email = "test@test.com";
 
-        given(userRepository.findByEmail(email)).willReturn(Optional.empty());
+        given(userRepository.findByEmailAndStatusIn(eq(email), anyList())).willReturn(Optional.empty());
 
         //when, then
         assertDoesNotThrow(() -> userService.checkEmailDuplication(email));
@@ -51,7 +53,7 @@ class UserServiceEmailDuplicationTest {
                 .status(status)
                 .build();
 
-        given(userRepository.findByEmail(email)).willReturn(Optional.of(user));
+        given(userRepository.findByEmailAndStatusIn(eq(email), anyList())).willReturn(Optional.of(user));
 
         //when, then
         assertThatThrownBy(() -> userService.checkEmailDuplication(email))
@@ -70,7 +72,7 @@ class UserServiceEmailDuplicationTest {
                 .status(status)
                 .build();
 
-        given(userRepository.findByEmail(email)).willReturn(Optional.of(user));
+        given(userRepository.findByEmailAndStatusIn(eq(email), anyList())).willReturn(Optional.of(user));
 
         //when, then
         assertDoesNotThrow(() -> userService.checkEmailDuplication(email));

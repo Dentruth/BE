@@ -24,7 +24,7 @@ public class AuthFacade {
         String maskedEmail = SecurityUtils.convertToMaskedEmail(request.getEmail());
         log.info("로그인 요청. Email : [{}]", maskedEmail);
 
-        User user = userService.findUserByEmail("로그인", request.getEmail());
+        User user = userService.findValidUserByEmail("로그인", request.getEmail());
         user.validateStatus();
         authService.verifyPassword(request.getPassword(), user.getPassword());
 

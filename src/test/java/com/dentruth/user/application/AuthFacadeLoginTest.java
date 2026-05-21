@@ -53,7 +53,7 @@ class AuthFacadeLoginTest {
 
         given(user.getId()).willReturn(userId);
         given(user.getPassword()).willReturn("storedPassword");
-        given(userService.findUserByEmail(eq("로그인"), eq(email))).willReturn(user);
+        given(userService.findValidUserByEmail(eq("로그인"), eq(email))).willReturn(user);
         given(jwtProvider.generateAccessToken(eq(userId.toString()))).willReturn(accessToken);
         given(jwtProvider.generateRefreshToken(eq(userId.toString()))).willReturn(refreshToken);
 
@@ -85,7 +85,7 @@ class AuthFacadeLoginTest {
                 .password("password1234")
                 .build();
 
-        given(userService.findUserByEmail(eq("로그인"), eq(email)))
+        given(userService.findValidUserByEmail(eq("로그인"), eq(email)))
                 .willThrow(new DentruthException(ErrorStatus.USER_NOT_FOUND));
 
         //when, then
@@ -102,7 +102,7 @@ class AuthFacadeLoginTest {
         User user = mock(User.class);
 
         given(user.getPassword()).willReturn("storedPassword");
-        given(userService.findUserByEmail(eq("로그인"), eq(email))).willReturn(user);
+        given(userService.findValidUserByEmail(eq("로그인"), eq(email))).willReturn(user);
 
         doThrow(new DentruthException(ErrorStatus.WRONG_PASSWORD))
                 .when(authService).verifyPassword(eq("wrongPassword"), eq("storedPassword"));
@@ -125,7 +125,7 @@ class AuthFacadeLoginTest {
         String email = "test@test.com";
         User user = mock(User.class);
 
-        given(userService.findUserByEmail(eq("로그인"), eq(email))).willReturn(user);
+        given(userService.findValidUserByEmail(eq("로그인"), eq(email))).willReturn(user);
         doThrow(new DentruthException(ErrorStatus.SUSPENDED_USER))
                 .when(user).validateStatus();
 
@@ -147,7 +147,7 @@ class AuthFacadeLoginTest {
         String email = "test@test.com";
         User user = mock(User.class);
 
-        given(userService.findUserByEmail(eq("로그인"), eq(email))).willReturn(user);
+        given(userService.findValidUserByEmail(eq("로그인"), eq(email))).willReturn(user);
         doThrow(new DentruthException(ErrorStatus.BLOCKED_USER))
                 .when(user).validateStatus();
 
@@ -169,7 +169,7 @@ class AuthFacadeLoginTest {
         String email = "test@test.com";
         User user = mock(User.class);
 
-        given(userService.findUserByEmail(eq("로그인"), eq(email))).willReturn(user);
+        given(userService.findValidUserByEmail(eq("로그인"), eq(email))).willReturn(user);
         doThrow(new DentruthException(ErrorStatus.USER_NOT_FOUND))
                 .when(user).validateStatus();
 
