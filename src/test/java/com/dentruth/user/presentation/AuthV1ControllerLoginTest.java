@@ -15,8 +15,6 @@ import com.dentruth.user.domain.entity.enums.UserType;
 import com.dentruth.user.domain.repository.UserRepository;
 import com.dentruth.user.infra.redis.RedisTokenStore;
 import com.dentruth.user.presentation.dto.request.LoginRequest;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.UUID;
@@ -24,24 +22,11 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
-@ActiveProfiles("test")
-@SpringBootTest
-@AutoConfigureMockMvc
-class AuthV1ControllerLoginTest {
-
-    @Autowired
-    private MockMvc mockMvc;
-
-    private final ObjectMapper objectMapper = new ObjectMapper()
-            .registerModule(new JavaTimeModule());
+class AuthV1ControllerLoginTest extends ControllerTestSupport {
 
     @Autowired
     private UserRepository userRepository;

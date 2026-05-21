@@ -5,6 +5,7 @@ import com.dentruth.common.util.SecurityUtils;
 import com.dentruth.user.application.dto.request.LoginApplicationRequest;
 import com.dentruth.user.domain.entity.User;
 import com.dentruth.user.presentation.dto.response.LoginResponse;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -36,6 +37,10 @@ public class AuthFacade {
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .build();
+    }
+
+    public void logout(UUID userId) {
+        tokenService.deleteRefreshToken(userId);
     }
 
 }

@@ -1,10 +1,10 @@
 package com.dentruth.user.infra.redis;
 
+import com.dentruth.common.jwt.JwtProperties;
 import com.dentruth.user.application.TokenStore;
 import java.time.Duration;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -13,9 +13,7 @@ import org.springframework.stereotype.Repository;
 public class RedisTokenStore implements TokenStore {
 
     private final RedisTemplate<String, String> redisTemplate;
-
-    @Value("${jwt.redis-prefix-refresh}")
-    private String refreshKeyPrefix;
+    private final JwtProperties jwtProperties;
 
     @Override
     public void save(UUID userId, String refreshToken, Duration refreshTokenTtl) {
@@ -33,7 +31,7 @@ public class RedisTokenStore implements TokenStore {
     }
 
     private String key(UUID userId) {
-        return refreshKeyPrefix + userId.toString();
+        return jwtProperties.redisPrefixRefresh() + userId.toString();
     }
 
 }
