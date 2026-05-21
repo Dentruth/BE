@@ -13,7 +13,7 @@ import static org.mockito.Mockito.times;
 import com.dentruth.common.exception.JwtAuthenticationException;
 import com.dentruth.common.jwt.JwtProvider;
 import com.dentruth.common.response.code.ErrorStatus;
-import com.dentruth.user.presentation.dto.response.TokenResponse;
+import com.dentruth.user.application.dto.response.TokenResponse;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

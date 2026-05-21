@@ -6,7 +6,7 @@ import com.dentruth.common.response.code.ErrorStatus;
 import com.dentruth.common.util.SecurityUtils;
 import com.dentruth.user.application.dto.request.LoginApplicationRequest;
 import com.dentruth.user.domain.entity.User;
-import com.dentruth.user.presentation.dto.response.TokenResponse;
+import com.dentruth.user.application.dto.response.TokenResponse;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

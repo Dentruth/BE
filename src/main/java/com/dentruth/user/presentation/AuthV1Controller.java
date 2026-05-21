@@ -8,7 +8,7 @@ import com.dentruth.user.application.AuthService;
 import com.dentruth.user.presentation.dto.request.LoginRequest;
 import com.dentruth.user.presentation.dto.request.SignupRequest;
 import com.dentruth.user.presentation.dto.request.TokenRefreshRequest;
-import com.dentruth.user.presentation.dto.response.TokenResponse;
+import com.dentruth.user.application.dto.response.TokenResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import java.util.UUID;

@@ -1,4 +1,4 @@
-package com.dentruth.user.presentation.dto.response;
+package com.dentruth.user.application.dto.response;
 
 import lombok.Builder;
 import lombok.Getter;
