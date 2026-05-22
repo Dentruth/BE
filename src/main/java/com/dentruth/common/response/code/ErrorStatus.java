@@ -20,6 +20,11 @@ public enum ErrorStatus implements BaseErrorCode {
 
     // USER
     ALREADY_REGISTERED_EMAIL(HttpStatus.CONFLICT, "USER_002", "이미 가입된 이메일입니다."),
+    EMAIL_SEND_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "USER_003", "이메일 인증 요청에 실패했습니다."),
+    WRONG_PASSWORD(HttpStatus.BAD_REQUEST, "USER_004", "비밀번호가 일치하지 않습니다."),
+    SUSPENDED_USER(HttpStatus.FORBIDDEN, "USER_005", "일시 정지된 계정입니다."),
+    BLOCKED_USER(HttpStatus.FORBIDDEN, "USER_006", "차단된 계정입니다."),
+
 
     ;
 

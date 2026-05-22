@@ -38,3 +38,9 @@ cloud:
 
 jwt:
   secret: ${JWT_SECRET}
+  access-token-expiration: 3600000 # 1시간 (1000 * 60 * 60)
+  refresh-token-expiration: 604800000 # 7일 (1000 * 60 * 60 * 24 * 7)
+  token-type-claim: "token_type"
+  access-token-type: "access"
+  refresh-token-type: "refresh"
+  redis-prefix-refresh: "dentruth:refreshToken:"
