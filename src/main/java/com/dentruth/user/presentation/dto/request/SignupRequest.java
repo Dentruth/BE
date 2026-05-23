@@ -50,7 +50,10 @@ public class SignupRequest {
     private String gender;
 
     @NotBlank(message = "거주지역은 필수입니다.")
-    private String residentialArea;
+    private String region;
+
+    @NotBlank(message = "국적은 필수입니다.")
+    private String nationality;
 
     @NotNull(message = "체류기간은 필수입니다.")
     @ValidEnum(enumClass = StayDuration.class, message = "유효한 체류기간 형식이 아닙니다.")
@@ -68,7 +71,8 @@ public class SignupRequest {
                 .language(Language.valueOf(this.language.toUpperCase()))
                 .birthDate(this.birthDate)
                 .gender(Gender.valueOf(this.gender.toUpperCase()))
-                .residentialArea(this.residentialArea)
+                .region(this.region)
+                .nationality(this.nationality)
                 .stayDuration(StayDuration.valueOf(this.stayDuration.toUpperCase()))
                 .insuranceStatus(InsuranceStatus.valueOf(this.insuranceStatus.toUpperCase()))
                 .build();

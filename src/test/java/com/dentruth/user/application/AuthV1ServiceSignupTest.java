@@ -136,7 +136,8 @@ class AuthV1ServiceSignupTest {
                 .language(Language.KOREAN)
                 .birthDate(LocalDate.of(2026, 5, 19))
                 .gender(Gender.F)
-                .residentialArea("서울시 강남구")
+                .region("서울시 강남구")
+                .nationality("미국")
                 .stayDuration(StayDuration.ONE_TO_THREE_M)
                 .insuranceStatus(InsuranceStatus.INSURED)
                 .build();

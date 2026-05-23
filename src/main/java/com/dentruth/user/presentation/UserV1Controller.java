@@ -16,7 +16,7 @@ public class UserV1Controller {
 
     private final UserService userService;
 
-    @GetMapping("email/check")
+    @GetMapping("/email/check")
     public ApiResponse<String> checkEmailDuplication(@RequestParam String email){
         userService.checkEmailDuplication(email);
         return ApiResponse.onSuccess(SuccessStatus.OK, "사용 가능");
