@@ -14,4 +14,5 @@ public enum SuccessStatus implements BaseCode {
     private final HttpStatus httpStatus;
     private final String code;
     private final String message;
+  
 }
