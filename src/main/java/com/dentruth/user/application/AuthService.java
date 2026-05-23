@@ -30,8 +30,8 @@ public class AuthService {
 
         String encodePassword = passwordEncoder.encode(request.getPassword());
 
-        User user = User.localSignupUser(userId, request.getEmail(), request.getResidentialArea(), encodePassword,
-                request.getName(), request.getBirthDate(), request.getGender(), request.getLanguage(),
+        User user = User.localSignupUser(userId, request.getEmail(), request.getRegion(), request.getNationality(),
+                encodePassword, request.getName(), request.getBirthDate(), request.getGender(), request.getLanguage(),
                 request.getStayDuration(), request.getInsuranceStatus());
 
         userRepository.save(user);

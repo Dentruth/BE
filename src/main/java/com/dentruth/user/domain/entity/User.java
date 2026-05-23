@@ -36,7 +36,8 @@ public class User extends BaseEntity {
     @Id
     private UUID id;
 
-    private String address;
+    private String region;
+    private String nationality;
 
     @Column(nullable = false)
     private String email;
@@ -69,13 +70,13 @@ public class User extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private UserStatus status;
 
-    public static User localSignupUser(UUID id, String email, String address, String password, String name,
-                                       LocalDate birth,
-                                       Gender gender, Language language, StayDuration stayDuration,
-                                       InsuranceStatus insuranceStatus) {
+    public static User localSignupUser(UUID id, String email, String region, String nationality, String password,
+                                       String name, LocalDate birth, Gender gender, Language language,
+                                       StayDuration stayDuration, InsuranceStatus insuranceStatus) {
         return User.builder()
                 .id(id)
-                .address(address)
+                .region(region)
+                .nationality(nationality)
                 .email(email)
                 .password(password)
                 .userType(UserType.LOCAL)

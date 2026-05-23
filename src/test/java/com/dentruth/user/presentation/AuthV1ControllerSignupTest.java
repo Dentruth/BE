@@ -47,7 +47,8 @@ class AuthV1ControllerSignupTest extends ControllerTestSupport {
                 .language("KOREAN")
                 .birthDate(LocalDate.of(2026, 5, 19))
                 .gender("F")
-                .residentialArea("서울시 강남구")
+                .region("서울시 강남구")
+                .nationality("미국")
                 .stayDuration("ONE_TO_THREE_M")
                 .insuranceStatus("INSURED")
                 .build();
@@ -79,7 +80,8 @@ class AuthV1ControllerSignupTest extends ControllerTestSupport {
                 .language(Language.KOREAN)
                 .birth(LocalDate.of(2026, 5, 19))
                 .gender(Gender.F)
-                .address("서울시 강남구")
+                .region("서울시 강남구")
+                .nationality("미국")
                 .stayDuration(StayDuration.ONE_TO_THREE_M)
                 .insuranceStatus(InsuranceStatus.INSURED)
                 .status(userStatus)
@@ -93,7 +95,8 @@ class AuthV1ControllerSignupTest extends ControllerTestSupport {
                 .language("KOREAN")
                 .birthDate(LocalDate.of(2026, 5, 19))
                 .gender("F")
-                .residentialArea("서울시 강남구")
+                .region("서울시 강남구")
+                .nationality("미국")
                 .stayDuration("ONE_TO_THREE_M")
                 .insuranceStatus("INSURED")
                 .build();
@@ -134,7 +137,8 @@ class AuthV1ControllerSignupTest extends ControllerTestSupport {
                 .language(Language.KOREAN)
                 .birth(LocalDate.of(2026, 5, 19))
                 .gender(Gender.F)
-                .address("서울시 강남구")
+                .region("서울시 강남구")
+                .nationality("미국")
                 .stayDuration(StayDuration.ONE_TO_THREE_M)
                 .insuranceStatus(InsuranceStatus.INSURED)
                 .status(userStatus)
@@ -148,7 +152,8 @@ class AuthV1ControllerSignupTest extends ControllerTestSupport {
                 .language("KOREAN")
                 .birthDate(LocalDate.of(2026, 5, 19))
                 .gender("F")
-                .residentialArea("서울시 강남구")
+                .region("서울시 강남구")
+                .nationality("미국")
                 .stayDuration("ONE_TO_THREE_M")
                 .insuranceStatus("INSURED")
                 .build();
@@ -277,9 +282,9 @@ class AuthV1ControllerSignupTest extends ControllerTestSupport {
 
     @DisplayName("거주지역이 null이면 회원가입에 실패하고 400 에러를 반환한다.")
     @Test
-    void shouldReturn400BadRequest_whenResidentialAreaIsNull() throws Exception {
+    void shouldReturn400BadRequest_whenRegionIsNull() throws Exception {
         //given
-        SignupRequest request = createValidSignupRequest().toBuilder().residentialArea(null).build();
+        SignupRequest request = createValidSignupRequest().toBuilder().region(null).build();
 
         //when, then
         mockMvc.perform(post("/api/v1/auth/signup/local")
@@ -289,7 +294,24 @@ class AuthV1ControllerSignupTest extends ControllerTestSupport {
                 .andExpect(jsonPath("$.isSuccess").value(false))
                 .andExpect(jsonPath("$.code").value("COMMON_400"))
                 .andExpect(jsonPath("$.message").value("잘못된 요청입니다."))
-                .andExpect(jsonPath("$.result.residentialArea").value("거주지역은 필수입니다."));
+                .andExpect(jsonPath("$.result.region").value("거주지역은 필수입니다."));
+    }
+
+    @DisplayName("국적이 null이면 회원가입에 실패하고 400 에러를 반환한다.")
+    @Test
+    void shouldReturn400BadRequest_whenNationalityIsNull() throws Exception {
+        //given
+        SignupRequest request = createValidSignupRequest().toBuilder().nationality(null).build();
+
+        //when, then
+        mockMvc.perform(post("/api/v1/auth/signup/local")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.isSuccess").value(false))
+                .andExpect(jsonPath("$.code").value("COMMON_400"))
+                .andExpect(jsonPath("$.message").value("잘못된 요청입니다."))
+                .andExpect(jsonPath("$.result.nationality").value("국적은 필수입니다."));
     }
 
     @DisplayName("체류기간이 null이면 회원가입에 실패하고 400 에러를 반환한다.")
@@ -453,7 +475,8 @@ class AuthV1ControllerSignupTest extends ControllerTestSupport {
                 .language("KOREAN")
                 .birthDate(LocalDate.of(2026, 5, 19))
                 .gender("F")
-                .residentialArea("서울시 강남구")
+                .region("서울시 강남구")
+                .nationality("미국")
                 .stayDuration("ONE_TO_THREE_M")
                 .insuranceStatus("INSURED")
                 .build();
