@@ -24,6 +24,9 @@ spring:
           org.hibernate.SQL: debug
           org.hibernate.orm.schema: debug
 
+server:
+  forward-headers-strategy: native
+
 cloud:
   aws:
     s3:
