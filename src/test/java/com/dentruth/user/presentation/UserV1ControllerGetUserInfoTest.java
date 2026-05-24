@@ -241,8 +241,7 @@ class UserV1ControllerGetUserInfoTest extends ControllerTestSupport {
         //when
         mockMvc.perform(get("/api/v1/users/me"))
                 //then
-                .andExpect(status().isUnauthorized())
-                .andReturn();
+                .andExpect(status().isUnauthorized());
     }
 
     @DisplayName("토큰이 만료되었으면 401을 반환하고, 유저 정보 조회에 실패한다.")
@@ -263,8 +262,9 @@ class UserV1ControllerGetUserInfoTest extends ControllerTestSupport {
         mockMvc.perform(get("/api/v1/users/me")
                         .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken))
                 //then
-                .andExpect(status().isUnauthorized())
-                .andReturn();
+                .andExpect(jsonPath("$.isSuccess").value(false))
+                .andExpect(jsonPath("$.code").value("AUTH_001"))
+                .andExpect(jsonPath("$.message").value("만료된 access token 입니다."));
     }
 
     private SecretKey getSigningKey() {

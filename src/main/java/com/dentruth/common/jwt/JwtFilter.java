@@ -1,6 +1,9 @@
 package com.dentruth.common.jwt;
 
 import com.dentruth.common.exception.JwtAuthenticationException;
+import com.dentruth.common.response.ApiResponse;
+import com.dentruth.common.response.code.ErrorStatus;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -18,6 +21,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 public class JwtFilter extends OncePerRequestFilter {
 
     private final JwtProvider jwtProvider;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -36,6 +40,8 @@ public class JwtFilter extends OncePerRequestFilter {
             }
         } catch (JwtAuthenticationException e) {
             SecurityContextHolder.clearContext();
+            sendErrorResponse(response, e.getErrorCode());
+            return;
         }
 
         filterChain.doFilter(request, response);
@@ -47,6 +53,14 @@ public class JwtFilter extends OncePerRequestFilter {
             return bearer.substring(7);
         }
         return null;
+    }
+
+    private void sendErrorResponse(HttpServletResponse response, ErrorStatus errorStatus) throws IOException {
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.setContentType("application/json;charset=UTF-8");
+
+        ApiResponse<?> errorResponse = ApiResponse.onFailure(errorStatus, null);
+        response.getWriter().write(objectMapper.writeValueAsString(errorResponse));
     }
 
     @Override

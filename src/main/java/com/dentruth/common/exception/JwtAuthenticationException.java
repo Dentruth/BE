@@ -1,6 +1,6 @@
 package com.dentruth.common.exception;
 
-import com.dentruth.common.response.code.BaseErrorCode;
+import com.dentruth.common.response.code.ErrorStatus;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class JwtAuthenticationException extends RuntimeException {
 
-    private final BaseErrorCode errorCode;
+    private final ErrorStatus errorCode;
 
     @Override
     public String getMessage() {
