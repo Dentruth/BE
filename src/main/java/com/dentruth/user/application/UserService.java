@@ -69,5 +69,4 @@ public class UserService {
                     return new DentruthException(ErrorStatus.USER_NOT_FOUND);
                 });
     }
-
 }

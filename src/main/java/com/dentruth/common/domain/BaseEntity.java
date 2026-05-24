@@ -21,6 +21,6 @@ public abstract class BaseEntity {
     @LastModifiedDate
     private Instant updatedAt;
 
-    private Instant deletedAt;
+    protected Instant deletedAt;
 
 }

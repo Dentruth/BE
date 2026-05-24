@@ -417,14 +417,14 @@ class UserServiceUpdateUserInfoTest {
                 .build();
     }
 
-    private User getUser(UUID userId, UserStatus active) {
+    private User getUser(UUID userId, UserStatus status) {
         return User.builder()
                 .id(userId)
                 .email("test@test.com")
                 .password("password1234!")
-                .status(active)
+                .status(status)
                 .userType(UserType.LOCAL)
-                .name("기존 할 이름")
+                .name("기존 이름")
                 .language(Language.KOREAN)
                 .birth(LocalDate.of(2002, 5, 21))
                 .gender(Gender.F)
