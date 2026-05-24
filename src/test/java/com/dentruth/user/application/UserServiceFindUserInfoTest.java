@@ -121,7 +121,7 @@ class UserServiceFindUserInfoTest {
         given(userRepository.findById(userId)).willReturn(Optional.of(user));
 
         //when, then
-        assertThatThrownBy(()->userService.getUserInfo(userId))
+        assertThatThrownBy(() -> userService.getUserInfo(userId))
                 .isInstanceOf(DentruthException.class)
                 .hasMessage(ErrorStatus.USER_NOT_FOUND.getMessage());
     }
@@ -136,7 +136,7 @@ class UserServiceFindUserInfoTest {
         given(userRepository.findById(userId)).willReturn(Optional.of(user));
 
         //when, then
-        assertThatThrownBy(()->userService.getUserInfo(userId))
+        assertThatThrownBy(() -> userService.getUserInfo(userId))
                 .isInstanceOf(DentruthException.class)
                 .hasMessage(ErrorStatus.SUSPENDED_USER.getMessage());
     }
@@ -151,7 +151,7 @@ class UserServiceFindUserInfoTest {
         given(userRepository.findById(userId)).willReturn(Optional.of(user));
 
         //when, then
-        assertThatThrownBy(()->userService.getUserInfo(userId))
+        assertThatThrownBy(() -> userService.getUserInfo(userId))
                 .isInstanceOf(DentruthException.class)
                 .hasMessage(ErrorStatus.BLOCKED_USER.getMessage());
     }
@@ -165,7 +165,7 @@ class UserServiceFindUserInfoTest {
         given(userRepository.findById(userId)).willReturn(Optional.empty());
 
         //when, then
-        assertThatThrownBy(()->userService.getUserInfo(userId))
+        assertThatThrownBy(() -> userService.getUserInfo(userId))
                 .isInstanceOf(DentruthException.class)
                 .hasMessage(ErrorStatus.USER_NOT_FOUND.getMessage());
     }

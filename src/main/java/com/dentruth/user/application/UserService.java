@@ -3,6 +3,7 @@ package com.dentruth.user.application;
 import com.dentruth.common.exception.DentruthException;
 import com.dentruth.common.response.code.ErrorStatus;
 import com.dentruth.common.util.SecurityUtils;
+import com.dentruth.user.application.dto.request.UpdateUserInfoApplicationRequest;
 import com.dentruth.user.application.dto.response.UserInfoResponse;
 import com.dentruth.user.domain.entity.User;
 import com.dentruth.user.domain.entity.enums.UserStatus;
@@ -44,6 +45,18 @@ public class UserService {
     public UserInfoResponse getUserInfo(UUID userId) {
         User user = findById(userId, "유저 정보 조회");
         user.validateStatus();
+
+        return UserInfoResponse.from(user);
+    }
+
+    @Transactional
+    public UserInfoResponse updateUserInfo(UUID userId, UpdateUserInfoApplicationRequest request) {
+        log.info("유저 정보 업데이트 요청. User Id : [{}], 업데이트 요청 정보 : [{}]", userId, request.toString());
+        User user = findById(userId, "유저 정보 업데이트");
+        user.validateStatus();
+
+        user.updateInfo(request.getName(), request.getLanguage(), request.getBirthDate(), request.getGender(),
+                request.getRegion(), request.getStayDuration(), request.getInsuranceStatus(), request.getNationality());
 
         return UserInfoResponse.from(user);
     }

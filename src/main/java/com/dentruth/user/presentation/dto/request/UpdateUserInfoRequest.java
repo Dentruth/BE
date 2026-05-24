@@ -1,14 +1,13 @@
 package com.dentruth.user.presentation.dto.request;
 
 import com.dentruth.common.validation.ValidEnum;
-import com.dentruth.user.application.dto.request.SignupApplicationRequest;
+import com.dentruth.user.application.dto.request.UpdateUserInfoApplicationRequest;
 import com.dentruth.user.domain.entity.enums.Gender;
 import com.dentruth.user.domain.entity.enums.InsuranceStatus;
 import com.dentruth.user.domain.entity.enums.Language;
 import com.dentruth.user.domain.entity.enums.StayDuration;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
 import lombok.AllArgsConstructor;
@@ -17,25 +16,11 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-@Builder(toBuilder = true)
-public class SignupRequest {
-
-    @NotNull(message = "이메일은 필수 입력입니다.")
-    @Pattern(
-            regexp = "^[a-zA-Z0-9+\\-_.]+@[a-zA-Z0-9-]+\\.[a-zA-Z]{2,}$",
-            message = "유효한 이메일 형식이 아닙니다."
-    )
-    private String email;
-
-    @NotNull(message = "비밀번호는 필수 입력입니다.")
-    @Pattern(
-            regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]{8,20}$",
-            message = "유효한 비밀번호 형식이 아닙니다."
-    )
-    private String password;
+@Builder
+public class UpdateUserInfoRequest {
 
     @NotNull(message = "이름은 필수 입력입니다.")
-    @Size(min = 2, max = 50, message = "이름은 2~20자 사이여야 합니다.")
+    @Size(min = 2, max = 20, message = "이름은 2~50자 사이여야 합니다.")
     private String name;
 
     @NotNull(message = "언어 선택은 필수입니다.")
@@ -63,18 +48,16 @@ public class SignupRequest {
     @ValidEnum(enumClass = InsuranceStatus.class, message = "유효한 보험 여부 형식이 아닙니다.")
     private String insuranceStatus;
 
-    public SignupApplicationRequest toApplicationRequest(){
-        return SignupApplicationRequest.builder()
-                .email(this.email)
-                .password(this.password)
+    public UpdateUserInfoApplicationRequest toApplicationRequest(){
+        return UpdateUserInfoApplicationRequest.builder()
                 .name(this.name)
-                .language(Language.valueOf(this.language.toUpperCase()))
+                .language(Language.valueOf(this.language))
                 .birthDate(this.birthDate)
-                .gender(Gender.valueOf(this.gender.toUpperCase()))
+                .gender(Gender.valueOf(this.gender))
                 .region(this.region)
                 .nationality(this.nationality)
-                .stayDuration(StayDuration.valueOf(this.stayDuration.toUpperCase()))
-                .insuranceStatus(InsuranceStatus.valueOf(this.insuranceStatus.toUpperCase()))
+                .stayDuration(StayDuration.valueOf(this.stayDuration))
+                .insuranceStatus(InsuranceStatus.valueOf(this.insuranceStatus))
                 .build();
     }
 
