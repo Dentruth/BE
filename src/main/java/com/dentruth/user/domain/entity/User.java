@@ -195,4 +195,7 @@ public class User extends BaseEntity {
         this.deletedAt = Instant.now();
     }
 
+    public void updatePassword(String encodedPassword) {
+        this.password = encodedPassword;
+    }
 }
