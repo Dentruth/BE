@@ -3,10 +3,12 @@ package com.dentruth.user.application;
 import com.dentruth.common.exception.DentruthException;
 import com.dentruth.common.response.code.ErrorStatus;
 import com.dentruth.common.util.SecurityUtils;
+import com.dentruth.user.application.dto.response.UserInfoResponse;
 import com.dentruth.user.domain.entity.User;
 import com.dentruth.user.domain.entity.enums.UserStatus;
 import com.dentruth.user.domain.repository.UserRepository;
 import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -36,6 +38,23 @@ public class UserService {
         userRepository.findByEmailAndStatusIn(email,
                         List.of(UserStatus.ACTIVE, UserStatus.GUEST, UserStatus.SUSPENDED, UserStatus.BLOCKED))
                 .ifPresent(User::validateDuplicationEmailByStatus);
+    }
+
+    @Transactional(readOnly = true)
+    public UserInfoResponse getUserInfo(UUID userId) {
+        User user = findById(userId, "유저 정보 조회");
+        user.validateStatus();
+
+        return UserInfoResponse.from(user);
+    }
+
+    @Transactional(readOnly = true)
+    public User findById(UUID userId, String method) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> {
+                    log.info("{} 유저 정보가 존재하지 않습니다. User Id : [{}]", method, userId);
+                    return new DentruthException(ErrorStatus.USER_NOT_FOUND);
+                });
     }
 
 }

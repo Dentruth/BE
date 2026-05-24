@@ -5,14 +5,16 @@ import lombok.Getter;
 @Getter
 public enum InsuranceStatus {
 
-    INSURED("가입"),
-    NOT_INSURED("미가입"),
-    PLANNED("가입 예정");
+    INSURED("Insured", "가입"),
+    NOT_INSURED("Uninsured", "미가입"),
+    PLANNED("Planning to Enroll", "가입 예정");
 
-    private final String description;
+    private final String eng;
+    private final String ko;
 
-    InsuranceStatus(String description) {
-        this.description = description;
+    InsuranceStatus(String eng, String ko) {
+        this.eng = eng;
+        this.ko = ko;
     }
 
 }
