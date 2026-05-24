@@ -20,7 +20,7 @@ import lombok.Getter;
 public class UpdateUserInfoRequest {
 
     @NotNull(message = "이름은 필수 입력입니다.")
-    @Size(min = 2, max = 20, message = "이름은 2~50자 사이여야 합니다.")
+    @Size(min = 2, max = 50, message = "이름은 2~50자 사이여야 합니다.")
     private String name;
 
     @NotNull(message = "언어 선택은 필수입니다.")
