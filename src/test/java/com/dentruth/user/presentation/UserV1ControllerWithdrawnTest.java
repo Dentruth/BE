@@ -167,9 +167,9 @@ class UserV1ControllerWithdrawnTest extends ControllerTestSupport {
         assertThat(after.getDeletedAt()).isNull();
     }
 
-    @DisplayName("유저가 BLOCKED 상태면 401을 반환하고, 탈퇴에 실패한다.")
+    @DisplayName("유저가 BLOCKED 상태면 403을 반환하고, 탈퇴에 실패한다.")
     @Test
-    void shouldReturn401Unauthorized_whenUserIsBlockedDuringWithdrawal() throws Exception {
+    void shouldReturn403Unauthorized_whenUserIsBlockedDuringWithdrawal() throws Exception {
         //given
         UUID userId = UUID.randomUUID();
         String encodedPassword = passwordEncoder.encode("password1234!");
@@ -268,6 +268,7 @@ class UserV1ControllerWithdrawnTest extends ControllerTestSupport {
         mockMvc.perform(delete("/api/v1/users/me")
                         .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken))
                 //then
+                .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.isSuccess").value(false))
                 .andExpect(jsonPath("$.code").value("AUTH_001"))
                 .andExpect(jsonPath("$.message").value("만료된 access token 입니다."));

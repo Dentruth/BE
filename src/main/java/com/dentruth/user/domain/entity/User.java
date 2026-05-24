@@ -17,6 +17,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.Objects;
 import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -200,7 +201,7 @@ public class User extends BaseEntity {
     public void updatePassword(String plainPassword, String encodedPassword) {
         validatePasswordFormat(plainPassword);
 
-        if (java.util.Objects.equals(this.password, encodedPassword)) {
+        if (Objects.equals(this.password, encodedPassword)) {
             log.warn("기존 비밀번호와 동일한 비밀번호로 변경 시도. User Id : [{}]", this.id);
             throw new DentruthException(ErrorStatus.SAME_AS_CURRENT_PASSWORD);
         }
