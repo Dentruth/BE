@@ -73,6 +73,8 @@ public class User extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private UserStatus status;
 
+    private static final String PASSWORD_REGEX = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]{8,20}$";
+
     public static User localSignupUser(UUID id, String email, String region, String nationality, String password,
                                        String name, LocalDate birth, Gender gender, Language language,
                                        StayDuration stayDuration, InsuranceStatus insuranceStatus) {
@@ -195,7 +197,27 @@ public class User extends BaseEntity {
         this.deletedAt = Instant.now();
     }
 
-    public void updatePassword(String encodedPassword) {
+    public void updatePassword(String plainPassword, String encodedPassword) {
+        validatePasswordFormat(plainPassword);
+
+        if (java.util.Objects.equals(this.password, encodedPassword)) {
+            log.warn("기존 비밀번호와 동일한 비밀번호로 변경 시도. User Id : [{}]", this.id);
+            throw new DentruthException(ErrorStatus.SAME_AS_CURRENT_PASSWORD);
+        }
+
         this.password = encodedPassword;
     }
+
+    private void validatePasswordFormat(String plainPassword) {
+        if (plainPassword == null || plainPassword.trim().isEmpty()) {
+            log.warn("변경할 비밀번호가 비어있음. User Id : [{}]", this.id);
+            throw new DentruthException(ErrorStatus.BAD_REQUEST);
+        }
+
+        if (!java.util.regex.Pattern.matches(PASSWORD_REGEX, plainPassword)) {
+            log.warn("유효한 비밀번호 형식이 아닙니다. User Id : [{}]", this.id);
+            throw new DentruthException(ErrorStatus.BAD_REQUEST);
+        }
+    }
+
 }
