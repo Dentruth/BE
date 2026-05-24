@@ -30,7 +30,7 @@ import lombok.extern.slf4j.Slf4j;
 @Table(name = "users")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-@ToString(exclude = {"password", "email", "region", "nationality"})
+@ToString(exclude = {"password", "email", "region", "nationality", "birth"})
 @Getter
 @Builder
 @Slf4j

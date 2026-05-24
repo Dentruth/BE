@@ -11,7 +11,7 @@ import lombok.ToString;
 
 @Getter
 @Builder
-@ToString(exclude = {"region", "nationality"})
+@ToString(exclude = {"region", "nationality", "birthDate"})
 public class UpdateUserInfoApplicationRequest {
 
     private String name;
