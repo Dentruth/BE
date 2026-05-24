@@ -180,10 +180,10 @@ class UserTest {
             assertThat(user.getNationality()).isEqualTo(expectedNationality);
         }
 
-        @DisplayName("이름이 null이거나 공백, 혹은 2자 미만 20자 초과 시 BAD_REQUEST 예외가 발생한다.")
+        @DisplayName("이름이 null이거나 공백, 혹은 2자 미만 50자 초과 시 BAD_REQUEST 예외가 발생한다.")
         @ParameterizedTest(name = "[{index}] 잘못된 이름: {0}")
         @NullAndEmptySource
-        @ValueSource(strings = {" ", "   ", "A", "이름이이십글자를넘어가는비정상적인케이스입니다글자수를확인하세요"})
+        @ValueSource(strings = {" ", "   ", "A", "이름이 오십 글자를 넘어가는 비정상적인 케이스입니다. 글자 수를 확인하세요1234567891"})
         void shouldThrowException_whenNameIsInvalid(String invalidName) {
             //given
             User user = createBaseUser();
