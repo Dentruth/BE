@@ -46,7 +46,7 @@ public class OAuth2FailureHandler extends SimpleUrlAuthenticationFailureHandler 
         log.error("Authentication failed. Exception message: {}", exception.getMessage());
         log.error("Exception type: {}", exception.getClass().getName());
 
-        targetUrl = UriComponentsBuilder.fromUriString(targetUrl).queryParam("error", exception.getMessage()).build()
+        targetUrl = UriComponentsBuilder.fromUriString(targetUrl).build()
                 .toUriString();
 
         cookieRepository.removeAuthorizationRequest(request, response);
