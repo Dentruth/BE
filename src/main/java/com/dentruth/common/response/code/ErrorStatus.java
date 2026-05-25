@@ -25,9 +25,15 @@ public enum ErrorStatus implements BaseErrorCode {
     SUSPENDED_USER(HttpStatus.FORBIDDEN, "USER_005", "일시 정지된 계정입니다."),
     BLOCKED_USER(HttpStatus.FORBIDDEN, "USER_006", "차단된 계정입니다."),
     SAME_AS_CURRENT_PASSWORD(HttpStatus.BAD_REQUEST, "USER_007", "기존 비밀번호와 동일한 비밀번호입니다."),
+    INVALID_AUTH_CODE(HttpStatus.BAD_REQUEST, "USER_008", "인증 코드가 잘못되었습니다."),
+    EXPIRED_AUTH_CODE(HttpStatus.BAD_REQUEST, "USER_009", "유효기간이 지난 인증코드입니다."),
+
+
 
 
     ;
+
+
 
     private final HttpStatus httpStatus;
     private final String code;

@@ -9,6 +9,7 @@ import com.dentruth.user.application.UserService;
 import com.dentruth.user.application.dto.response.UserInfoResponse;
 import com.dentruth.user.presentation.dto.request.UpdatePasswordRequest;
 import com.dentruth.user.presentation.dto.request.UpdateUserInfoRequest;
+import com.dentruth.user.presentation.dto.request.SendVerifyEmailRequest;
 import com.dentruth.user.presentation.dto.request.VerifyEmailRequest;
 import com.dentruth.user.presentation.dto.request.WithdrawnRequest;
 import jakarta.validation.Valid;
@@ -70,8 +71,14 @@ public class UserV1Controller {
     }
 
     @PostMapping("/email/verification")
-    public ApiResponse<Void> verifyEmail(@Valid @RequestBody VerifyEmailRequest request) {
+    public ApiResponse<Void> sendVerifyEmail(@Valid @RequestBody SendVerifyEmailRequest request) {
         emailService.sendVerifyEmail(request.toApplicationRequest());
+        return ApiResponse.onSuccess(SuccessStatus.OK, null);
+    }
+
+    @PatchMapping("/email/verification")
+    public ApiResponse<Void> verifyEmail(@Valid @RequestBody VerifyEmailRequest request) {
+        emailService.verifyEmail(request.toApplicationRequest());
         return ApiResponse.onSuccess(SuccessStatus.OK, null);
     }
 

@@ -3,6 +3,7 @@ package com.dentruth.user.application;
 import com.dentruth.common.exception.DentruthException;
 import com.dentruth.common.response.code.ErrorStatus;
 import com.dentruth.common.util.SecurityUtils;
+import com.dentruth.user.application.dto.request.SendVerifyEmailApplicationRequest;
 import com.dentruth.user.application.dto.request.VerifyEmailApplicationRequest;
 import jakarta.annotation.PostConstruct;
 import jakarta.mail.Authenticator;
@@ -49,7 +50,7 @@ public class EmailService {
         });
     }
 
-    public void sendVerifyEmail(VerifyEmailApplicationRequest request) {
+    public void sendVerifyEmail(SendVerifyEmailApplicationRequest request) {
         String authCode = authRandomCode();
 
         try {
@@ -73,11 +74,11 @@ public class EmailService {
     private String authRandomCode() {
         StringBuilder sb = new StringBuilder();
 
-        for(int i = 0; i < 6; i++) {
-            if(Math.random() < 0.5) {
-                sb.append( (char)((int)(Math.random() * 10) + '0') );
+        for (int i = 0; i < 6; i++) {
+            if (Math.random() < 0.5) {
+                sb.append((char) ((int) (Math.random() * 10) + '0'));
             } else {
-                sb.append( (char)((int)(Math.random() * 26) + 'A') );
+                sb.append((char) ((int) (Math.random() * 26) + 'A'));
             }
         }
         return sb.toString();
@@ -91,6 +92,17 @@ public class EmailService {
                 + "If you did not request this code, please ignore this email.\n\n"
                 + "Best regards,\n"
                 + "The Dentruth Team";
+    }
+
+    public void verifyEmail(VerifyEmailApplicationRequest request) {
+        String authCode = emailAuthCodeStore.findByEmail(request.getEmail())
+                .orElseThrow(() -> new DentruthException(ErrorStatus.INVALID_AUTH_CODE));
+
+        if (!request.getAuthCode().equals(authCode)) {
+            throw new DentruthException(ErrorStatus.INVALID_AUTH_CODE);
+        } else {
+            emailAuthCodeStore.deleteByEmail(request.getEmail());
+        }
     }
 
 }

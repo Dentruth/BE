@@ -1,7 +1,6 @@
 package com.dentruth.user.presentation.dto.request;
 
-import com.dentruth.user.application.dto.request.VerifyEmailApplicationRequest;
-import jakarta.validation.constraints.NotBlank;
+import com.dentruth.user.application.dto.request.SendVerifyEmailApplicationRequest;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
@@ -9,9 +8,9 @@ import lombok.Builder;
 import lombok.Getter;
 
 @AllArgsConstructor
-@Builder
 @Getter
-public class VerifyEmailRequest {
+@Builder
+public class SendVerifyEmailRequest {
 
     @NotNull(message = "이메일은 필수 입력입니다.")
     @Pattern(
@@ -20,13 +19,9 @@ public class VerifyEmailRequest {
     )
     private String email;
 
-    @NotBlank(message = "인증코드는 필수 입력입니다.")
-    private String authCode;
-
-    public VerifyEmailApplicationRequest toApplicationRequest(){
-        return VerifyEmailApplicationRequest.builder()
+    public SendVerifyEmailApplicationRequest toApplicationRequest(){
+        return SendVerifyEmailApplicationRequest.builder()
                 .email(this.email)
-                .authCode(this.authCode)
                 .build();
     }
 
