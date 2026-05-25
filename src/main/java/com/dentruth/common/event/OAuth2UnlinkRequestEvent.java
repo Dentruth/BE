@@ -10,14 +10,21 @@ public class OAuth2UnlinkRequestEvent {
         this.email = email;
     }
 
-    public String getEmail() { return email; }
+    public String getEmail() {
+        return email;
+    }
 
     public void setResult(String userId) {
         this.userId = userId;
         this.handled = true;
     }
 
-    public String getUserId() { return userId; }
-    public boolean isHandled() { return handled; }
+    public String getUserId() {
+        return userId;
+    }
+
+    public boolean isHandled() {
+        return handled;
+    }
 
 }

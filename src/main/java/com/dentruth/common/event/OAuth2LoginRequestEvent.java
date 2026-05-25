@@ -8,7 +8,7 @@ public class OAuth2LoginRequestEvent {
     private final String name;
     private final OAuth2Provider provider;
     private String userId;
-    private boolean isNewUser;
+    private String userStatus;
     private boolean handled = false;
 
     public OAuth2LoginRequestEvent(String email, String name, OAuth2Provider provider) {
@@ -17,17 +17,33 @@ public class OAuth2LoginRequestEvent {
         this.provider = provider;
     }
 
-    public String getEmail() { return email; }
-    public String getName() { return name; }
-    public OAuth2Provider getProvider() { return provider; }
+    public String getEmail() {
+        return email;
+    }
 
-    public void setResult(String userId, boolean isNewUser) {
+    public String getName() {
+        return name;
+    }
+
+    public OAuth2Provider getProvider() {
+        return provider;
+    }
+
+    public void setResult(String userId, String userStatus) {
         this.userId = userId;
-        this.isNewUser = isNewUser;
+        this.userStatus = userStatus;
         this.handled = true;
     }
 
-    public String getUserId() { return userId; }
-    public boolean isNewUser() { return isNewUser; }
-    public boolean isHandled() { return handled; }
+    public String getUserId() {
+        return userId;
+    }
+
+    public String getUserStatus() {
+        return userStatus;
+    }
+
+    public boolean isHandled() {
+        return handled;
+    }
 }

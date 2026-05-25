@@ -6,4 +6,5 @@ public record OAuth2LoginEvent(
         String email,
         String name,
         OAuth2Provider provider
-) {}
+) {
+}

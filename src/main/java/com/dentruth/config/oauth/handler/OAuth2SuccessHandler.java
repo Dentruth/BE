@@ -1,12 +1,13 @@
 package com.dentruth.config.oauth.handler;
 
+import com.dentruth.common.domain.enums.Language;
 import com.dentruth.common.event.OAuth2LoginRequestEvent;
+import com.dentruth.common.event.OAuth2SaveTokenEvent;
 import com.dentruth.common.event.OAuth2UnlinkRequestEvent;
 import com.dentruth.common.jwt.JwtProvider;
 import com.dentruth.common.util.CookieUtil;
 import com.dentruth.config.oauth.OAuth2UserPrincipal;
 import com.dentruth.config.oauth.OAuthCookieRepository;
-import com.dentruth.common.domain.enums.Language;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -14,6 +15,7 @@ import java.io.IOException;
 import java.time.Duration;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
@@ -29,6 +31,9 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     private final OAuthCookieRepository cookieRepository;
     private final ApplicationEventPublisher eventPublisher;
 
+    @Value("${app.oauth2.default-redirect-uri:http://localhost:3000/oauth/callback}")
+    private String defaultRedirectUri;
+
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
                                         Authentication authentication) throws IOException {
@@ -43,9 +48,9 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     @Override
     protected String determineTargetUrl(HttpServletRequest request, HttpServletResponse response,
                                         Authentication authentication) {
-        String targetUrl = CookieUtil.getCookie(request, OAuthCookieRepository.REDIRECT_URI_PARAM_COOKIE_NAME)
+        String redirectUri = CookieUtil.getCookie(request, OAuthCookieRepository.REDIRECT_URI_PARAM_COOKIE_NAME)
                 .map(Cookie::getValue)
-                .orElse(getDefaultTargetUrl());
+                .orElse(defaultRedirectUri);
 
         String mode = CookieUtil.getCookie(request, OAuthCookieRepository.MODE_PARAM_COOKIE_NAME)
                 .map(Cookie::getValue)
@@ -53,57 +58,65 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
         OAuth2UserPrincipal principal = extractPrincipal(authentication);
         if (principal == null) {
-            return buildErrorUrl(targetUrl, "Login failed");
+            log.error("OAuth2 principal을 찾을 수 없습니다.");
+            return buildErrorUrl(redirectUri, "login_failed");
         }
 
         if ("login".equalsIgnoreCase(mode)) {
-            return handleLogin(response, targetUrl, principal);
+            return handleLogin(request, response, redirectUri, principal);
         } else if ("unlink".equalsIgnoreCase(mode)) {
-            return handleUnlink(request, response, targetUrl, principal);
+            return handleUnlink(request, response, redirectUri, principal);
         }
 
-        return buildErrorUrl(targetUrl, "Unknown mode");
+        return buildErrorUrl(redirectUri, "unknown_mode");
     }
 
-    private String handleLogin(HttpServletResponse response,
-                               String targetUrl, OAuth2UserPrincipal principal) {
-        OAuth2LoginRequestEvent event = new OAuth2LoginRequestEvent(
+    private String handleLogin(HttpServletRequest request, HttpServletResponse response,
+                               String redirectUri, OAuth2UserPrincipal principal) {
+        OAuth2LoginRequestEvent loginEvent = new OAuth2LoginRequestEvent(
                 principal.getUserInfo().getEmail(),
                 principal.getUserInfo().getName(),
                 principal.getUserInfo().getProvider()
         );
-        eventPublisher.publishEvent(event);
+        eventPublisher.publishEvent(loginEvent);
 
-        if (!event.isHandled()) {
+        if (!loginEvent.isHandled()) {
             log.error("OAuth2 로그인 이벤트가 처리되지 않았습니다. email: [{}]", principal.getUserInfo().getEmail());
-            return buildErrorUrl(targetUrl, "Login processing failed");
+            return buildErrorUrl(redirectUri, "Login processing failed");
         }
 
-        String accessToken = jwtProvider.generateAccessToken(event.getUserId(), Language.ENGLISH.name());
-        String refreshToken = jwtProvider.generateRefreshToken(event.getUserId());
+        String userId = loginEvent.getUserId();
+        String userStatus = loginEvent.getUserStatus();
 
-        com.dentruth.common.event.OAuth2SaveTokenEvent saveTokenEvent =
-                new com.dentruth.common.event.OAuth2SaveTokenEvent(event.getUserId(), refreshToken);
+        String accessToken = jwtProvider.generateAccessToken(userId, Language.ENGLISH.name());
+        String refreshToken = jwtProvider.generateRefreshToken(userId);
+
+        OAuth2SaveTokenEvent saveTokenEvent = new OAuth2SaveTokenEvent(userId, refreshToken);
         eventPublisher.publishEvent(saveTokenEvent);
 
-        CookieUtil.addCookie(response, "access_token", accessToken,
-                (int) Duration.ofDays(1).toSeconds());
+        CookieUtil.addCookie(response, "refresh_token", refreshToken,
+                (int) Duration.ofDays(14).toSeconds());
 
-        return UriComponentsBuilder.fromUriString(targetUrl)
+        log.info("OAuth2 로그인 성공. userId: [{}], userStatus: [{}]", userId, userStatus);
+
+        return UriComponentsBuilder.fromUriString(redirectUri)
                 .queryParam("access_token", accessToken)
-                .queryParam("is_new_user", event.isNewUser())
+                .queryParam("status", userStatus)
                 .build().toUriString();
     }
 
     private String handleUnlink(HttpServletRequest request, HttpServletResponse response,
-                                String targetUrl, OAuth2UserPrincipal principal) {
-        OAuth2UnlinkRequestEvent event = new OAuth2UnlinkRequestEvent(
-                principal.getUserInfo().getEmail()
-        );
-        eventPublisher.publishEvent(event);
+                                String redirectUri, OAuth2UserPrincipal principal) {
+        OAuth2UnlinkRequestEvent unlinkEvent = new OAuth2UnlinkRequestEvent(principal.getUserInfo().getEmail());
+        eventPublisher.publishEvent(unlinkEvent);
 
         CookieUtil.deleteCookie(request, response, "access_token");
-        return UriComponentsBuilder.fromUriString(targetUrl).build().toUriString();
+        CookieUtil.deleteCookie(request, response, "refresh_token");
+        log.info("OAuth2 연동 해제 완료. email: [{}]", principal.getUserInfo().getEmail());
+
+        return UriComponentsBuilder.fromUriString(redirectUri)
+                .queryParam("status", "unlinked")
+                .build().toUriString();
     }
 
     private OAuth2UserPrincipal extractPrincipal(Authentication authentication) {

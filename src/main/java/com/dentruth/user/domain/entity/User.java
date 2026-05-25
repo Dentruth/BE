@@ -3,7 +3,6 @@ package com.dentruth.user.domain.entity;
 import com.dentruth.common.domain.BaseEntity;
 import com.dentruth.common.exception.DentruthException;
 import com.dentruth.common.response.code.ErrorStatus;
-import com.dentruth.config.oauth.user.OAuth2Provider;
 import com.dentruth.user.domain.entity.enums.Gender;
 import com.dentruth.user.domain.entity.enums.InsuranceStatus;
 import com.dentruth.common.domain.enums.Language;
@@ -93,12 +92,12 @@ public class User extends BaseEntity {
                 .build();
     }
 
-    public static User oauthSignupUser(UUID userId, String email, String name, OAuth2Provider provider) {
+    public static User oauthSignupUser(UUID userId, String email, String name, UserType userType) {
         return User.builder()
                 .id(userId)
                 .email(email)
                 .name(name)
-                .userType(UserType.valueOf(provider.name()))
+                .userType(userType)
                 .status(UserStatus.GUEST)
                 .language(Language.ENGLISH)
                 .build();

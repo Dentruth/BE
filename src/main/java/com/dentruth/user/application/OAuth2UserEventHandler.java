@@ -4,7 +4,9 @@ import com.dentruth.common.event.OAuth2LoginRequestEvent;
 import com.dentruth.common.event.OAuth2SaveTokenEvent;
 import com.dentruth.common.event.OAuth2UnlinkRequestEvent;
 import com.dentruth.common.util.SecurityUtils;
+import com.dentruth.config.oauth.user.OAuth2Provider;
 import com.dentruth.user.domain.entity.User;
+import com.dentruth.user.domain.entity.enums.UserType;
 import com.dentruth.user.domain.repository.UserRepository;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -29,19 +31,20 @@ public class OAuth2UserEventHandler {
                 .ifPresentOrElse(
                         user -> {
                             log.info("소셜 로그인 기존 유저. email: [{}]", maskedEmail);
-                            event.setResult(user.getId().toString(), false);
+                            event.setResult(user.getId().toString(), user.getStatus().name());
                         },
                         () -> {
                             log.info("소셜 로그인 신규 유저. email: [{}]", maskedEmail);
                             UUID userId = UUID.randomUUID();
+                            UserType userType = resolveUserType(event.getProvider());
                             User newUser = User.oauthSignupUser(
                                     userId,
                                     event.getEmail(),
                                     event.getName(),
-                                    event.getProvider()
+                                    userType
                             );
                             userRepository.save(newUser);
-                            event.setResult(userId.toString(), true);
+                            event.setResult(userId.toString(), newUser.getStatus().name());
                         }
                 );
     }
@@ -52,7 +55,7 @@ public class OAuth2UserEventHandler {
         String maskedEmail = SecurityUtils.convertToMaskedEmail(event.getEmail());
         userRepository.findByEmail(event.getEmail()).ifPresent(user -> {
             tokenService.deleteRefreshToken(user.getId());
-            userRepository.delete(user);
+            user.withdrawn();
             log.info("소셜 연동 해제 완료. email: [{}]", maskedEmail);
             event.setResult(user.getId().toString());
         });
@@ -64,4 +67,11 @@ public class OAuth2UserEventHandler {
         tokenService.saveRefreshToken(userId, event.refreshToken());
         log.debug("OAuth2 Refresh Token 저장 완료. User Id: [{}]", userId);
     }
+
+    private UserType resolveUserType(OAuth2Provider provider) {
+        return switch (provider) {
+            case GOOGLE -> UserType.GOOGLE;
+        };
+    }
+
 }

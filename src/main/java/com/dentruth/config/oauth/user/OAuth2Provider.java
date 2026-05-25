@@ -6,9 +6,7 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum OAuth2Provider {
-    GOOGLE("google")
-
-    ;
+    GOOGLE("google");
 
     private final String registrationId;
 
