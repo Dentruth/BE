@@ -2,7 +2,6 @@ package com.dentruth.user.presentation;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -529,7 +528,7 @@ class UserV1ControllerOnboardingTest extends ControllerTestSupport {
                 .build();
 
         String token = jwtProvider.generateAccessToken(userId.toString(), Language.KOREAN.name());
-ㅊ
+
         //when
         mockMvc.perform(post("/api/v1/users/onboarding")
                         .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
@@ -763,10 +762,8 @@ class UserV1ControllerOnboardingTest extends ControllerTestSupport {
         userRepository.save(user);
         OnboardingRequest request = getOnboardingRequest();
 
-        String token = jwtProvider.generateAccessToken(userId.toString(), Language.KOREAN.name());
-
         //when
-        mockMvc.perform(put("/api/v1/users/me")
+        mockMvc.perform(post("/api/v1/users/onboarding")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 //then
@@ -790,10 +787,10 @@ class UserV1ControllerOnboardingTest extends ControllerTestSupport {
                 .compact();
 
         //when
-        mockMvc.perform(put("/api/v1/users/me")
+        mockMvc.perform(post("/api/v1/users/onboarding")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request))
-                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken))
+                        .content(objectMapper.writeValueAsString(request)))
                 //then
                 .andExpect(jsonPath("$.isSuccess").value(false))
                 .andExpect(jsonPath("$.code").value("AUTH_001"))
