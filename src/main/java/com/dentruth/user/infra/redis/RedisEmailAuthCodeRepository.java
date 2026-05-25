@@ -46,14 +46,24 @@ public class RedisEmailAuthCodeRepository implements EmailAuthCodeStore {
         }
 
         String[] parts = value.split(":");
+        if (parts.length != 2) {
+            throw new DentruthException(ErrorStatus.INVALID_AUTH_CODE);
+        }
+
         String authCode = parts[0];
-        long createdAt = Long.parseLong(parts[1]);
+        long createdAt;
+        try {
+            createdAt = Long.parseLong(parts[1]);
+        } catch (NumberFormatException e) {
+            throw new DentruthException(ErrorStatus.INVALID_AUTH_CODE);
+        }
 
         long current = System.currentTimeMillis();
         long diffMinutes = (current - createdAt) / (1000 * 60);
 
         if (diffMinutes >= AUTH_VALID_MINUTES) {
-            log.warn("이메일 인증 유효 시간(5분)이 지났습니다. 이메일 : [{}], 경과 시간 : [{}분]", email, diffMinutes);
+            log.warn("이메일 인증 유효 시간(5분)이 지났습니다. 이메일 : [{}], 경과 시간 : [{}분]",
+                    SecurityUtils.convertToMaskedEmail(email), diffMinutes);
             throw new DentruthException(ErrorStatus.EXPIRED_AUTH_CODE);
         }
 
