@@ -529,7 +529,7 @@ class UserV1ControllerOnboardingTest extends ControllerTestSupport {
                 .build();
 
         String token = jwtProvider.generateAccessToken(userId.toString(), Language.KOREAN.name());
-
+ㅊ
         //when
         mockMvc.perform(post("/api/v1/users/onboarding")
                         .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)

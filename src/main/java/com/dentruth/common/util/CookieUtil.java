@@ -1,13 +1,22 @@
 package com.dentruth.common.util;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Optional;
-import org.springframework.util.SerializationUtils;
 
 public class CookieUtil {
+
+    private static final ObjectMapper objectMapper = new ObjectMapper()
+            .registerModule(new JavaTimeModule())
+            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
 
     public static Optional<Cookie> getCookie(HttpServletRequest request, String name) {
         Cookie[] cookies = request.getCookies();
@@ -25,6 +34,8 @@ public class CookieUtil {
         Cookie cookie = new Cookie(name, value);
         cookie.setPath("/");
         cookie.setMaxAge(maxAge);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(true);
         response.addCookie(cookie);
     }
 
@@ -45,11 +56,22 @@ public class CookieUtil {
     }
 
     public static String serialize(Object obj) {
-        return Base64.getUrlEncoder().encodeToString(SerializationUtils.serialize(obj));
+        try {
+            String json = objectMapper.writeValueAsString(obj);
+            return Base64.getUrlEncoder().encodeToString(json.getBytes(StandardCharsets.UTF_8));
+        } catch (JsonProcessingException e) {
+            throw new IllegalArgumentException("쿠키 직렬화 실패", e);
+        }
     }
 
     public static <T> T deserialize(Cookie cookie, Class<T> cls) {
-        return cls.cast(SerializationUtils.deserialize(Base64.getUrlDecoder().decode(cookie.getValue())));
+        try {
+            byte[] decoded = Base64.getUrlDecoder().decode(cookie.getValue());
+            String json = new String(decoded, StandardCharsets.UTF_8);
+            return objectMapper.readValue(json, cls);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("쿠키 역직렬화 실패", e);
+        }
     }
 
 }
