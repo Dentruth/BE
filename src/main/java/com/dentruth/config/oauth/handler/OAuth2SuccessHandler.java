@@ -94,8 +94,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         OAuth2SaveTokenEvent saveTokenEvent = new OAuth2SaveTokenEvent(userId, refreshToken);
         eventPublisher.publishEvent(saveTokenEvent);
 
-        CookieUtil.addCookie(response, "refresh_token", refreshToken,
-                (int) Duration.ofDays(14).toSeconds());
+        CookieUtil.addSecureCookie(response, "refresh_token", refreshToken, (int) Duration.ofDays(14).toSeconds());
 
         log.info("OAuth2 로그인 성공. userId: [{}], userStatus: [{}]", userId, userStatus);
 

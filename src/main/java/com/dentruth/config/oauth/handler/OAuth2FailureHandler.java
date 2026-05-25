@@ -2,7 +2,6 @@ package com.dentruth.config.oauth.handler;
 
 import com.dentruth.common.util.CookieUtil;
 import com.dentruth.config.oauth.OAuthCookieRepository;
-import com.dentruth.config.oauth.exception.OAuth2AuthenticationProcessingException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -36,7 +35,12 @@ public class OAuth2FailureHandler extends SimpleUrlAuthenticationFailureHandler 
             log.error("OAuth2 Error Code: {}", oAuth2Exception.getError().getErrorCode());
             log.error("OAuth2 Error Description: {}", oAuth2Exception.getError().getDescription());
 
-            throw new OAuth2AuthenticationProcessingException("OAuth2 인증 처리 중 오류 발생");
+            targetUrl = UriComponentsBuilder.fromUriString(targetUrl)
+                    .queryParam("error", "oauth2_authentication_failed")
+                    .build().toUriString();
+            cookieRepository.removeAuthorizationRequest(request, response);
+            getRedirectStrategy().sendRedirect(request, response, targetUrl);
+            return;
         }
 
         log.error("Authentication failed. Exception message: {}", exception.getMessage());
