@@ -8,7 +8,7 @@ import com.dentruth.common.exception.DentruthException;
 import com.dentruth.common.response.code.ErrorStatus;
 import com.dentruth.user.domain.entity.enums.Gender;
 import com.dentruth.user.domain.entity.enums.InsuranceStatus;
-import com.dentruth.user.domain.entity.enums.Language;
+import com.dentruth.common.domain.enums.Language;
 import com.dentruth.user.domain.entity.enums.StayDuration;
 import com.dentruth.user.domain.entity.enums.UserStatus;
 import java.time.LocalDate;

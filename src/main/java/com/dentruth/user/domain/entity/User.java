@@ -3,9 +3,10 @@ package com.dentruth.user.domain.entity;
 import com.dentruth.common.domain.BaseEntity;
 import com.dentruth.common.exception.DentruthException;
 import com.dentruth.common.response.code.ErrorStatus;
+import com.dentruth.config.oauth.user.OAuth2Provider;
 import com.dentruth.user.domain.entity.enums.Gender;
 import com.dentruth.user.domain.entity.enums.InsuranceStatus;
-import com.dentruth.user.domain.entity.enums.Language;
+import com.dentruth.common.domain.enums.Language;
 import com.dentruth.user.domain.entity.enums.StayDuration;
 import com.dentruth.user.domain.entity.enums.UserStatus;
 import com.dentruth.user.domain.entity.enums.UserType;
@@ -45,7 +46,6 @@ public class User extends BaseEntity {
     @Column(nullable = false)
     private String email;
 
-    @Column(nullable = false)
     private String password;
 
     @Column(nullable = false)
@@ -55,11 +55,9 @@ public class User extends BaseEntity {
     private String name;
     private LocalDate birth;
 
-    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private Gender gender;
 
-    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private Language language;
 
@@ -92,6 +90,17 @@ public class User extends BaseEntity {
                 .stayDuration(stayDuration)
                 .insuranceStatus(insuranceStatus)
                 .status(UserStatus.ACTIVE)
+                .build();
+    }
+
+    public static User oauthSignupUser(UUID userId, String email, String name, OAuth2Provider provider) {
+        return User.builder()
+                .id(userId)
+                .email(email)
+                .name(name)
+                .userType(UserType.valueOf(provider.name()))
+                .status(UserStatus.GUEST)
+                .language(Language.ENGLISH)
                 .build();
     }
 
