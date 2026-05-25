@@ -123,6 +123,8 @@ jobs:
             S3_ACCESS_KEY=${{ secrets.S3_ACCESS_KEY }}
             S3_SECRET_KEY=${{ secrets.S3_SECRET_KEY }}
             S3_REGION=${{ secrets.S3_REGION }}
+            EMAIL_GOOGLE_EMAIL=${{ secrets.EMAIL_GOOGLE_EMAIL }}
+            EMAIL_GOOGLE_PASSWORD=${{ secrets.EMAIL_GOOGLE_PASSWORD }}
             EOF
 
             # 최신 이미지 pull
