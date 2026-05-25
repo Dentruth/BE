@@ -30,7 +30,7 @@ public class OAuth2UserPrincipal implements OAuth2User, UserDetails {
 
     @Override
     public Map<String, Object> getAttributes() {
-        return Map.of();
+        return userInfo.getAttributes();
     }
 
     @Override

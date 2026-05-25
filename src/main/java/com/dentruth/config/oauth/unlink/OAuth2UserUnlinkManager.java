@@ -12,7 +12,6 @@ import org.springframework.stereotype.Component;
 public class OAuth2UserUnlinkManager {
 
     private final GoogleUserUnlink googleUserUnlink;
-    private final HttpServletResponse httpServletResponse;
 
     public void unlink(OAuth2Provider provider, String accessToken, String userEmail, HttpServletRequest request,
                        HttpServletResponse response) {

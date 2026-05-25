@@ -13,11 +13,18 @@ public class GoogleUserInfo implements OAuth2UserInfo {
     public GoogleUserInfo(Map<String, Object> attributes, String accessToken) {
         this.accessToken = accessToken;
         this.attributes = attributes;
-        this.id = (String) attributes.get("sub");
-        this.email = (String) attributes.get("email");
-        this.name = (String) attributes.get("name");
+        this.id = requireString(attributes, "sub");
+        this.email = requireString(attributes, "email");
+        this.name = requireString(attributes, "name");
     }
 
+    private static String requireString(Map<String, Object> attributes, String key) {
+        Object value = attributes.get(key);
+        if (!(value instanceof String s) || s.isBlank()) {
+            throw new IllegalArgumentException("Missing or invalid OAuth attribute: " + key);
+        }
+        return s;
+    }
 
     @Override
     public OAuth2Provider getProvider() {
