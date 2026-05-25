@@ -4,13 +4,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
+import com.dentruth.common.domain.enums.Language;
 import com.dentruth.common.exception.DentruthException;
 import com.dentruth.common.response.code.ErrorStatus;
 import com.dentruth.user.domain.entity.enums.Gender;
 import com.dentruth.user.domain.entity.enums.InsuranceStatus;
-import com.dentruth.common.domain.enums.Language;
 import com.dentruth.user.domain.entity.enums.StayDuration;
 import com.dentruth.user.domain.entity.enums.UserStatus;
+import com.dentruth.user.domain.entity.enums.UserType;
 import java.time.LocalDate;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
@@ -275,6 +276,72 @@ class UserTest {
                     .isInstanceOf(DentruthException.class)
                     .hasMessage(ErrorStatus.BAD_REQUEST.getMessage());
         }
+    }
+
+    @DisplayName("소셜 로그인 신규 유저는 GUEST 상태로 생성된다.")
+    @Test
+    void shouldCreateUserWithGuestStatus() {
+        //given
+        UUID userId = UUID.randomUUID();
+
+        //when
+        User user = User.oauthSignupUser(userId, "test@test.com", "홍길동", UserType.GOOGLE);
+
+        //then
+        assertThat(user.getStatus()).isEqualTo(UserStatus.GUEST);
+    }
+
+    @DisplayName("소셜 로그인 신규 유저의 userType은 파라미터로 전달된 값으로 설정된다.")
+    @Test
+    void shouldSetUserTypeFromParameter() {
+        //given
+        UUID userId = UUID.randomUUID();
+
+        //when
+        User user = User.oauthSignupUser(userId, "test@test.com", "홍길동", UserType.GOOGLE);
+
+        //then
+        assertThat(user.getUserType()).isEqualTo(UserType.GOOGLE);
+    }
+
+    @DisplayName("소셜 로그인 신규 유저의 이메일과 이름이 올바르게 저장된다.")
+    @Test
+    void shouldSaveEmailAndName() {
+        //given
+        UUID userId = UUID.randomUUID();
+
+        //when
+        User user = User.oauthSignupUser(userId, "test@test.com", "홍길동", UserType.GOOGLE);
+
+        //then
+        assertThat(user.getEmail()).isEqualTo("test@test.com");
+        assertThat(user.getName()).isEqualTo("홍길동");
+    }
+
+    @DisplayName("소셜 로그인 신규 유저의 id가 파라미터로 전달된 값으로 설정된다.")
+    @Test
+    void shouldSetIdFromParameter() {
+        //given
+        UUID userId = UUID.randomUUID();
+
+        //when
+        User user = User.oauthSignupUser(userId, "test@test.com", "홍길동", UserType.GOOGLE);
+
+        //then
+        assertThat(user.getId()).isEqualTo(userId);
+    }
+
+    @DisplayName("소셜 로그인 신규 유저의 language 기본값은 ENGLISH다.")
+    @Test
+    void shouldSetDefaultLanguageToEnglish() {
+        //given
+        UUID userId = UUID.randomUUID();
+
+        //when
+        User user = User.oauthSignupUser(userId, "test@test.com", "홍길동", UserType.GOOGLE);
+
+        //then
+        assertThat(user.getLanguage()).isEqualTo(Language.ENGLISH);
     }
 
 }
