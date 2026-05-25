@@ -26,7 +26,7 @@ public class GoogleUserUnlink implements OAuth2UserUnlink {
             log.info("Google token revoke succeeded for user: {}", userEmail);
         } catch (RestClientException e) {
             log.error("Failed to revoke Google token for user: [{}]", userEmail, e);
-            throw new OAuth2AuthenticationProcessingException("Google 계정 연결 해제 중 오류 발생");
+            throw new OAuth2AuthenticationProcessingException("Google 계정 연결 해제 중 오류 발생", e);
         }
     }
 
