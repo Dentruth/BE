@@ -27,11 +27,12 @@ public class JwtFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
         String token = resolveToken(request);
+        String language = jwtProvider.getLanguage(token);
 
         try {
             if (token != null && jwtProvider.validateAccessToken(token)) {
                 String userId = jwtProvider.getUserId(token);
-                CustomUserDetails userDetails = new CustomUserDetails(userId);
+                CustomUserDetails userDetails = new CustomUserDetails(userId, language);
                 UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(
                                 userDetails, null, userDetails.getAuthorities()

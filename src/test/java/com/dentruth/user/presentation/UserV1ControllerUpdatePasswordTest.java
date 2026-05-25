@@ -62,7 +62,7 @@ class UserV1ControllerUpdatePasswordTest extends ControllerTestSupport {
         //given
         UUID userId = UUID.randomUUID();
         userRepository.save(getUser(userId, Language.KOREAN, userStatus));
-        String accessToken = jwtProvider.generateAccessToken(userId.toString());
+        String accessToken = jwtProvider.generateAccessToken(userId.toString(), Language.KOREAN.name());
 
         UpdatePasswordRequest request = UpdatePasswordRequest.builder()
                 .existingPassword(existingPassword)
@@ -94,7 +94,7 @@ class UserV1ControllerUpdatePasswordTest extends ControllerTestSupport {
         //given
         UUID userId = UUID.randomUUID();
         userRepository.save(getUser(userId, Language.KOREAN, userStatus));
-        String accessToken = jwtProvider.generateAccessToken(userId.toString());
+        String accessToken = jwtProvider.generateAccessToken(userId.toString(), Language.KOREAN.name());
 
         UpdatePasswordRequest request = UpdatePasswordRequest.builder()
                 .existingPassword(existingPassword + "1234asdf")
@@ -125,7 +125,7 @@ class UserV1ControllerUpdatePasswordTest extends ControllerTestSupport {
         //given
         UUID userId = UUID.randomUUID();
         userRepository.save(getUser(userId, Language.KOREAN, userStatus));
-        String accessToken = jwtProvider.generateAccessToken(userId.toString());
+        String accessToken = jwtProvider.generateAccessToken(userId.toString(), Language.KOREAN.name());
 
         UpdatePasswordRequest request = UpdatePasswordRequest.builder()
                 .existingPassword(existingPassword)
@@ -151,7 +151,7 @@ class UserV1ControllerUpdatePasswordTest extends ControllerTestSupport {
         //given
         UUID userId = UUID.randomUUID();
         userRepository.save(getUser(userId, Language.KOREAN, UserStatus.SUSPENDED));
-        String accessToken = jwtProvider.generateAccessToken(userId.toString());
+        String accessToken = jwtProvider.generateAccessToken(userId.toString(), Language.KOREAN.name());
 
         UpdatePasswordRequest request = UpdatePasswordRequest.builder()
                 .existingPassword(existingPassword)
@@ -177,7 +177,7 @@ class UserV1ControllerUpdatePasswordTest extends ControllerTestSupport {
         //given
         UUID userId = UUID.randomUUID();
         userRepository.save(getUser(userId, Language.KOREAN, UserStatus.BLOCKED));
-        String accessToken = jwtProvider.generateAccessToken(userId.toString());
+        String accessToken = jwtProvider.generateAccessToken(userId.toString(), Language.KOREAN.name());
 
         UpdatePasswordRequest request = UpdatePasswordRequest.builder()
                 .existingPassword(existingPassword)
@@ -202,7 +202,7 @@ class UserV1ControllerUpdatePasswordTest extends ControllerTestSupport {
     void shouldReturn404NotFound_whenUserDoesNotExistDuringPasswordChange() throws Exception {
         //given
         UUID userId = UUID.randomUUID();
-        String accessToken = jwtProvider.generateAccessToken(userId.toString());
+        String accessToken = jwtProvider.generateAccessToken(userId.toString(), Language.KOREAN.name());
 
         UpdatePasswordRequest request = UpdatePasswordRequest.builder()
                 .existingPassword(existingPassword)
@@ -278,7 +278,7 @@ class UserV1ControllerUpdatePasswordTest extends ControllerTestSupport {
         //given
         UUID userId = UUID.randomUUID();
         userRepository.save(getUser(userId, Language.KOREAN, UserStatus.ACTIVE));
-        String accessToken = jwtProvider.generateAccessToken(userId.toString());
+        String accessToken = jwtProvider.generateAccessToken(userId.toString(), Language.KOREAN.name());
 
         UpdatePasswordRequest request = UpdatePasswordRequest.builder()
                 .newPassword("asdfqwer1234!")
@@ -303,7 +303,7 @@ class UserV1ControllerUpdatePasswordTest extends ControllerTestSupport {
         //given
         UUID userId = UUID.randomUUID();
         userRepository.save(getUser(userId, Language.KOREAN, UserStatus.ACTIVE));
-        String accessToken = jwtProvider.generateAccessToken(userId.toString());
+        String accessToken = jwtProvider.generateAccessToken(userId.toString(), Language.KOREAN.name());
 
         UpdatePasswordRequest request = UpdatePasswordRequest.builder()
                 .existingPassword(existingPassword)
@@ -328,7 +328,7 @@ class UserV1ControllerUpdatePasswordTest extends ControllerTestSupport {
         //given
         UUID userId = UUID.randomUUID();
         userRepository.save(getUser(userId, Language.KOREAN, UserStatus.ACTIVE));
-        String accessToken = jwtProvider.generateAccessToken(userId.toString());
+        String accessToken = jwtProvider.generateAccessToken(userId.toString(), Language.KOREAN.name());
 
         UpdatePasswordRequest request = UpdatePasswordRequest.builder()
                 .existingPassword(existingPassword)

@@ -21,11 +21,12 @@ public class JwtProvider {
         return Keys.hmacShaKeyFor(jwtProperties.secret().getBytes(StandardCharsets.UTF_8));
     }
 
-    public String generateAccessToken(String userId) {
+    public String generateAccessToken(String userId, String language) {
         return Jwts.builder()
                 .subject(String.valueOf(userId))
                 .issuedAt(new Date())
                 .claim(jwtProperties.tokenTypeClaim(), jwtProperties.accessTokenType())
+                .claim("language", language)
                 .expiration(new Date(System.currentTimeMillis() + jwtProperties.accessTokenExpiration()))
                 .signWith(getSigningKey())
                 .compact();
@@ -48,6 +49,19 @@ public class JwtProvider {
                 .parseSignedClaims(token)
                 .getPayload()
                 .getSubject();
+    }
+
+    public String getLanguage(String token) {
+        try {
+            return Jwts.parser()
+                    .verifyWith(getSigningKey())
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload()
+                    .get("language", String.class);
+        } catch (Exception e) {
+            return "ko";
+        }
     }
 
     public boolean validateAccessToken(String token) {

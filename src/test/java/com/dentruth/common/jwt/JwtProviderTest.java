@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.dentruth.common.exception.JwtAuthenticationException;
 import com.dentruth.common.response.code.ErrorStatus;
+import com.dentruth.user.domain.entity.enums.Language;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import java.nio.charset.StandardCharsets;
@@ -45,7 +46,7 @@ class JwtProviderTest {
     @Test
     void shouldGenerateAccessToken_successfully() {
         //when
-        String token = jwtProvider.generateAccessToken(USER_ID);
+        String token = jwtProvider.generateAccessToken(USER_ID, Language.KOREAN.name());
 
         //then
         assertThat(token).isNotNull();
@@ -67,7 +68,7 @@ class JwtProviderTest {
     @Test
     void shouldExtractUserIdFromToken_successfully() {
         //given
-        String token = jwtProvider.generateAccessToken(USER_ID);
+        String token = jwtProvider.generateAccessToken(USER_ID, Language.KOREAN.name());
 
         //when
         String extractedUserId = jwtProvider.getUserId(token);
@@ -76,11 +77,24 @@ class JwtProviderTest {
         assertThat(extractedUserId).isEqualTo(USER_ID);
     }
 
+    @DisplayName("토큰에서 언어를 추출할 수 있다.")
+    @Test
+    void shouldExtractLanguageFromToken_successfully() {
+        //given
+        String token = jwtProvider.generateAccessToken(USER_ID, Language.KOREAN.name());
+
+        //when
+        String extractedUserId = jwtProvider.getLanguage(token);
+
+        //then
+        assertThat(extractedUserId).isEqualTo(Language.KOREAN.name());
+    }
+
     @DisplayName("유효한 토큰은 검증을 통과한다.")
     @Test
     void shouldPassValidation_whenTokenIsValid() {
         //given
-        String token = jwtProvider.generateAccessToken(USER_ID);
+        String token = jwtProvider.generateAccessToken(USER_ID, Language.KOREAN.name());
 
         //when
         boolean validateToken = jwtProvider.validateAccessToken(token);

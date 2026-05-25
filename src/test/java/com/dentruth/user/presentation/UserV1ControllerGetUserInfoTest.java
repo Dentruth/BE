@@ -55,7 +55,7 @@ class UserV1ControllerGetUserInfoTest extends ControllerTestSupport {
         //given
         UUID userId = UUID.randomUUID();
         userRepository.save(getUser(userId, Language.KOREAN, userStatus));
-        String accessToken = jwtProvider.generateAccessToken(userId.toString());
+        String accessToken = jwtProvider.generateAccessToken(userId.toString(), Language.KOREAN.name());
 
         //when
         MvcResult mvcResult = mockMvc.perform(get("/api/v1/users/me")
@@ -91,7 +91,7 @@ class UserV1ControllerGetUserInfoTest extends ControllerTestSupport {
         //given
         UUID userId = UUID.randomUUID();
         userRepository.save(getUser(userId, language, UserStatus.ACTIVE));
-        String accessToken = jwtProvider.generateAccessToken(userId.toString());
+        String accessToken = jwtProvider.generateAccessToken(userId.toString(), Language.KOREAN.name());
 
         //when
         MvcResult mvcResult = mockMvc.perform(get("/api/v1/users/me")
@@ -126,7 +126,7 @@ class UserV1ControllerGetUserInfoTest extends ControllerTestSupport {
         //given
         UUID userId = UUID.randomUUID();
         userRepository.save(getUser(userId, Language.KOREAN, UserStatus.ACTIVE));
-        String accessToken = jwtProvider.generateAccessToken(userId.toString());
+        String accessToken = jwtProvider.generateAccessToken(userId.toString(), Language.KOREAN.name());
 
         //when
         MvcResult mvcResult = mockMvc.perform(get("/api/v1/users/me")
@@ -162,7 +162,7 @@ class UserV1ControllerGetUserInfoTest extends ControllerTestSupport {
         //given
         UUID userId = UUID.randomUUID();
         userRepository.save(getUser(userId, Language.KOREAN, userStatus));
-        String accessToken = jwtProvider.generateAccessToken(userId.toString());
+        String accessToken = jwtProvider.generateAccessToken(userId.toString(), Language.KOREAN.name());
 
         //when
         mockMvc.perform(get("/api/v1/users/me")
@@ -181,7 +181,7 @@ class UserV1ControllerGetUserInfoTest extends ControllerTestSupport {
         //given
         UUID userId = UUID.randomUUID();
         userRepository.save(getUser(userId, Language.KOREAN, UserStatus.SUSPENDED));
-        String accessToken = jwtProvider.generateAccessToken(userId.toString());
+        String accessToken = jwtProvider.generateAccessToken(userId.toString(), Language.KOREAN.name());
 
         //when
         mockMvc.perform(get("/api/v1/users/me")
@@ -200,7 +200,7 @@ class UserV1ControllerGetUserInfoTest extends ControllerTestSupport {
         //given
         UUID userId = UUID.randomUUID();
         userRepository.save(getUser(userId, Language.KOREAN, UserStatus.BLOCKED));
-        String accessToken = jwtProvider.generateAccessToken(userId.toString());
+        String accessToken = jwtProvider.generateAccessToken(userId.toString(), Language.KOREAN.name());
 
         //when
         mockMvc.perform(get("/api/v1/users/me")
@@ -218,7 +218,7 @@ class UserV1ControllerGetUserInfoTest extends ControllerTestSupport {
     void shouldReturn404NotFound_whenUserDoesNotExist() throws Exception {
         //given
         UUID userId = UUID.randomUUID();
-        String accessToken = jwtProvider.generateAccessToken(userId.toString());
+        String accessToken = jwtProvider.generateAccessToken(userId.toString(), Language.KOREAN.name());
 
         //when
         mockMvc.perform(get("/api/v1/users/me")

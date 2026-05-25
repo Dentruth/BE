@@ -2,6 +2,7 @@ package com.dentruth.user.presentation;
 
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -9,6 +10,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.dentruth.common.jwt.JwtProperties;
 import com.dentruth.common.jwt.JwtProvider;
 import com.dentruth.user.application.TokenService;
+import com.dentruth.user.application.UserService;
+import com.dentruth.user.domain.entity.User;
+import com.dentruth.user.domain.entity.enums.Language;
 import com.dentruth.user.presentation.dto.request.TokenRefreshRequest;
 import java.util.Date;
 import java.util.UUID;
@@ -31,6 +35,9 @@ class AuthV1ControllerRefreshTest extends ControllerTestSupport {
     @Autowired
     private JwtProperties jwtProperties;
 
+    @MockitoBean
+    private UserService userService;
+
     @DisplayName("올바른 Refresh Token으로 재발급을 요청하면 새로운 토큰 세트를 반환한다.")
     @Test
     void shouldReturnNewTokens_whenRefreshTokenIsValid() throws Exception {
@@ -40,6 +47,9 @@ class AuthV1ControllerRefreshTest extends ControllerTestSupport {
 
         TokenRefreshRequest request = new TokenRefreshRequest(originalRefreshToken);
 
+        User mockUser = mock(User.class);
+        given(mockUser.getLanguage()).willReturn(Language.KOREAN);
+        given(userService.findById(userId, "토큰 재발급")).willReturn(mockUser);
         given(tokenService.getRefreshToken(userId)).willReturn(originalRefreshToken);
 
         //when, then
@@ -104,6 +114,9 @@ class AuthV1ControllerRefreshTest extends ControllerTestSupport {
 
         TokenRefreshRequest request = new TokenRefreshRequest(clientRefreshToken);
 
+        User mockUser = mock(User.class);
+        given(mockUser.getLanguage()).willReturn(Language.KOREAN);
+        given(userService.findById(userId, "토큰 재발급")).willReturn(mockUser);
         given(tokenService.getRefreshToken(eq(userId))).willReturn(dbRefreshToken);
 
         //when, then
