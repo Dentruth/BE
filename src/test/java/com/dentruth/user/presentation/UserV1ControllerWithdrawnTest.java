@@ -60,13 +60,13 @@ class UserV1ControllerWithdrawnTest extends ControllerTestSupport {
 
         WithdrawnRequest request = new WithdrawnRequest("password1234!");
 
-        String token = jwtProvider.generateAccessToken(userId.toString());
+        String token = jwtProvider.generateAccessToken(userId.toString(), Language.KOREAN.name());
 
         //when
         mockMvc.perform(delete("/api/v1/users/me")
-                .contentType(MediaType.APPLICATION_JSON)
-                .header(HttpHeaders.AUTHORIZATION, "Bearer "+token)
-                .content(objectMapper.writeValueAsString(request)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+                        .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isNoContent());
 
         //then
@@ -91,12 +91,12 @@ class UserV1ControllerWithdrawnTest extends ControllerTestSupport {
 
         WithdrawnRequest request = new WithdrawnRequest("asdfqwer1234!");
 
-        String token = jwtProvider.generateAccessToken(userId.toString());
+        String token = jwtProvider.generateAccessToken(userId.toString(), Language.KOREAN.name());
 
         //when
         mockMvc.perform(delete("/api/v1/users/me")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header(HttpHeaders.AUTHORIZATION, "Bearer "+token)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
                         .content(objectMapper.writeValueAsString(request)))
                 //then
                 .andExpect(status().isBadRequest())
@@ -119,12 +119,12 @@ class UserV1ControllerWithdrawnTest extends ControllerTestSupport {
 
         WithdrawnRequest request = new WithdrawnRequest("asdfqwer1234!");
 
-        String token = jwtProvider.generateAccessToken(userId.toString());
+        String token = jwtProvider.generateAccessToken(userId.toString(), Language.KOREAN.name());
 
         //when
         mockMvc.perform(delete("/api/v1/users/me")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header(HttpHeaders.AUTHORIZATION, "Bearer "+token)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
                         .content(objectMapper.writeValueAsString(request)))
                 //then
                 .andExpect(status().isNotFound())
@@ -136,7 +136,8 @@ class UserV1ControllerWithdrawnTest extends ControllerTestSupport {
     @DisplayName("유저가 WITHDRAWN 상태거나 DELETED 상태면 404를 반환하고, 탈퇴에 실패한다.")
     @ParameterizedTest(name = "[{index}] 유저 상태: {0}")
     @EnumSource(value = UserStatus.class, names = {"WITHDRAWN", "DELETED"})
-    void shouldReturn404NotFound_whenUserIsAlreadyWithdrawnOrDeletedDuringWithdrawal(UserStatus status) throws Exception {
+    void shouldReturn404NotFound_whenUserIsAlreadyWithdrawnOrDeletedDuringWithdrawal(UserStatus status)
+            throws Exception {
         //given
         UUID userId = UUID.randomUUID();
         String encodedPassword = passwordEncoder.encode("password1234!");
@@ -147,12 +148,12 @@ class UserV1ControllerWithdrawnTest extends ControllerTestSupport {
 
         WithdrawnRequest request = new WithdrawnRequest("password1234!");
 
-        String token = jwtProvider.generateAccessToken(userId.toString());
+        String token = jwtProvider.generateAccessToken(userId.toString(), Language.KOREAN.name());
 
         //when
         mockMvc.perform(delete("/api/v1/users/me")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header(HttpHeaders.AUTHORIZATION, "Bearer "+token)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
                         .content(objectMapper.writeValueAsString(request)))
                 //then
                 .andExpect(status().isNotFound())
@@ -180,12 +181,12 @@ class UserV1ControllerWithdrawnTest extends ControllerTestSupport {
 
         WithdrawnRequest request = new WithdrawnRequest("password1234!");
 
-        String token = jwtProvider.generateAccessToken(userId.toString());
+        String token = jwtProvider.generateAccessToken(userId.toString(), Language.KOREAN.name());
 
         //when
         mockMvc.perform(delete("/api/v1/users/me")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header(HttpHeaders.AUTHORIZATION, "Bearer "+token)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
                         .content(objectMapper.writeValueAsString(request)))
                 //then
                 .andExpect(status().isForbidden())
@@ -212,12 +213,12 @@ class UserV1ControllerWithdrawnTest extends ControllerTestSupport {
 
         WithdrawnRequest request = new WithdrawnRequest("password1234!");
 
-        String token = jwtProvider.generateAccessToken(userId.toString());
+        String token = jwtProvider.generateAccessToken(userId.toString(), Language.KOREAN.name());
 
         //when
         mockMvc.perform(delete("/api/v1/users/me")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header(HttpHeaders.AUTHORIZATION, "Bearer "+token)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
                         .content(objectMapper.writeValueAsString(request)))
                 //then
                 .andExpect(status().isForbidden())

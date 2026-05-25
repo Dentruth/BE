@@ -59,7 +59,7 @@ class UserV1ControllerUpdateUserInfoTest extends ControllerTestSupport {
         userRepository.save(user);
         UpdateUserInfoRequest request = getUpdateUserInfoRequest();
 
-        String token = jwtProvider.generateAccessToken(userId.toString());
+        String token = jwtProvider.generateAccessToken(userId.toString(), Language.KOREAN.name());
 
         //when
         MvcResult mvcResult = mockMvc.perform(put("/api/v1/users/me")
@@ -106,7 +106,7 @@ class UserV1ControllerUpdateUserInfoTest extends ControllerTestSupport {
         userRepository.save(user);
         UpdateUserInfoRequest request = getUpdateUserInfoRequest();
 
-        String token = jwtProvider.generateAccessToken(userId.toString());
+        String token = jwtProvider.generateAccessToken(userId.toString(), Language.KOREAN.name());
 
         //when
         mockMvc.perform(put("/api/v1/users/me")
@@ -138,7 +138,7 @@ class UserV1ControllerUpdateUserInfoTest extends ControllerTestSupport {
         userRepository.save(user);
         UpdateUserInfoRequest request = getUpdateUserInfoRequest();
 
-        String token = jwtProvider.generateAccessToken(userId.toString());
+        String token = jwtProvider.generateAccessToken(userId.toString(), Language.KOREAN.name());
 
         //when
         mockMvc.perform(put("/api/v1/users/me")
@@ -170,7 +170,7 @@ class UserV1ControllerUpdateUserInfoTest extends ControllerTestSupport {
         userRepository.save(user);
         UpdateUserInfoRequest request = getUpdateUserInfoRequest();
 
-        String token = jwtProvider.generateAccessToken(userId.toString());
+        String token = jwtProvider.generateAccessToken(userId.toString(), Language.KOREAN.name());
 
         //when
         mockMvc.perform(put("/api/v1/users/me")
@@ -200,7 +200,7 @@ class UserV1ControllerUpdateUserInfoTest extends ControllerTestSupport {
         UUID userId = UUID.randomUUID();
         UpdateUserInfoRequest request = getUpdateUserInfoRequest();
 
-        String token = jwtProvider.generateAccessToken(userId.toString());
+        String token = jwtProvider.generateAccessToken(userId.toString(), Language.KOREAN.name());
 
         //when
         mockMvc.perform(put("/api/v1/users/me")
@@ -231,7 +231,7 @@ class UserV1ControllerUpdateUserInfoTest extends ControllerTestSupport {
                 .insuranceStatus("INSURED")
                 .build();
 
-        String token = jwtProvider.generateAccessToken(userId.toString());
+        String token = jwtProvider.generateAccessToken(userId.toString(), Language.KOREAN.name());
 
         //when
         mockMvc.perform(put("/api/v1/users/me")
@@ -272,7 +272,7 @@ class UserV1ControllerUpdateUserInfoTest extends ControllerTestSupport {
                 .insuranceStatus("INSURED")
                 .build();
 
-        String token = jwtProvider.generateAccessToken(userId.toString());
+        String token = jwtProvider.generateAccessToken(userId.toString(), Language.KOREAN.name());
 
         //when
         mockMvc.perform(put("/api/v1/users/me")
@@ -313,7 +313,7 @@ class UserV1ControllerUpdateUserInfoTest extends ControllerTestSupport {
                 .insuranceStatus("INSURED")
                 .build();
 
-        String token = jwtProvider.generateAccessToken(userId.toString());
+        String token = jwtProvider.generateAccessToken(userId.toString(), Language.KOREAN.name());
 
         //when
         mockMvc.perform(put("/api/v1/users/me")
@@ -353,7 +353,7 @@ class UserV1ControllerUpdateUserInfoTest extends ControllerTestSupport {
                 .insuranceStatus("INSURED")
                 .build();
 
-        String token = jwtProvider.generateAccessToken(userId.toString());
+        String token = jwtProvider.generateAccessToken(userId.toString(), Language.KOREAN.name());
 
         //when
         mockMvc.perform(put("/api/v1/users/me")
@@ -394,7 +394,7 @@ class UserV1ControllerUpdateUserInfoTest extends ControllerTestSupport {
                 .insuranceStatus("INSURED")
                 .build();
 
-        String token = jwtProvider.generateAccessToken(userId.toString());
+        String token = jwtProvider.generateAccessToken(userId.toString(), Language.KOREAN.name());
 
         //when
         mockMvc.perform(put("/api/v1/users/me")
@@ -434,7 +434,7 @@ class UserV1ControllerUpdateUserInfoTest extends ControllerTestSupport {
                 .insuranceStatus("INSURED")
                 .build();
 
-        String token = jwtProvider.generateAccessToken(userId.toString());
+        String token = jwtProvider.generateAccessToken(userId.toString(), Language.KOREAN.name());
 
         //when
         mockMvc.perform(put("/api/v1/users/me")
@@ -473,7 +473,7 @@ class UserV1ControllerUpdateUserInfoTest extends ControllerTestSupport {
                 .insuranceStatus("INSURED")
                 .build();
 
-        String token = jwtProvider.generateAccessToken(userId.toString());
+        String token = jwtProvider.generateAccessToken(userId.toString(), Language.KOREAN.name());
 
         //when
         mockMvc.perform(put("/api/v1/users/me")
@@ -513,7 +513,7 @@ class UserV1ControllerUpdateUserInfoTest extends ControllerTestSupport {
                 .insuranceStatus("INSURED")
                 .build();
 
-        String token = jwtProvider.generateAccessToken(userId.toString());
+        String token = jwtProvider.generateAccessToken(userId.toString(), Language.KOREAN.name());
 
         //when
         mockMvc.perform(put("/api/v1/users/me")
@@ -554,7 +554,7 @@ class UserV1ControllerUpdateUserInfoTest extends ControllerTestSupport {
                 .insuranceStatus("INSURED")
                 .build();
 
-        String token = jwtProvider.generateAccessToken(userId.toString());
+        String token = jwtProvider.generateAccessToken(userId.toString(), Language.KOREAN.name());
 
         //when
         mockMvc.perform(put("/api/v1/users/me")
@@ -594,7 +594,7 @@ class UserV1ControllerUpdateUserInfoTest extends ControllerTestSupport {
                 .insuranceStatus("INSURED")
                 .build();
 
-        String token = jwtProvider.generateAccessToken(userId.toString());
+        String token = jwtProvider.generateAccessToken(userId.toString(), Language.KOREAN.name());
 
         //when
         mockMvc.perform(put("/api/v1/users/me")
@@ -635,7 +635,7 @@ class UserV1ControllerUpdateUserInfoTest extends ControllerTestSupport {
                 .insuranceStatus("INSURED")
                 .build();
 
-        String token = jwtProvider.generateAccessToken(userId.toString());
+        String token = jwtProvider.generateAccessToken(userId.toString(), Language.KOREAN.name());
 
         //when
         mockMvc.perform(put("/api/v1/users/me")
@@ -675,7 +675,7 @@ class UserV1ControllerUpdateUserInfoTest extends ControllerTestSupport {
                 .insuranceStatus("INSURED")
                 .build();
 
-        String token = jwtProvider.generateAccessToken(userId.toString());
+        String token = jwtProvider.generateAccessToken(userId.toString(), Language.KOREAN.name());
 
         //when
         mockMvc.perform(put("/api/v1/users/me")
@@ -716,7 +716,7 @@ class UserV1ControllerUpdateUserInfoTest extends ControllerTestSupport {
                 .insuranceStatus("INSURED")
                 .build();
 
-        String token = jwtProvider.generateAccessToken(userId.toString());
+        String token = jwtProvider.generateAccessToken(userId.toString(), Language.KOREAN.name());
 
         //when
         mockMvc.perform(put("/api/v1/users/me")
@@ -756,7 +756,7 @@ class UserV1ControllerUpdateUserInfoTest extends ControllerTestSupport {
                 .stayDuration("ONE_TO_THREE_M")
                 .build();
 
-        String token = jwtProvider.generateAccessToken(userId.toString());
+        String token = jwtProvider.generateAccessToken(userId.toString(), Language.KOREAN.name());
 
         //when
         mockMvc.perform(put("/api/v1/users/me")
@@ -797,7 +797,7 @@ class UserV1ControllerUpdateUserInfoTest extends ControllerTestSupport {
                 .insuranceStatus("ONE_TO_THREE_M")
                 .build();
 
-        String token = jwtProvider.generateAccessToken(userId.toString());
+        String token = jwtProvider.generateAccessToken(userId.toString(), Language.KOREAN.name());
 
         //when
         mockMvc.perform(put("/api/v1/users/me")
@@ -829,7 +829,7 @@ class UserV1ControllerUpdateUserInfoTest extends ControllerTestSupport {
         userRepository.save(user);
         UpdateUserInfoRequest request = getUpdateUserInfoRequest();
 
-        String token = jwtProvider.generateAccessToken(userId.toString());
+        String token = jwtProvider.generateAccessToken(userId.toString(), Language.KOREAN.name());
 
         //when
         mockMvc.perform(put("/api/v1/users/me")

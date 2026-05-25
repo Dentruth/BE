@@ -2,8 +2,12 @@ package com.dentruth.user.application;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.BDDMockito.given;
 
 import com.dentruth.common.exception.DentruthException;
+import com.dentruth.common.jwt.JwtProvider;
 import com.dentruth.common.response.code.ErrorStatus;
 import com.dentruth.user.application.dto.request.UpdateUserInfoApplicationRequest;
 import com.dentruth.user.application.dto.response.UserInfoResponse;
@@ -23,7 +27,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
-import org.mockito.BDDMockito;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -37,6 +40,9 @@ class UserServiceUpdateUserInfoTest {
     @Mock
     private UserRepository userRepository;
 
+    @Mock
+    private JwtProvider jwtProvider;
+
     @DisplayName("유저 정보 업데이트에 성공한다.")
     @Test
     void shouldSucceedUpdateUserInfo_whenRequestIsValid() {
@@ -45,7 +51,8 @@ class UserServiceUpdateUserInfoTest {
         User user = getUser(userId, UserStatus.ACTIVE);
         UpdateUserInfoApplicationRequest request = getUpdateUserInfoApplicationRequest();
 
-        BDDMockito.given(userRepository.findById(userId)).willReturn(Optional.of(user));
+        given(userRepository.findById(userId)).willReturn(Optional.of(user));
+        given(jwtProvider.generateAccessToken(any(),anyString())).willReturn("token");
 
         //when
         UserInfoResponse userInfoResponse = userService.updateUserInfo(userId, request);
@@ -59,6 +66,7 @@ class UserServiceUpdateUserInfoTest {
         assertThat(userInfoResponse.getNationality()).isEqualTo(request.getNationality());
         assertThat(userInfoResponse.getStayDuration()).isEqualTo(request.getStayDuration().getKo());
         assertThat(userInfoResponse.getInsuranceStatus()).isEqualTo(request.getInsuranceStatus().getKo());
+        assertThat(userInfoResponse.getAccessToken()).isEqualTo("token");
     }
 
     @DisplayName("유저가 WITHDRAWN, DELETED 상태면 예외가 발생하고 유저 정보 업데이트에 실패한다.")
@@ -70,7 +78,7 @@ class UserServiceUpdateUserInfoTest {
         User user = getUser(userId, status);
         UpdateUserInfoApplicationRequest request = getUpdateUserInfoApplicationRequest();
 
-        BDDMockito.given(userRepository.findById(userId)).willReturn(Optional.of(user));
+        given(userRepository.findById(userId)).willReturn(Optional.of(user));
 
         //when, then
         assertThatThrownBy(() -> userService.updateUserInfo(userId, request))
@@ -86,7 +94,7 @@ class UserServiceUpdateUserInfoTest {
         User user = getUser(userId, UserStatus.SUSPENDED);
         UpdateUserInfoApplicationRequest request = getUpdateUserInfoApplicationRequest();
 
-        BDDMockito.given(userRepository.findById(userId)).willReturn(Optional.of(user));
+        given(userRepository.findById(userId)).willReturn(Optional.of(user));
 
         //when, then
         assertThatThrownBy(() -> userService.updateUserInfo(userId, request))
@@ -102,7 +110,7 @@ class UserServiceUpdateUserInfoTest {
         User user = getUser(userId, UserStatus.BLOCKED);
         UpdateUserInfoApplicationRequest request = getUpdateUserInfoApplicationRequest();
 
-        BDDMockito.given(userRepository.findById(userId)).willReturn(Optional.of(user));
+        given(userRepository.findById(userId)).willReturn(Optional.of(user));
 
         //when, then
         assertThatThrownBy(() -> userService.updateUserInfo(userId, request))
@@ -117,7 +125,7 @@ class UserServiceUpdateUserInfoTest {
         UUID userId = UUID.randomUUID();
         UpdateUserInfoApplicationRequest request = getUpdateUserInfoApplicationRequest();
 
-        BDDMockito.given(userRepository.findById(userId)).willReturn(Optional.empty());
+        given(userRepository.findById(userId)).willReturn(Optional.empty());
 
         //when, then
         assertThatThrownBy(() -> userService.updateUserInfo(userId, request))
@@ -142,7 +150,7 @@ class UserServiceUpdateUserInfoTest {
                 .insuranceStatus(InsuranceStatus.INSURED)
                 .build();
 
-        BDDMockito.given(userRepository.findById(userId)).willReturn(Optional.of(user));
+        given(userRepository.findById(userId)).willReturn(Optional.of(user));
 
         //when, then
         assertThatThrownBy(() -> userService.updateUserInfo(userId, request))
@@ -168,7 +176,7 @@ class UserServiceUpdateUserInfoTest {
                 .insuranceStatus(InsuranceStatus.INSURED)
                 .build();
 
-        BDDMockito.given(userRepository.findById(userId)).willReturn(Optional.of(user));
+        given(userRepository.findById(userId)).willReturn(Optional.of(user));
 
         //when, then
         assertThatThrownBy(() -> userService.updateUserInfo(userId, request))
@@ -194,7 +202,7 @@ class UserServiceUpdateUserInfoTest {
                 .insuranceStatus(InsuranceStatus.INSURED)
                 .build();
 
-        BDDMockito.given(userRepository.findById(userId)).willReturn(Optional.of(user));
+        given(userRepository.findById(userId)).willReturn(Optional.of(user));
 
         //when, then
         assertThatThrownBy(() -> userService.updateUserInfo(userId, request))
@@ -219,7 +227,7 @@ class UserServiceUpdateUserInfoTest {
                 .insuranceStatus(InsuranceStatus.INSURED)
                 .build();
 
-        BDDMockito.given(userRepository.findById(userId)).willReturn(Optional.of(user));
+        given(userRepository.findById(userId)).willReturn(Optional.of(user));
 
         //when, then
         assertThatThrownBy(() -> userService.updateUserInfo(userId, request))
@@ -245,7 +253,7 @@ class UserServiceUpdateUserInfoTest {
                 .insuranceStatus(InsuranceStatus.INSURED)
                 .build();
 
-        BDDMockito.given(userRepository.findById(userId)).willReturn(Optional.of(user));
+        given(userRepository.findById(userId)).willReturn(Optional.of(user));
 
         //when, then
         assertThatThrownBy(() -> userService.updateUserInfo(userId, request))
@@ -271,7 +279,7 @@ class UserServiceUpdateUserInfoTest {
                 .insuranceStatus(InsuranceStatus.INSURED)
                 .build();
 
-        BDDMockito.given(userRepository.findById(userId)).willReturn(Optional.of(user));
+        given(userRepository.findById(userId)).willReturn(Optional.of(user));
 
         //when, then
         assertThatThrownBy(() -> userService.updateUserInfo(userId, request))
@@ -296,7 +304,7 @@ class UserServiceUpdateUserInfoTest {
                 .insuranceStatus(InsuranceStatus.INSURED)
                 .build();
 
-        BDDMockito.given(userRepository.findById(userId)).willReturn(Optional.of(user));
+        given(userRepository.findById(userId)).willReturn(Optional.of(user));
 
         //when, then
         assertThatThrownBy(() -> userService.updateUserInfo(userId, request))
@@ -321,7 +329,7 @@ class UserServiceUpdateUserInfoTest {
                 .insuranceStatus(InsuranceStatus.INSURED)
                 .build();
 
-        BDDMockito.given(userRepository.findById(userId)).willReturn(Optional.of(user));
+        given(userRepository.findById(userId)).willReturn(Optional.of(user));
 
         //when, then
         assertThatThrownBy(() -> userService.updateUserInfo(userId, request))
@@ -346,7 +354,7 @@ class UserServiceUpdateUserInfoTest {
                 .insuranceStatus(InsuranceStatus.INSURED)
                 .build();
 
-        BDDMockito.given(userRepository.findById(userId)).willReturn(Optional.of(user));
+        given(userRepository.findById(userId)).willReturn(Optional.of(user));
 
         //when, then
         assertThatThrownBy(() -> userService.updateUserInfo(userId, request))
@@ -371,7 +379,7 @@ class UserServiceUpdateUserInfoTest {
                 .insuranceStatus(InsuranceStatus.INSURED)
                 .build();
 
-        BDDMockito.given(userRepository.findById(userId)).willReturn(Optional.of(user));
+        given(userRepository.findById(userId)).willReturn(Optional.of(user));
 
         //when, then
         assertThatThrownBy(() -> userService.updateUserInfo(userId, request))
@@ -396,7 +404,7 @@ class UserServiceUpdateUserInfoTest {
                 .stayDuration(StayDuration.ONE_TO_THREE_M)
                 .build();
 
-        BDDMockito.given(userRepository.findById(userId)).willReturn(Optional.of(user));
+        given(userRepository.findById(userId)).willReturn(Optional.of(user));
 
         //when, then
         assertThatThrownBy(() -> userService.updateUserInfo(userId, request))

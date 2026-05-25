@@ -1,6 +1,7 @@
 package com.dentruth.user.application;
 
 import com.dentruth.common.exception.DentruthException;
+import com.dentruth.common.jwt.JwtProvider;
 import com.dentruth.common.response.code.ErrorStatus;
 import com.dentruth.common.util.SecurityUtils;
 import com.dentruth.user.application.dto.request.UpdateUserInfoApplicationRequest;
@@ -21,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final JwtProvider jwtProvider;
 
     @Transactional(readOnly = true)
     public User findValidUserByEmail(String method, String email) {
@@ -46,7 +48,7 @@ public class UserService {
         User user = findById(userId, "유저 정보 조회");
         user.validateStatus();
 
-        return UserInfoResponse.from(user);
+        return UserInfoResponse.from(user, null);
     }
 
     @Transactional
@@ -58,7 +60,9 @@ public class UserService {
         user.updateInfo(request.getName(), request.getLanguage(), request.getBirthDate(), request.getGender(),
                 request.getRegion(), request.getStayDuration(), request.getInsuranceStatus(), request.getNationality());
 
-        return UserInfoResponse.from(user);
+        String accessToken = jwtProvider.generateAccessToken(userId.toString(), user.getLanguage().toString());
+
+        return UserInfoResponse.from(user, accessToken);
     }
 
     @Transactional(readOnly = true)

@@ -30,7 +30,7 @@ public class AuthFacade {
         user.validateStatus();
         authService.verifyPassword(request.getPassword(), user.getPassword());
 
-        String accessToken = jwtProvider.generateAccessToken(user.getId().toString());
+        String accessToken = jwtProvider.generateAccessToken(user.getId().toString(), user.getLanguage().toString());
         String refreshToken = jwtProvider.generateRefreshToken(user.getId().toString());
 
         tokenService.saveRefreshToken(user.getId(), refreshToken);
@@ -50,15 +50,16 @@ public class AuthFacade {
 
         String userIdStr = jwtProvider.getUserId(refreshToken);
         UUID userId = UUID.fromString(userIdStr);
+        User user = userService.findById(userId, "토큰 재발급");
 
         String storedRefreshToken = tokenService.getRefreshToken(userId);
 
-        if (storedRefreshToken == null || !storedRefreshToken.equals(refreshToken)){
+        if (storedRefreshToken == null || !storedRefreshToken.equals(refreshToken)) {
             log.warn("토큰 재발급 실패. Redis에 저장된 토큰과 일치하지 않거나 이미 로그아웃된 유저. User Id : [{}]", userId);
             throw new JwtAuthenticationException(ErrorStatus.INVALID_TOKEN);
         }
 
-        String newAccessToken = jwtProvider.generateAccessToken(userIdStr);
+        String newAccessToken = jwtProvider.generateAccessToken(userIdStr, user.getLanguage().toString());
         String newRefreshToken = jwtProvider.generateRefreshToken(userIdStr);
 
         tokenService.saveRefreshToken(userId, newRefreshToken);

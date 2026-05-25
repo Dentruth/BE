@@ -12,6 +12,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 public class CustomUserDetails implements UserDetails {
 
     private final String userId;
+    private final String language;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -47,4 +48,5 @@ public class CustomUserDetails implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
+
 }

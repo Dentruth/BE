@@ -18,8 +18,9 @@ public class UserInfoResponse {
     private final String stayDuration;
     private final String insuranceStatus;
     private final String nationality;
+    private final String accessToken;
 
-    public static UserInfoResponse from(User user) {
+    public static UserInfoResponse from(User user, String accessToken) {
         Language lang = user.getLanguage();
 
         boolean isKorean = (lang == Language.KOREAN);
@@ -33,6 +34,7 @@ public class UserInfoResponse {
                 .stayDuration(isKorean ? user.getStayDuration().getKo() : user.getStayDuration().getEng())
                 .insuranceStatus(isKorean ? user.getInsuranceStatus().getKo() : user.getInsuranceStatus().getEng())
                 .nationality(user.getNationality())
+                .accessToken(accessToken)
                 .build();
     }
 
