@@ -382,7 +382,7 @@ class AuthV1ControllerSignupTest extends ControllerTestSupport {
                 .andExpect(jsonPath("$.result.password").value("유효한 비밀번호 형식이 아닙니다."));
     }
 
-    @DisplayName("이름이 2자 미만 또는 20자 초과면 회원가입에 실패하고 400 에러를 반환한다.")
+    @DisplayName("이름이 2자 미만 또는 50자 초과면 회원가입에 실패하고 400 에러를 반환한다.")
     @Test
     void shouldReturn400BadRequest_whenNameSizeIsInvalid() throws Exception {
         //given
@@ -396,7 +396,7 @@ class AuthV1ControllerSignupTest extends ControllerTestSupport {
                 .andExpect(jsonPath("$.isSuccess").value(false))
                 .andExpect(jsonPath("$.code").value("COMMON_400"))
                 .andExpect(jsonPath("$.message").value("잘못된 요청입니다."))
-                .andExpect(jsonPath("$.result.name").value("이름은 2~20자 사이여야 합니다."));
+                .andExpect(jsonPath("$.result.name").value("이름은 2~50자 사이여야 합니다."));
     }
 
     @DisplayName("정해진 언어가 아니라면 회원가입에 실패하고 400 에러를 반환한다.")

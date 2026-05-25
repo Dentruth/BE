@@ -15,6 +15,7 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.UUID;
 import lombok.AccessLevel;
@@ -23,14 +24,16 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
 
 @Entity
 @Table(name = "users")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-@ToString(exclude = {"password", "email", "address"})
+@ToString(exclude = {"password", "email", "region", "nationality", "birth"})
 @Getter
 @Builder
+@Slf4j
 public class User extends BaseEntity {
 
     @Id
@@ -70,6 +73,8 @@ public class User extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private UserStatus status;
 
+    private static final String PASSWORD_REGEX = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]{8,20}$";
+
     public static User localSignupUser(UUID id, String email, String region, String nationality, String password,
                                        String name, LocalDate birth, Gender gender, Language language,
                                        StayDuration stayDuration, InsuranceStatus insuranceStatus) {
@@ -108,6 +113,104 @@ public class User extends BaseEntity {
 
             default -> {
             }
+        }
+    }
+
+    public void updateInfo(String name, Language language, LocalDate birthDate, Gender gender, String region,
+                           StayDuration stayDuration, InsuranceStatus insuranceStatus, String nationality) {
+        validateName(name);
+        validateBirthDate(birthDate);
+        validateLocationAndIdentity(region, nationality);
+        validateRequiredEnums(language, gender, stayDuration, insuranceStatus);
+
+        this.name = name;
+        this.language = language;
+        this.birth = birthDate;
+        this.gender = gender;
+        this.region = region;
+        this.stayDuration = stayDuration;
+        this.insuranceStatus = insuranceStatus;
+        this.nationality = nationality;
+    }
+
+    private void validateName(String name) {
+        if (name == null || name.trim().isEmpty()) {
+            log.warn("도메인 제약 위반: 이름이 비어있음. User Id : [{}]", this.id);
+            throw new DentruthException(ErrorStatus.BAD_REQUEST);
+        }
+        if (name.length() < 2 || name.length() > 50) {
+            log.warn("이름 글자수 제한 위반: [{}]. User Id : [{}]", name, this.id);
+            throw new DentruthException(ErrorStatus.BAD_REQUEST);
+        }
+    }
+
+    private void validateBirthDate(LocalDate birthDate) {
+        if (birthDate == null) {
+            log.warn("도메인 제약 위반: 생년월일이 누락됨. User Id : [{}]", this.id);
+            throw new DentruthException(ErrorStatus.BAD_REQUEST);
+        }
+
+        if (birthDate.isAfter(LocalDate.now())) {
+            log.warn("생년월일이 미래 날짜입니다. 입력 날짜 : [{}], User Id : [{}]", birthDate, this.id);
+            throw new DentruthException(ErrorStatus.BAD_REQUEST);
+        }
+
+        if (birthDate.isBefore(LocalDate.now().minusYears(150))) {
+            log.warn("생년월일이 비정상적인 과거 날짜입니다. 입력 날짜 : [{}], User Id : [{}]", birthDate, this.id);
+            throw new DentruthException(ErrorStatus.BAD_REQUEST);
+        }
+    }
+
+    private void validateLocationAndIdentity(String region, String nationality) {
+        if (region == null || region.trim().isEmpty()) {
+            log.warn("도메인 제약 위반: 거주 지역이 비어있음. User Id : [{}]", this.id);
+            throw new DentruthException(ErrorStatus.BAD_REQUEST);
+        }
+        if (nationality == null || nationality.trim().isEmpty()) {
+            log.warn("도메인 제약 위반: 국적이 비어있음. User Id : [{}]", this.id);
+            throw new DentruthException(ErrorStatus.BAD_REQUEST);
+        }
+    }
+
+    private void validateRequiredEnums(Language language, Gender gender,
+                                       StayDuration stayDuration, InsuranceStatus insuranceStatus) {
+        if (language == null) {
+            log.warn("도메인 제약 위반: 선택된 언어가 null입니다. User Id : [{}]", this.id);
+            throw new DentruthException(ErrorStatus.BAD_REQUEST);
+        }
+        if (gender == null) {
+            log.warn("도메인 제약 위반: 선택된 성별이 null입니다. User Id : [{}]", this.id);
+            throw new DentruthException(ErrorStatus.BAD_REQUEST);
+        }
+        if (stayDuration == null) {
+            log.warn("도메인 제약 위반: 체류 기간이 null입니다. User Id : [{}]", this.id);
+            throw new DentruthException(ErrorStatus.BAD_REQUEST);
+        }
+        if (insuranceStatus == null) {
+            log.warn("도메인 제약 위반: 보험 상태가 null입니다. User Id : [{}]", this.id);
+            throw new DentruthException(ErrorStatus.BAD_REQUEST);
+        }
+    }
+
+    public void withdrawn() {
+        this.status = UserStatus.WITHDRAWN;
+        this.deletedAt = Instant.now();
+    }
+
+    public void updatePassword(String plainPassword, String encodedPassword) {
+        validatePasswordFormat(plainPassword);
+        this.password = encodedPassword;
+    }
+
+    private void validatePasswordFormat(String plainPassword) {
+        if (plainPassword == null || plainPassword.trim().isEmpty()) {
+            log.warn("변경할 비밀번호가 비어있음. User Id : [{}]", this.id);
+            throw new DentruthException(ErrorStatus.BAD_REQUEST);
+        }
+
+        if (!java.util.regex.Pattern.matches(PASSWORD_REGEX, plainPassword)) {
+            log.warn("유효한 비밀번호 형식이 아닙니다. User Id : [{}]", this.id);
+            throw new DentruthException(ErrorStatus.BAD_REQUEST);
         }
     }
 
