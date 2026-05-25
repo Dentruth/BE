@@ -13,6 +13,7 @@ import jakarta.mail.Session;
 import jakarta.mail.Transport;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
+import java.security.SecureRandom;
 import java.util.Properties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +26,7 @@ import org.springframework.stereotype.Service;
 public class EmailService {
 
     private final EmailAuthCodeStore emailAuthCodeStore;
+    private static final SecureRandom SECURE_RANDOM = new SecureRandom();
 
     @Value("${email.google.email}")
     private String adminEmail;
@@ -75,13 +77,13 @@ public class EmailService {
         StringBuilder sb = new StringBuilder();
 
         for (int i = 0; i < 6; i++) {
-            if (Math.random() < 0.5) {
-                sb.append((char) ((int) (Math.random() * 10) + '0'));
+            if (SECURE_RANDOM.nextBoolean()) {
+                sb.append((char) (SECURE_RANDOM.nextInt(10) + '0'));
             } else {
-                sb.append((char) ((int) (Math.random() * 26) + 'A'));
+                sb.append((char) (SECURE_RANDOM.nextInt(26) + 'A'));
             }
+            return sb.toString();
         }
-        return sb.toString();
     }
 
     private String buildEmailBody(String authCode) {
