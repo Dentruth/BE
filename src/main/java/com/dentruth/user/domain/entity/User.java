@@ -143,6 +143,11 @@ public class User extends BaseEntity {
 
     public void onboarding(String name, Language language, LocalDate birthDate, Gender gender, String region,
                            String nationality, StayDuration stayDuration, InsuranceStatus insuranceStatus) {
+        if (this.status != UserStatus.GUEST) {
+            log.warn("온보딩 불가 상태입니다. currentStatus : [{}], User Id : [{}]", this.status, this.id);
+            throw new DentruthException(ErrorStatus.FORBIDDEN);
+        }
+
         validateName(name);
         validateBirthDate(birthDate);
         validateLocationAndIdentity(region, nationality);
