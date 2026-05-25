@@ -12,7 +12,6 @@ import jakarta.mail.Session;
 import jakarta.mail.Transport;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
-import java.security.SecureRandom;
 import java.util.Properties;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,8 +20,6 @@ import org.springframework.stereotype.Component;
 @Component
 @Slf4j
 public class GmailEmailSender implements EmailSender {
-
-    private static final SecureRandom SECURE_RANDOM = new SecureRandom();
 
     @Value("${email.google.email}")
     private String adminEmail;
