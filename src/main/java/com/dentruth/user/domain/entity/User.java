@@ -141,6 +141,24 @@ public class User extends BaseEntity {
         this.nationality = nationality;
     }
 
+    public void onboarding(String name, Language language, LocalDate birthDate, Gender gender, String region,
+                           String nationality, StayDuration stayDuration, InsuranceStatus insuranceStatus) {
+        validateName(name);
+        validateBirthDate(birthDate);
+        validateLocationAndIdentity(region, nationality);
+        validateRequiredEnums(language, gender, stayDuration, insuranceStatus);
+
+        this.name = name;
+        this.language = language;
+        this.birth = birthDate;
+        this.gender = gender;
+        this.region = region;
+        this.stayDuration = stayDuration;
+        this.insuranceStatus = insuranceStatus;
+        this.nationality = nationality;
+        this.status = UserStatus.ACTIVE;
+    }
+
     private void validateName(String name) {
         if (name == null || name.trim().isEmpty()) {
             log.warn("도메인 제약 위반: 이름이 비어있음. User Id : [{}]", this.id);
@@ -221,5 +239,4 @@ public class User extends BaseEntity {
             throw new DentruthException(ErrorStatus.BAD_REQUEST);
         }
     }
-
 }
