@@ -11,9 +11,7 @@ import static org.mockito.Mockito.verify;
 import com.dentruth.common.exception.DentruthException;
 import com.dentruth.common.response.code.ErrorStatus;
 import com.dentruth.user.application.dto.request.VerifyEmailApplicationRequest;
-import java.lang.reflect.Field;
 import java.util.Optional;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,21 +25,11 @@ class EmailServiceTest {
     @Mock
     private EmailAuthCodeStore emailAuthCodeStore;
 
+    @Mock
+    private EmailSender emailSender;
+
     @InjectMocks
     private EmailService emailService;
-
-    @BeforeEach
-    void setUp() throws Exception {
-        Field adminEmailField = EmailService.class.getDeclaredField("adminEmail");
-        adminEmailField.setAccessible(true);
-        adminEmailField.set(emailService, "test@gmail.com");
-
-        Field adminPasswordField = EmailService.class.getDeclaredField("adminPassword");
-        adminPasswordField.setAccessible(true);
-        adminPasswordField.set(emailService, "testpassword");
-
-        emailService.init();
-    }
 
     @DisplayName("인증 코드가 일치하면 이메일 인증에 성공한다.")
     @Test
@@ -58,7 +46,7 @@ class EmailServiceTest {
     @DisplayName("인증 코드가 불일치하면 이메일 인증에 실패한다.")
     @Test
     void shouldFailVerification_whenAuthCodeNotMatches() {
-        // given
+        //given
         VerifyEmailApplicationRequest request = new VerifyEmailApplicationRequest("test@test.com", "WRONG1");
         given(emailAuthCodeStore.findByEmail("test@test.com")).willReturn(Optional.of("ABC123"));
 
