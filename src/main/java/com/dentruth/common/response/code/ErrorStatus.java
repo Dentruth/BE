@@ -26,6 +26,13 @@ public enum ErrorStatus implements BaseErrorCode {
     BLOCKED_USER(HttpStatus.FORBIDDEN, "USER_006", "차단된 계정입니다."),
     SAME_AS_CURRENT_PASSWORD(HttpStatus.BAD_REQUEST, "USER_007", "기존 비밀번호와 동일한 비밀번호입니다."),
 
+    //consult-summary
+    SUMMARY_RECORD_NOT_FOUND(HttpStatus.NOT_FOUND, "CON_001", "요약 기록 정보가 없습니다."),
+    INVALID_ID_FORMAT(HttpStatus.BAD_REQUEST, "CON_002", "올바른 Id 형태가 아닙니다."),
+    AUDIO_FILE_NOT_FOUND(HttpStatus.NOT_FOUND, "CON_003", "음성 파일 정보가 없습니다."),
+    INVALID_FILE_TYPE(HttpStatus.BAD_REQUEST, "CON_004", "지원하지 않는 파일 형식입니다."),
+
+
 
     ;
 

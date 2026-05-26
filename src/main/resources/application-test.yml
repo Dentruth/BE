@@ -22,3 +22,15 @@ jwt:
   token-type-claim: "token_type"
   access-token-type: "access"
   refresh-token-type: "refresh"
+
+cloud:
+  aws:
+    s3:
+      bucket: mock-bucket-name
+    credentials:
+      access-key: mock-access-key
+      secret-key: mock-secret-key
+    region:
+      static: ap-northeast-2
+    stack:
+      auto: false
