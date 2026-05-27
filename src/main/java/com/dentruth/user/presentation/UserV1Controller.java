@@ -3,12 +3,15 @@ package com.dentruth.user.presentation;
 import com.dentruth.common.jwt.CustomUserDetails;
 import com.dentruth.common.response.ApiResponse;
 import com.dentruth.common.response.code.SuccessStatus;
+import com.dentruth.user.application.EmailService;
 import com.dentruth.user.application.UserFacade;
 import com.dentruth.user.application.UserService;
 import com.dentruth.user.application.dto.response.UserInfoResponse;
 import com.dentruth.user.presentation.dto.request.OnboardingRequest;
 import com.dentruth.user.presentation.dto.request.UpdatePasswordRequest;
 import com.dentruth.user.presentation.dto.request.UpdateUserInfoRequest;
+import com.dentruth.user.presentation.dto.request.SendVerifyEmailRequest;
+import com.dentruth.user.presentation.dto.request.VerifyEmailRequest;
 import com.dentruth.user.presentation.dto.request.WithdrawnRequest;
 import jakarta.validation.Valid;
 import java.util.UUID;
@@ -32,6 +35,7 @@ public class UserV1Controller {
 
     private final UserService userService;
     private final UserFacade userFacade;
+    private final EmailService emailService;
 
     @GetMapping("/email/check")
     public ApiResponse<String> checkEmailDuplication(@RequestParam String email) {
@@ -67,6 +71,18 @@ public class UserV1Controller {
         return ApiResponse.onSuccess(SuccessStatus.OK, null);
     }
 
+    @PostMapping("/email/verification")
+    public ApiResponse<Void> sendVerifyEmail(@Valid @RequestBody SendVerifyEmailRequest request) {
+        emailService.sendVerifyEmail(request.toApplicationRequest());
+        return ApiResponse.onSuccess(SuccessStatus.OK, null);
+    }
+
+    @PatchMapping("/email/verification")
+    public ApiResponse<Void> verifyEmail(@Valid @RequestBody VerifyEmailRequest request) {
+        emailService.verifyEmail(request.toApplicationRequest());
+        return ApiResponse.onSuccess(SuccessStatus.OK, null);
+    }
+  
     @PostMapping("/onboarding")
     public ApiResponse<UserInfoResponse> onboarding(@AuthenticationPrincipal CustomUserDetails userDetails,
                                                     @Valid @RequestBody OnboardingRequest onboardingRequest) {
