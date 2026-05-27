@@ -1,4 +1,4 @@
-package com.dentruth.user.domain.entity.enums;
+package com.dentruth.common.domain.enums;
 
 public enum Language {
     KOREAN, ENGLISH, SPANISH

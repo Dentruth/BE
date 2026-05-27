@@ -12,7 +12,7 @@ import com.dentruth.common.jwt.JwtProvider;
 import com.dentruth.user.application.TokenService;
 import com.dentruth.user.application.UserService;
 import com.dentruth.user.domain.entity.User;
-import com.dentruth.user.domain.entity.enums.Language;
+import com.dentruth.common.domain.enums.Language;
 import com.dentruth.user.presentation.dto.request.TokenRefreshRequest;
 import java.util.Date;
 import java.util.UUID;

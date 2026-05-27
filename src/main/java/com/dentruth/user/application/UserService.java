@@ -4,6 +4,7 @@ import com.dentruth.common.exception.DentruthException;
 import com.dentruth.common.jwt.JwtProvider;
 import com.dentruth.common.response.code.ErrorStatus;
 import com.dentruth.common.util.SecurityUtils;
+import com.dentruth.user.application.dto.request.OnboardingApplicationRequest;
 import com.dentruth.user.application.dto.request.UpdateUserInfoApplicationRequest;
 import com.dentruth.user.application.dto.response.UserInfoResponse;
 import com.dentruth.user.domain.entity.User;
@@ -63,6 +64,24 @@ public class UserService {
         String accessToken = jwtProvider.generateAccessToken(userId.toString(), user.getLanguage().toString());
 
         return UserInfoResponse.from(user, accessToken);
+    }
+
+    @Transactional
+    public UserInfoResponse onboarding(UUID userId, OnboardingApplicationRequest request) {
+        log.info("유저 온보딩 요청. User Id : [{}], 업데이트 요청 정보 : [{}]", userId, request.toString());
+
+        User user = findById(userId, "온보딩");
+
+        if (!user.getStatus().equals(UserStatus.GUEST)) {
+            log.info("GUEST 상태가 아닌 유저가 온보딩 요청. User Id : [{}]", userId);
+            throw new DentruthException(ErrorStatus.FORBIDDEN);
+        }
+
+        user.onboarding(request.getName(), request.getLanguage(), request.getBirthDate(), request.getGender(),
+                request.getRegion(), request.getNationality(), request.getStayDuration(), request.getInsuranceStatus());
+
+        return UserInfoResponse.from(user,
+                jwtProvider.generateAccessToken(userId.toString(), user.getLanguage().name()));
     }
 
     @Transactional(readOnly = true)
