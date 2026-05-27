@@ -1,6 +1,10 @@
 package com.dentruth.config;
 
 import com.dentruth.common.jwt.JwtFilter;
+import com.dentruth.config.oauth.OAuth2UserCustomService;
+import com.dentruth.config.oauth.OAuthCookieRepository;
+import com.dentruth.config.oauth.handler.OAuth2FailureHandler;
+import com.dentruth.config.oauth.handler.OAuth2SuccessHandler;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.Arrays;
 import java.util.Collections;
@@ -25,6 +29,10 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 public class SecurityConfig {
 
     private final JwtFilter jwtFilter;
+    private final OAuth2UserCustomService oAuth2UserCustomService;
+    private final OAuthCookieRepository oAuthCookieRepository;
+    private final OAuth2SuccessHandler oAuth2SuccessHandler;
+    private final OAuth2FailureHandler oAuth2FailureHandler;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
@@ -53,6 +61,14 @@ public class SecurityConfig {
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .logout(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .oauth2Login(oauth2 -> oauth2
+                        .authorizationEndpoint(endpoint -> endpoint
+                                .authorizationRequestRepository(oAuthCookieRepository))
+                        .userInfoEndpoint(userInfo -> userInfo
+                                .userService(oAuth2UserCustomService))
+                        .successHandler(oAuth2SuccessHandler)
+                        .failureHandler(oAuth2FailureHandler)
+                )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return httpSecurity.build();
@@ -80,5 +96,4 @@ public class SecurityConfig {
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
-
 }

@@ -58,6 +58,9 @@ dependencies {
 
 	// Mail
 	implementation 'org.springframework.boot:spring-boot-starter-mail:4.0.5'
+  
+	// OAUTH2
+	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client:4.0.6'
 }
 
 tasks.named('test') {

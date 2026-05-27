@@ -7,6 +7,7 @@ import com.dentruth.user.application.EmailService;
 import com.dentruth.user.application.UserFacade;
 import com.dentruth.user.application.UserService;
 import com.dentruth.user.application.dto.response.UserInfoResponse;
+import com.dentruth.user.presentation.dto.request.OnboardingRequest;
 import com.dentruth.user.presentation.dto.request.UpdatePasswordRequest;
 import com.dentruth.user.presentation.dto.request.UpdateUserInfoRequest;
 import com.dentruth.user.presentation.dto.request.SendVerifyEmailRequest;
@@ -80,6 +81,13 @@ public class UserV1Controller {
     public ApiResponse<Void> verifyEmail(@Valid @RequestBody VerifyEmailRequest request) {
         emailService.verifyEmail(request.toApplicationRequest());
         return ApiResponse.onSuccess(SuccessStatus.OK, null);
+    }
+  
+    @PostMapping("/onboarding")
+    public ApiResponse<UserInfoResponse> onboarding(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                                    @Valid @RequestBody OnboardingRequest onboardingRequest) {
+        return ApiResponse.onSuccess(SuccessStatus.OK, userService.onboarding(UUID.fromString(userDetails.getUserId()),
+                onboardingRequest.toApplicationRequest()));
     }
 
 }
