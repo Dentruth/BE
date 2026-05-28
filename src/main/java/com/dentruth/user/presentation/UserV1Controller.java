@@ -45,7 +45,6 @@ public class UserV1Controller {
 
     @GetMapping("/me")
     public ApiResponse<UserInfoResponse> getUserInfo(@AuthenticationPrincipal CustomUserDetails userDetails) {
-        System.out.println(userDetails.getLanguage());
         return ApiResponse.onSuccess(SuccessStatus.OK,
                 userService.getUserInfo(UUID.fromString(userDetails.getUserId())));
     }
