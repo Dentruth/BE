@@ -67,7 +67,6 @@ jwt:
 
 encryption:
   secret-key: ${ENCRYPTION_SECRET_KEY}
-  iv: ${ENCRYPTION_IV}
 
 openai:
   api:

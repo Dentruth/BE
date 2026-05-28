@@ -6,6 +6,8 @@ import com.dentruth.consultsummary.domain.entity.enums.SummaryStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.util.UUID;
@@ -53,6 +55,7 @@ public class ConsultSummary extends BaseEntity {
     private String diagnosticResult;
 
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private SummaryStatus status;
 
     private String failReason;

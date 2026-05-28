@@ -9,6 +9,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.dentruth.common.domain.enums.Language;
 import com.dentruth.common.jwt.JwtProperties;
 import com.dentruth.common.jwt.JwtProvider;
 import com.dentruth.consultsummary.application.TranscriptionEventPublisher;
@@ -18,7 +19,6 @@ import com.dentruth.consultsummary.presentation.dto.reqeust.CreateConsultSummary
 import com.dentruth.user.domain.entity.User;
 import com.dentruth.user.domain.entity.enums.Gender;
 import com.dentruth.user.domain.entity.enums.InsuranceStatus;
-import com.dentruth.user.domain.entity.enums.Language;
 import com.dentruth.user.domain.entity.enums.StayDuration;
 import com.dentruth.user.domain.entity.enums.UserStatus;
 import com.dentruth.user.domain.entity.enums.UserType;

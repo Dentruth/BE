@@ -6,6 +6,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 
+import com.dentruth.common.domain.enums.Language;
 import com.dentruth.common.exception.DentruthException;
 import com.dentruth.common.response.code.ErrorStatus;
 import com.dentruth.consultsummary.application.dto.response.PresignedUrlResponse;
@@ -13,7 +14,6 @@ import com.dentruth.user.application.UserService;
 import com.dentruth.user.domain.entity.User;
 import com.dentruth.user.domain.entity.enums.Gender;
 import com.dentruth.user.domain.entity.enums.InsuranceStatus;
-import com.dentruth.user.domain.entity.enums.Language;
 import com.dentruth.user.domain.entity.enums.StayDuration;
 import com.dentruth.user.domain.entity.enums.UserStatus;
 import com.dentruth.user.domain.entity.enums.UserType;

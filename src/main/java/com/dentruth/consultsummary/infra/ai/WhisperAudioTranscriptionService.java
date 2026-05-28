@@ -18,6 +18,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.util.StringUtils;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import software.amazon.awssdk.services.s3.model.NoSuchKeyException;
 
@@ -70,7 +72,13 @@ public class WhisperAudioTranscriptionService implements AudioTranscriptionServi
                     whisperUrl, requestEntity, Map.class
             );
 
-            String result = (String) response.getBody().get("text");
+            Map responseBody = response.getBody();
+            if (responseBody == null || !StringUtils.hasText((String) responseBody.get("text"))) {
+                log.error("Whisper 응답에 text가 없습니다. S3Key : [{}]", s3Key);
+                throw new DentruthException(ErrorStatus.WHISPER_API_FAILED);
+            }
+
+            String result = (String) responseBody.get("text");
             log.info("Whisper STT 완료. S3Key : [{}]", s3Key);
             return result;
         } catch (NoSuchKeyException e) {
@@ -79,6 +87,14 @@ public class WhisperAudioTranscriptionService implements AudioTranscriptionServi
 
         } catch (IOException e) {
             log.error("Whisper STT 실패. S3Key : [{}]", s3Key, e);
+            throw new DentruthException(ErrorStatus.WHISPER_API_FAILED);
+        } catch (RestClientException e) {
+            log.error("Whisper API 호출 실패. S3Key : [{}]", s3Key, e);
+            throw new DentruthException(ErrorStatus.WHISPER_API_FAILED);
+        } catch (DentruthException e) {
+            throw e;
+        } catch (Exception e) {
+            log.error("Whisper STT 알 수 없는 실패. S3Key : [{}]", s3Key, e);
             throw new DentruthException(ErrorStatus.WHISPER_API_FAILED);
         }
     }
