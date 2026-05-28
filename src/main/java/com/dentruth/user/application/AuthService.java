@@ -30,8 +30,8 @@ public class AuthService {
 
         String encodePassword = passwordEncoder.encode(request.getPassword());
 
-        User user = User.localSignupUser(userId, request.getEmail(), request.getResidentialArea(), encodePassword,
-                request.getName(), request.getBirthDate(), request.getGender(), request.getLanguage(),
+        User user = User.localSignupUser(userId, request.getEmail(), request.getRegion(), request.getNationality(),
+                encodePassword, request.getName(), request.getBirthDate(), request.getGender(), request.getLanguage(),
                 request.getStayDuration(), request.getInsuranceStatus());
 
         userRepository.save(user);
@@ -52,6 +52,12 @@ public class AuthService {
         if (!passwordEncoder.matches(inputPassword, storedPassword)) {
             throw new DentruthException(ErrorStatus.WRONG_PASSWORD);
         }
+    }
+
+    @Transactional
+    public void updatePassword(User user, String newPassword) {
+        String encodedPassword = passwordEncoder.encode(newPassword);
+        user.updatePassword(newPassword, encodedPassword);
     }
 
 }

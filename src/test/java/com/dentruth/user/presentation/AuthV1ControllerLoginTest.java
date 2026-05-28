@@ -8,7 +8,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.dentruth.user.domain.entity.User;
 import com.dentruth.user.domain.entity.enums.Gender;
 import com.dentruth.user.domain.entity.enums.InsuranceStatus;
-import com.dentruth.user.domain.entity.enums.Language;
+import com.dentruth.common.domain.enums.Language;
 import com.dentruth.user.domain.entity.enums.StayDuration;
 import com.dentruth.user.domain.entity.enums.UserStatus;
 import com.dentruth.user.domain.entity.enums.UserType;
@@ -344,7 +344,8 @@ class AuthV1ControllerLoginTest extends ControllerTestSupport {
                 .language(Language.KOREAN)
                 .birth(LocalDate.of(2026, 5, 19))
                 .gender(Gender.F)
-                .address("서울시 강남구")
+                .region("주소")
+                .nationality("국적")
                 .stayDuration(StayDuration.ONE_TO_THREE_M)
                 .insuranceStatus(InsuranceStatus.INSURED)
                 .status(deleted)

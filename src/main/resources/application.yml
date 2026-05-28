@@ -24,6 +24,19 @@ spring:
           org.hibernate.SQL: debug
           org.hibernate.orm.schema: debug
 
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            scope:
+              - email
+              - profile
+    default-redirect-uri: http://localhost:3000/oauth/callback
+
 server:
   forward-headers-strategy: native
 
@@ -47,3 +60,8 @@ jwt:
   access-token-type: "access"
   refresh-token-type: "refresh"
   redis-prefix-refresh: "dentruth:refreshToken:"
+
+email:
+  google:
+    email: ${EMAIL_GOOGLE_EMAIL}
+    password: ${EMAIL_GOOGLE_PASSWORD}

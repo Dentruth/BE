@@ -8,12 +8,15 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 
 import com.dentruth.common.exception.JwtAuthenticationException;
 import com.dentruth.common.jwt.JwtProvider;
 import com.dentruth.common.response.code.ErrorStatus;
 import com.dentruth.user.application.dto.response.TokenResponse;
+import com.dentruth.user.domain.entity.User;
+import com.dentruth.common.domain.enums.Language;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -34,6 +37,9 @@ class AuthFacadeRefreshTest {
     @Mock
     private TokenService tokenService;
 
+    @Mock
+    private UserService userService;
+
     @DisplayName("올바른 Refresh Token이 주어지면 새로운 토큰 세트를 정상적으로 발급한다.")
     @Test
     void shouldReturnNewTokenResponse_whenRefreshTokenIsValid() {
@@ -45,10 +51,15 @@ class AuthFacadeRefreshTest {
         String expectedAccessToken = "new.access.token";
         String expectedRefreshToken = "new.refresh.token";
 
-        given(jwtProvider.getUserId(clientRefreshToken)).willReturn(userIdStr);
+        User user = mock(User.class);
+        given(user.getLanguage()).willReturn(Language.KOREAN);
+        given(userService.findById(eq(userId), anyString())).willReturn(user);
+
+        given(jwtProvider.getUserId(eq(clientRefreshToken))).willReturn(userIdStr);
         given(tokenService.getRefreshToken(any(UUID.class))).willReturn(clientRefreshToken);
-        given(jwtProvider.generateAccessToken(userIdStr)).willReturn(expectedAccessToken);
-        given(jwtProvider.generateRefreshToken(userIdStr)).willReturn(expectedRefreshToken);
+
+        given(jwtProvider.generateAccessToken(eq(userIdStr), anyString())).willReturn(expectedAccessToken);
+        given(jwtProvider.generateRefreshToken(eq(userIdStr))).willReturn(expectedRefreshToken);
 
         //when
         TokenResponse response = authFacade.reissue(clientRefreshToken);
@@ -94,7 +105,7 @@ class AuthFacadeRefreshTest {
                 .isInstanceOf(JwtAuthenticationException.class)
                 .hasMessage(ErrorStatus.INVALID_TOKEN.getMessage());
 
-        then(jwtProvider).should(times(0)).generateAccessToken(anyString());
+        then(jwtProvider).should(times(0)).generateAccessToken(anyString(), anyString());
         then(tokenService).should(times(0)).saveRefreshToken(any(UUID.class), anyString());
     }
 

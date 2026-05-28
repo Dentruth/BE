@@ -2,6 +2,7 @@ package com.dentruth.user.application;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doThrow;
@@ -13,8 +14,9 @@ import com.dentruth.common.exception.DentruthException;
 import com.dentruth.common.jwt.JwtProvider;
 import com.dentruth.common.response.code.ErrorStatus;
 import com.dentruth.user.application.dto.request.LoginApplicationRequest;
-import com.dentruth.user.domain.entity.User;
 import com.dentruth.user.application.dto.response.TokenResponse;
+import com.dentruth.user.domain.entity.User;
+import com.dentruth.common.domain.enums.Language;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -54,7 +56,8 @@ class AuthFacadeLoginTest {
         given(user.getId()).willReturn(userId);
         given(user.getPassword()).willReturn("storedPassword");
         given(userService.findValidUserByEmail(eq("로그인"), eq(email))).willReturn(user);
-        given(jwtProvider.generateAccessToken(eq(userId.toString()))).willReturn(accessToken);
+        given(user.getLanguage()).willReturn(Language.KOREAN);
+        given(jwtProvider.generateAccessToken(eq(userId.toString()), anyString())).willReturn(accessToken);
         given(jwtProvider.generateRefreshToken(eq(userId.toString()))).willReturn(refreshToken);
 
         LoginApplicationRequest request = LoginApplicationRequest.builder()

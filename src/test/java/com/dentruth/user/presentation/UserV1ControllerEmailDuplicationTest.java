@@ -7,7 +7,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.dentruth.user.domain.entity.User;
 import com.dentruth.user.domain.entity.enums.Gender;
 import com.dentruth.user.domain.entity.enums.InsuranceStatus;
-import com.dentruth.user.domain.entity.enums.Language;
+import com.dentruth.common.domain.enums.Language;
 import com.dentruth.user.domain.entity.enums.UserStatus;
 import com.dentruth.user.domain.entity.enums.UserType;
 import com.dentruth.user.domain.repository.UserRepository;
@@ -56,7 +56,8 @@ class UserV1ControllerEmailDuplicationTest extends ControllerTestSupport {
                 .userType(UserType.LOCAL)
                 .birth(LocalDate.of(2002, 01, 01))
                 .status(status)
-                .address("주소")
+                .region("주소")
+                .nationality("국적")
                 .name("테스트 유저")
                 .gender(Gender.F)
                 .insuranceStatus(InsuranceStatus.INSURED)
@@ -86,7 +87,8 @@ class UserV1ControllerEmailDuplicationTest extends ControllerTestSupport {
                 .userType(UserType.LOCAL)
                 .birth(LocalDate.of(2002, 01, 01))
                 .status(status)
-                .address("주소")
+                .region("주소")
+                .nationality("국적")
                 .name("테스트 유저")
                 .gender(Gender.F)
                 .insuranceStatus(InsuranceStatus.INSURED)

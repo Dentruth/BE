@@ -1,0 +1,64 @@
+package com.dentruth.user.presentation.dto.request;
+
+import com.dentruth.common.validation.ValidEnum;
+import com.dentruth.user.application.dto.request.UpdateUserInfoApplicationRequest;
+import com.dentruth.user.domain.entity.enums.Gender;
+import com.dentruth.user.domain.entity.enums.InsuranceStatus;
+import com.dentruth.common.domain.enums.Language;
+import com.dentruth.user.domain.entity.enums.StayDuration;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import java.time.LocalDate;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+
+@Getter
+@AllArgsConstructor
+@Builder
+public class UpdateUserInfoRequest {
+
+    @NotNull(message = "이름은 필수 입력입니다.")
+    @Size(min = 2, max = 50, message = "이름은 2~50자 사이여야 합니다.")
+    private String name;
+
+    @NotNull(message = "언어 선택은 필수입니다.")
+    @ValidEnum(enumClass = Language.class, message = "유효한 언어 선택이 아닙니다.")
+    private String language;
+
+    @NotNull(message = "생년월일은 필수입니다.")
+    private LocalDate birthDate;
+
+    @NotNull(message = "성별은 필수입니다.")
+    @ValidEnum(enumClass = Gender.class, message = "유효한 성별이 아닙니다.")
+    private String gender;
+
+    @NotBlank(message = "거주지역은 필수입니다.")
+    private String region;
+
+    @NotBlank(message = "국적은 필수입니다.")
+    private String nationality;
+
+    @NotNull(message = "체류기간은 필수입니다.")
+    @ValidEnum(enumClass = StayDuration.class, message = "유효한 체류기간 형식이 아닙니다.")
+    private String stayDuration;
+
+    @NotNull(message = "보험 여부는 필수입니다.")
+    @ValidEnum(enumClass = InsuranceStatus.class, message = "유효한 보험 여부 형식이 아닙니다.")
+    private String insuranceStatus;
+
+    public UpdateUserInfoApplicationRequest toApplicationRequest(){
+        return UpdateUserInfoApplicationRequest.builder()
+                .name(this.name)
+                .language(Language.valueOf(this.language))
+                .birthDate(this.birthDate)
+                .gender(Gender.valueOf(this.gender))
+                .region(this.region)
+                .nationality(this.nationality)
+                .stayDuration(StayDuration.valueOf(this.stayDuration))
+                .insuranceStatus(InsuranceStatus.valueOf(this.insuranceStatus))
+                .build();
+    }
+
+}

@@ -4,7 +4,7 @@ import com.dentruth.common.validation.ValidEnum;
 import com.dentruth.user.application.dto.request.SignupApplicationRequest;
 import com.dentruth.user.domain.entity.enums.Gender;
 import com.dentruth.user.domain.entity.enums.InsuranceStatus;
-import com.dentruth.user.domain.entity.enums.Language;
+import com.dentruth.common.domain.enums.Language;
 import com.dentruth.user.domain.entity.enums.StayDuration;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -35,7 +35,7 @@ public class SignupRequest {
     private String password;
 
     @NotNull(message = "이름은 필수 입력입니다.")
-    @Size(min = 2, max = 20, message = "이름은 2~20자 사이여야 합니다.")
+    @Size(min = 2, max = 50, message = "이름은 2~50자 사이여야 합니다.")
     private String name;
 
     @NotNull(message = "언어 선택은 필수입니다.")
@@ -50,7 +50,10 @@ public class SignupRequest {
     private String gender;
 
     @NotBlank(message = "거주지역은 필수입니다.")
-    private String residentialArea;
+    private String region;
+
+    @NotBlank(message = "국적은 필수입니다.")
+    private String nationality;
 
     @NotNull(message = "체류기간은 필수입니다.")
     @ValidEnum(enumClass = StayDuration.class, message = "유효한 체류기간 형식이 아닙니다.")
@@ -68,7 +71,8 @@ public class SignupRequest {
                 .language(Language.valueOf(this.language.toUpperCase()))
                 .birthDate(this.birthDate)
                 .gender(Gender.valueOf(this.gender.toUpperCase()))
-                .residentialArea(this.residentialArea)
+                .region(this.region)
+                .nationality(this.nationality)
                 .stayDuration(StayDuration.valueOf(this.stayDuration.toUpperCase()))
                 .insuranceStatus(InsuranceStatus.valueOf(this.insuranceStatus.toUpperCase()))
                 .build();
