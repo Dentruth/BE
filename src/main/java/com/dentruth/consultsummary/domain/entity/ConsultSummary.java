@@ -1,0 +1,86 @@
+package com.dentruth.consultsummary.domain.entity;
+
+import com.dentruth.common.domain.BaseEntity;
+import com.dentruth.common.util.EncryptedStringConverter;
+import com.dentruth.consultsummary.domain.entity.enums.SummaryStatus;
+import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import java.util.UUID;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
+
+@Entity
+@Table(name = "consult_summaries")
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@ToString(exclude = {"diagnosis", "treatmentPlan", "diagnosticResult"})
+@Getter
+@Builder
+@Slf4j
+public class ConsultSummary extends BaseEntity {
+
+    @Id
+    private UUID id;
+
+    @Column(nullable = false)
+    private UUID userId;
+
+    @Convert(converter = EncryptedStringConverter.class)
+    @Column(nullable = false, columnDefinition = "TEXT")
+    private String audioLink;
+
+    private String title;
+    private String clinicName;
+
+    @Convert(converter = EncryptedStringConverter.class)
+    @Column(columnDefinition = "TEXT")
+    private String diagnosis;
+
+    @Convert(converter = EncryptedStringConverter.class)
+    @Column(columnDefinition = "TEXT")
+    private String treatmentPlan;
+
+    @Convert(converter = EncryptedStringConverter.class)
+    @Column(columnDefinition = "TEXT")
+    private String diagnosticResult;
+
+    @Column(nullable = false)
+    private SummaryStatus status;
+
+    private String failReason;
+
+    private Boolean isDeleted;
+
+    public static ConsultSummary create(UUID userId, String audioLink, String clinicName) {
+        return ConsultSummary.builder()
+                .id(UUID.randomUUID())
+                .userId(userId)
+                .audioLink(audioLink)
+                .clinicName(clinicName)
+                .status(SummaryStatus.PENDING)
+                .isDeleted(false)
+                .build();
+    }
+
+    public void markAsCompleted(String diagnosticResult, String diagnosis, String treatmentPlan, String title) {
+        this.status = SummaryStatus.COMPLETED;
+        this.diagnosis = diagnosis;
+        this.treatmentPlan = treatmentPlan;
+        this.title = title;
+        this.diagnosticResult = diagnosticResult;
+    }
+
+    public void markAsFailed(String failReason) {
+        this.status = SummaryStatus.FAILED;
+        this.failReason = failReason;
+    }
+
+}

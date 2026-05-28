@@ -34,3 +34,17 @@ cloud:
       static: ap-northeast-2
     stack:
       auto: false
+
+encryption:
+  secret-key: 12345678901234567890123456789012
+  iv: 1234567890123456
+
+openai:
+  api:
+    key: test-key
+  audio-model: whisper-1
+  whisper-url: "https://api.openai.com/v1/audio/transcriptions"
+  chat-model: gpt-4o-mini
+  chat-url: "https://api.openai.com/v1/chat/completions"
+  prompts:
+    consultation-summary: 너는 치과 전문 상담 요약 AI야.

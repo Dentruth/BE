@@ -12,7 +12,7 @@ import static org.mockito.Mockito.verify;
 import com.dentruth.common.exception.DentruthException;
 import com.dentruth.common.response.code.ErrorStatus;
 import com.dentruth.consultsummary.application.dto.response.PresignedUrlResponse;
-import com.dentruth.consultsummary.infra.s3.S3PresignedUrlService;
+import com.dentruth.consultsummary.infra.s3.S3FileStorageService;
 import java.lang.reflect.Field;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -31,10 +31,10 @@ import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequ
 import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
 
 @ExtendWith(MockitoExtension.class)
-class PresignedUrlServiceTest {
+class FileStorageServiceTest {
 
     @InjectMocks
-    private S3PresignedUrlService s3PresignedUrlService;
+    private S3FileStorageService s3PresignedUrlService;
 
     @Mock
     private S3Presigner s3Presigner;
@@ -43,7 +43,7 @@ class PresignedUrlServiceTest {
 
     @BeforeEach
     void setUp() throws Exception {
-        Field bucketField = S3PresignedUrlService.class.getDeclaredField("bucket");
+        Field bucketField = S3FileStorageService.class.getDeclaredField("bucket");
         bucketField.setAccessible(true);
         bucketField.set(s3PresignedUrlService, "test-bucket");
     }

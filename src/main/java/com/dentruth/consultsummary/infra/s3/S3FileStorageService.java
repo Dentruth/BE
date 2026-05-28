@@ -2,8 +2,9 @@ package com.dentruth.consultsummary.infra.s3;
 
 import com.dentruth.common.exception.DentruthException;
 import com.dentruth.common.response.code.ErrorStatus;
-import com.dentruth.consultsummary.application.PresignedUrlService;
+import com.dentruth.consultsummary.application.FileStorageService;
 import com.dentruth.consultsummary.application.dto.response.PresignedUrlResponse;
+import java.io.InputStream;
 import java.time.Duration;
 import java.util.Set;
 import java.util.UUID;
@@ -11,6 +12,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import software.amazon.awssdk.core.ResponseInputStream;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
@@ -19,9 +24,10 @@ import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignReques
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class S3PresignedUrlService implements PresignedUrlService {
+public class S3FileStorageService implements FileStorageService {
 
     private final S3Presigner s3Presigner;
+    private final S3Client s3Client;
 
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
@@ -62,6 +68,19 @@ public class S3PresignedUrlService implements PresignedUrlService {
                 .s3Key(s3Key)
                 .expiresIn(EXPIRES_IN_SECONDS)
                 .build();
+    }
+
+    @Override
+    public InputStream streamAudio(String s3Key) {
+        ResponseInputStream<GetObjectResponse> s3Stream = s3Client.getObject(
+                GetObjectRequest.builder()
+                        .bucket(bucket)
+                        .key(s3Key)
+                        .build()
+        );
+
+        log.info("S3 오디오 스트림 오픈. S3Key : [{}]", s3Key);
+        return s3Stream;
     }
 
     private String generateS3Key(String filename, UUID userId) {

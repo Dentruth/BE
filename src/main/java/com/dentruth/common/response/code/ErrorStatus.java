@@ -31,7 +31,8 @@ public enum ErrorStatus implements BaseErrorCode {
     INVALID_ID_FORMAT(HttpStatus.BAD_REQUEST, "CON_002", "올바른 Id 형태가 아닙니다."),
     AUDIO_FILE_NOT_FOUND(HttpStatus.NOT_FOUND, "CON_003", "음성 파일 정보가 없습니다."),
     INVALID_FILE_TYPE(HttpStatus.BAD_REQUEST, "CON_004", "지원하지 않는 파일 형식입니다."),
-
+    WHISPER_API_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "CON_005", "Whisper STT 변환에 실패했습니다."),
+    SUMMARIZATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "CON_006", "AI 요약에 실패했습니다."),
 
 
     ;

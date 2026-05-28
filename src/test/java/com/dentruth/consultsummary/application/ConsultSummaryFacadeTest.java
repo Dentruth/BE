@@ -35,7 +35,7 @@ class ConsultSummaryFacadeTest {
     private ConsultSummaryFacade consultSummaryFacade;
 
     @Mock
-    private PresignedUrlService presignedUrlService;
+    private FileStorageService fileStorageService;
 
     @Mock
     private UserService userService;
@@ -59,7 +59,7 @@ class ConsultSummaryFacadeTest {
                 .expiresIn(300)
                 .build();
 
-        given(presignedUrlService.generateUploadUrl(filename, contentType, USER_ID)).willReturn(mockResponse);
+        given(fileStorageService.generateUploadUrl(filename, contentType, USER_ID)).willReturn(mockResponse);
 
         //when
         PresignedUrlResponse response = consultSummaryFacade.getUploadUrl(filename, contentType, USER_ID);
