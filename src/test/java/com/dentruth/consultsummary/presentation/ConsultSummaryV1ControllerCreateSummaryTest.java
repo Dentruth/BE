@@ -31,6 +31,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
+import java.util.TimeZone;
 import java.util.UUID;
 import javax.crypto.SecretKey;
 import org.junit.jupiter.api.BeforeEach;
@@ -67,6 +68,7 @@ class ConsultSummaryV1ControllerCreateSummaryTest extends ControllerTestSupport 
 
     @BeforeEach
     void setUp() {
+        TimeZone.setDefault(TimeZone.getTimeZone("Asia/Seoul"));
         userRepository.deleteAllInBatch();
         consultSummaryRepository.deleteAllInBatch();
     }
