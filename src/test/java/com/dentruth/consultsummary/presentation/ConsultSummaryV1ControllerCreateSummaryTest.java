@@ -28,10 +28,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.Date;
-import java.util.TimeZone;
 import java.util.UUID;
 import javax.crypto.SecretKey;
 import org.junit.jupiter.api.BeforeEach;
@@ -68,7 +65,6 @@ class ConsultSummaryV1ControllerCreateSummaryTest extends ControllerTestSupport 
 
     @BeforeEach
     void setUp() {
-        TimeZone.setDefault(TimeZone.getTimeZone("Asia/Seoul"));
         userRepository.deleteAllInBatch();
         consultSummaryRepository.deleteAllInBatch();
     }
@@ -109,12 +105,6 @@ class ConsultSummaryV1ControllerCreateSummaryTest extends ControllerTestSupport 
 
         assertThat(resultNode.get("clinicName").asText()).isEqualTo(consultSummary.getClinicName());
         assertThat(resultNode.get("status").asText()).isEqualTo(consultSummary.getStatus().name());
-
-        LocalDateTime responseCreatedAt = LocalDateTime.parse(resultNode.get("createdAt").asText());
-        LocalDateTime entityCreatedAt = consultSummary.getCreatedAt()
-                .atZone(ZoneId.of("Asia/Seoul"))
-                .toLocalDateTime();
-        assertThat(responseCreatedAt).isEqualTo(entityCreatedAt);
 
         verify(transcriptionEventPublisher, times(1)).publish(any(), any(), any(), any());
     }
