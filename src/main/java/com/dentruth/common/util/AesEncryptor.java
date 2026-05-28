@@ -57,6 +57,9 @@ public class AesEncryptor {
         }
         try {
             byte[] payload = Base64.getDecoder().decode(encryptedText);
+            if (payload.length < NONCE_LENGTH) {
+                throw new IllegalArgumentException("Invalid encrypted payload: too short");
+            }
             byte[] nonce = Arrays.copyOfRange(payload, 0, NONCE_LENGTH);
             byte[] encryptedBytes = Arrays.copyOfRange(payload, NONCE_LENGTH, payload.length);
 
