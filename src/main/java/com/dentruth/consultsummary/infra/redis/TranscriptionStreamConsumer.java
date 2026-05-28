@@ -7,10 +7,14 @@ import com.dentruth.consultsummary.application.ConsultSummarizationService;
 import com.dentruth.consultsummary.application.ConsultSummaryService;
 import com.dentruth.consultsummary.application.dto.SummarizedResult;
 import jakarta.annotation.PostConstruct;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.InvalidDataAccessApiUsageException;
+import org.springframework.data.redis.RedisSystemException;
 import org.springframework.data.redis.connection.stream.Consumer;
 import org.springframework.data.redis.connection.stream.MapRecord;
 import org.springframework.data.redis.connection.stream.ReadOffset;
@@ -32,24 +36,54 @@ public class TranscriptionStreamConsumer {
 
     private static final String STREAM_KEY = RedisTranscriptionEventPublisher.STREAM_KEY;
     private static final String GROUP_NAME = "transcription-group";
-    private static final String CONSUMER_NAME = "consumer-1";
     private static final int BATCH_SIZE = 3;
 
+    private String consumerName;
+
     @PostConstruct
-    public void initConsumerGroup() {
+    public void init() {
+        this.consumerName = generateConsumerName();
+        initConsumerGroup();
+    }
+
+    private String generateConsumerName() {
+        String host;
         try {
-            stringRedisTemplate.opsForStream().createGroup(STREAM_KEY, ReadOffset.from("0"), GROUP_NAME);
-            log.info("Consumer group 생성 완료. group : [{}]", GROUP_NAME);
-        } catch (Exception e) {
-            log.info("Consumer group 이미 존재하거나 스트림 미생성. 계속 진행.");
+            host = InetAddress.getLocalHost().getHostName();
+        } catch (UnknownHostException e) {
+            host = "unknown-host";
         }
+        long pid = ProcessHandle.current().pid();
+        return host + "-" + pid;
+    }
+
+    private void initConsumerGroup() {
+        try {
+            stringRedisTemplate.opsForStream()
+                    .createGroup(STREAM_KEY, ReadOffset.from("0"), GROUP_NAME);
+            log.info("Consumer group 생성 완료. group : [{}], consumer : [{}]", GROUP_NAME, consumerName);
+        } catch (RedisSystemException | InvalidDataAccessApiUsageException e) {
+            if (isBusyGroupError(e)) {
+                log.info("Consumer group 이미 존재. group : [{}]", GROUP_NAME);
+            } else {
+                log.error("Consumer group 생성 실패. group : [{}]", GROUP_NAME, e);
+                throw e;
+            }
+        }
+    }
+
+    private boolean isBusyGroupError(Exception e) {
+        Throwable cause = e.getCause();
+        return cause != null
+                && cause.getMessage() != null
+                && cause.getMessage().contains("BUSYGROUP");
     }
 
     @Scheduled(fixedDelay = 1000)
     public void consume() {
         List<MapRecord<String, Object, Object>> records = stringRedisTemplate.opsForStream()
                 .read(
-                        Consumer.from(GROUP_NAME, CONSUMER_NAME),
+                        Consumer.from(GROUP_NAME, consumerName),
                         StreamReadOptions.empty().count(BATCH_SIZE),
                         StreamOffset.create(STREAM_KEY, ReadOffset.lastConsumed())
                 );
@@ -79,7 +113,7 @@ public class TranscriptionStreamConsumer {
 
             consultSummaryService.markAsCompleted(summaryId, result);
 
-            stringRedisTemplate.opsForStream().acknowledge(STREAM_KEY, GROUP_NAME, record.getId());
+            acknowledge(record);
             log.info("STT + 요약 처리 완료. summaryId : [{}]", summaryId);
         } catch (Exception e) {
             log.error("STT + 요약 처리 실패. summaryId : [{}]", summaryId, e);
@@ -90,6 +124,15 @@ public class TranscriptionStreamConsumer {
             }
 
             consultSummaryService.markAsFailed(summaryId, failReason);
+            acknowledge(record);
+        }
+    }
+
+    private void acknowledge(MapRecord<String, Object, Object> record) {
+        try {
+            stringRedisTemplate.opsForStream().acknowledge(STREAM_KEY, GROUP_NAME, record.getId());
+        } catch (Exception e) {
+            log.warn("ACK 실패. recordId : [{}]", record.getId(), e);
         }
     }
 
