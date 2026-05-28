@@ -1,7 +1,7 @@
 package com.dentruth.user.application.dto.response;
 
 import com.dentruth.user.domain.entity.User;
-import com.dentruth.user.domain.entity.enums.Language;
+import com.dentruth.common.domain.enums.Language;
 import java.time.LocalDate;
 import lombok.Builder;
 import lombok.Getter;

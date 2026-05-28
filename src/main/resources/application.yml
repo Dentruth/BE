@@ -27,6 +27,19 @@ spring:
   jackson:
     time-zone: Asia/Seoul
     data-format: yyyy-MM-dd HH:mm:ss
+    
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            scope:
+              - email
+              - profile
+    default-redirect-uri: http://localhost:3000/oauth/callback
 
 server:
   forward-headers-strategy: native
@@ -143,3 +156,8 @@ openai:
         - 상담 녹취록: %s
 
       ### 위 내용을 바탕으로 JSON 요약본을 생성해줘.
+      
+email:
+  google:
+    email: ${EMAIL_GOOGLE_EMAIL}
+    password: ${EMAIL_GOOGLE_PASSWORD}

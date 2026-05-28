@@ -48,3 +48,8 @@ openai:
   chat-url: "https://api.openai.com/v1/chat/completions"
   prompts:
     consultation-summary: 너는 치과 전문 상담 요약 AI야.
+
+email:
+  google:
+    email: test@test.com
+    password: testpassword

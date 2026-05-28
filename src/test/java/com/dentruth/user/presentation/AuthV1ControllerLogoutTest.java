@@ -6,7 +6,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.dentruth.common.jwt.JwtProperties;
 import com.dentruth.common.jwt.JwtProvider;
-import com.dentruth.user.domain.entity.enums.Language;
+import com.dentruth.common.domain.enums.Language;
 import com.dentruth.user.infra.redis.RedisTokenStore;
 import com.google.common.net.HttpHeaders;
 import io.jsonwebtoken.Jwts;

@@ -126,6 +126,10 @@ jobs:
             ENCRYPTION_SECRET_KEY=${{ secrets.ENCRYPTION_SECRET_KEY }}
             ENCRYPTION_IV=${{ secrets.ENCRYPTION_IV }}
             OPEN_AI_KEY=${{ secrets.OPEN_AI_KEY }}
+            EMAIL_GOOGLE_EMAIL=${{ secrets.EMAIL_GOOGLE_EMAIL }}
+            EMAIL_GOOGLE_PASSWORD=${{ secrets.EMAIL_GOOGLE_PASSWORD }}
+            GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}
+            GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}
             EOF
 
             # 최신 이미지 pull
