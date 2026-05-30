@@ -18,6 +18,9 @@ public class CreateScheduleRequest {
     private ClinicPurpose clinicPurpose;
 
     @NotNull
+    private String scheduleName;
+
+    @NotNull
     private LocalDate startDate;
 
     @NotNull

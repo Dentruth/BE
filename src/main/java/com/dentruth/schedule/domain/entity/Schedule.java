@@ -31,6 +31,9 @@ public class Schedule extends BaseEntity {
     private ClinicPurpose clinicPurpose;
 
     @Column(nullable = false)
+    private String scheduleName;
+
+    @Column(nullable = false)
     private LocalDate startDate;
 
     @Column(nullable = false)
@@ -51,6 +54,7 @@ public class Schedule extends BaseEntity {
     public Schedule(
             String clinicName,
             ClinicPurpose clinicPurpose,
+            String scheduleName,
             LocalDate startDate,
             LocalTime startTime,
             LocalDate endDate,
@@ -60,6 +64,7 @@ public class Schedule extends BaseEntity {
     ) {
         this.clinicName = clinicName;
         this.clinicPurpose = clinicPurpose;
+        this.scheduleName = scheduleName;
         this.startDate = startDate;
         this.startTime = startTime;
         this.endDate = endDate;
@@ -71,6 +76,7 @@ public class Schedule extends BaseEntity {
     public void updateSchedule(
             String clinicName,
             ClinicPurpose clinicPurpose,
+            String scheduleName,
             LocalDate startDate,
             LocalTime startTime,
             LocalDate endDate,
@@ -79,6 +85,7 @@ public class Schedule extends BaseEntity {
     ) {
         this.clinicName = clinicName;
         this.clinicPurpose = clinicPurpose;
+        this.scheduleName = scheduleName;
         this.startDate = startDate;
         this.startTime = startTime;
         this.endDate = endDate;

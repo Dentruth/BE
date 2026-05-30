@@ -13,6 +13,7 @@ public class ScheduleDetailResponse {
     private Long scheduleId;
     private String clinicName;
     private String clinicPurpose;
+    private String scheduleName;
     private LocalDate startDate;
     private LocalTime startTime;
     private LocalDate endDate;
@@ -25,6 +26,7 @@ public class ScheduleDetailResponse {
                 .scheduleId(schedule.getId())
                 .clinicName(schedule.getClinicName())
                 .clinicPurpose(schedule.getClinicPurpose().name())
+                .scheduleName(schedule.getScheduleName())
                 .startDate(schedule.getStartDate())
                 .startTime(schedule.getStartTime())
                 .endDate(schedule.getEndDate())

@@ -31,6 +31,7 @@ public class ScheduleService {
         Schedule schedule = Schedule.builder()
                 .clinicName(request.getClinicName())
                 .clinicPurpose(request.getClinicPurpose())
+                .scheduleName(request.getScheduleName())
                 .startDate(request.getStartDate())
                 .startTime(request.getStartTime())
                 .endDate(request.getEndDate())
@@ -58,6 +59,7 @@ public class ScheduleService {
         schedule.updateSchedule(
                 request.getClinicName(),
                 request.getClinicPurpose(),
+                request.getScheduleName(),
                 request.getStartDate(),
                 request.getStartTime(),
                 request.getEndDate(),
