@@ -20,46 +20,47 @@ import lombok.Getter;
 @Builder(toBuilder = true)
 public class SignupRequest {
 
-    @NotNull(message = "이메일은 필수 입력입니다.")
+    @NotNull(message = "Please enter your email")
     @Pattern(
             regexp = "^[a-zA-Z0-9+\\-_.]+@[a-zA-Z0-9-]+\\.[a-zA-Z]{2,}$",
-            message = "유효한 이메일 형식이 아닙니다."
+            message = "Please enter a valid email address"
     )
     private String email;
 
-    @NotNull(message = "비밀번호는 필수 입력입니다.")
+    @NotNull(message = "Please enter your password")
+    @Size(min = 8, max = 20, message = "Password must be between 8 and 20 characters")
     @Pattern(
-            regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]{8,20}$",
-            message = "유효한 비밀번호 형식이 아닙니다."
+            regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]+$",
+            message = "Password must include letters, numbers, and special characters"
     )
     private String password;
 
-    @NotNull(message = "이름은 필수 입력입니다.")
-    @Size(min = 2, max = 50, message = "이름은 2~50자 사이여야 합니다.")
+    @NotNull(message = "Please enter your name")
+    @Size(min = 2, max = 50, message = "Name cannot exceed 50 characters")
     private String name;
 
-    @NotNull(message = "언어 선택은 필수입니다.")
+    @NotNull(message = "Please select a language")
     @ValidEnum(enumClass = Language.class, message = "유효한 언어 선택이 아닙니다.")
     private String language;
 
-    @NotNull(message = "생년월일은 필수입니다.")
+    @NotNull(message = "Please select your date of birth")
     private LocalDate birthDate;
 
-    @NotNull(message = "성별은 필수입니다.")
+    @NotNull(message = "Please select your gender")
     @ValidEnum(enumClass = Gender.class, message = "유효한 성별이 아닙니다.")
     private String gender;
 
-    @NotBlank(message = "거주지역은 필수입니다.")
+    @NotBlank(message = "Please select your region")
     private String region;
 
-    @NotBlank(message = "국적은 필수입니다.")
+    @NotBlank(message = "Please select your nationality")
     private String nationality;
 
-    @NotNull(message = "체류기간은 필수입니다.")
+    @NotNull(message = "Please select your duration of stay")
     @ValidEnum(enumClass = StayDuration.class, message = "유효한 체류기간 형식이 아닙니다.")
     private String stayDuration;
 
-    @NotNull(message = "보험 여부는 필수입니다.")
+    @NotNull(message = "Please select your insurance status")
     @ValidEnum(enumClass = InsuranceStatus.class, message = "유효한 보험 여부 형식이 아닙니다.")
     private String insuranceStatus;
 
