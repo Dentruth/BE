@@ -36,7 +36,7 @@ public class ScheduleService {
                 .endDate(request.getEndDate())
                 .endTime(request.getEndTime())
                 .memo(request.getMemo())
-                .user(user)
+                .userId(userId)
                 .build();
 
         Schedule savedSchedule = scheduleRepository.save(schedule);

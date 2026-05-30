@@ -6,6 +6,8 @@ import com.dentruth.user.domain.entity.User;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.UUID;
+
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -42,9 +44,8 @@ public class Schedule extends BaseEntity {
 
     private String memo;
 
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    private UUID userId;
 
     @Builder
     public Schedule(
@@ -55,7 +56,7 @@ public class Schedule extends BaseEntity {
             LocalDate endDate,
             LocalTime endTime,
             String memo,
-            User user
+            UUID userId
     ) {
         this.clinicName = clinicName;
         this.clinicPurpose = clinicPurpose;
@@ -64,7 +65,7 @@ public class Schedule extends BaseEntity {
         this.endDate = endDate;
         this.endTime = endTime;
         this.memo = memo;
-        this.user = user;
+        this.userId = userId;
     }
 
     public void updateSchedule(
