@@ -102,7 +102,7 @@ class UserV1ControllerWithdrawnTest extends ControllerTestSupport {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.isSuccess").value(false))
                 .andExpect(jsonPath("$.code").value("USER_004"))
-                .andExpect(jsonPath("$.message").value("비밀번호가 일치하지 않습니다."));
+                .andExpect(jsonPath("$.message").value("Passwords do not match"));
 
         User after = userRepository.findById(userId)
                 .orElseThrow();

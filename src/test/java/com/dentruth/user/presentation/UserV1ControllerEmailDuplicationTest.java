@@ -70,7 +70,7 @@ class UserV1ControllerEmailDuplicationTest extends ControllerTestSupport {
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.isSuccess").value("false"))
                 .andExpect(jsonPath("$.code").value("USER_002"))
-                .andExpect(jsonPath("$.message").value("이미 가입된 이메일입니다."))
+                .andExpect(jsonPath("$.message").value("This email is already in use"))
                 .andExpect(jsonPath("$.result").isEmpty());
     }
 

@@ -229,7 +229,7 @@ class AuthV1ControllerLoginTest extends ControllerTestSupport {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.isSuccess").value("false"))
                 .andExpect(jsonPath("$.code").value("USER_004"))
-                .andExpect(jsonPath("$.message").value("비밀번호가 일치하지 않습니다."));
+                .andExpect(jsonPath("$.message").value("Passwords do not match"));
     }
 
     @DisplayName("이메일을 입력하지 않고 로그인을 시도하면 400을 반환한다.")
