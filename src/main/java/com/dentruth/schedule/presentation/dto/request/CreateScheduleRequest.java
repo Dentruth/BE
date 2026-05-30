@@ -1,4 +1,4 @@
-package com.dentruth.schedule.application.dto.request;
+package com.dentruth.schedule.presentation.dto.request;
 
 import com.dentruth.schedule.domain.entity.enums.ClinicPurpose;
 import jakarta.validation.constraints.NotBlank;

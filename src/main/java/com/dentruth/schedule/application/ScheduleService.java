@@ -1,7 +1,7 @@
 package com.dentruth.schedule.application;
 
-import com.dentruth.schedule.application.dto.request.CreateScheduleRequest;
-import com.dentruth.schedule.application.dto.request.UpdateScheduleRequest;
+import com.dentruth.schedule.presentation.dto.request.CreateScheduleRequest;
+import com.dentruth.schedule.presentation.dto.request.UpdateScheduleRequest;
 import com.dentruth.schedule.application.dto.response.CreateScheduleResponse;
 import com.dentruth.schedule.application.dto.response.ScheduleDetailResponse;
 import com.dentruth.schedule.domain.entity.Schedule;
