@@ -1,6 +1,7 @@
 package com.dentruth.schedule.presentation.dto.request;
 
 import com.dentruth.schedule.domain.entity.enums.ClinicPurpose;
+import com.dentruth.schedule.domain.entity.enums.ScheduleType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -33,4 +34,7 @@ public class UpdateScheduleRequest {
     private LocalTime endTime;
 
     private String memo;
+
+    @NotNull
+    private ScheduleType scheduleType;
 }

@@ -1,6 +1,7 @@
 package com.dentruth.schedule.application;
 
 import com.dentruth.schedule.application.dto.response.HomeScheduleResponse;
+import com.dentruth.schedule.domain.entity.enums.ScheduleType;
 import com.dentruth.schedule.presentation.dto.request.CreateScheduleRequest;
 import com.dentruth.schedule.presentation.dto.request.UpdateScheduleRequest;
 import com.dentruth.schedule.application.dto.response.CreateScheduleResponse;
@@ -42,6 +43,7 @@ public class ScheduleService {
                 .endDate(request.getEndDate())
                 .endTime(request.getEndTime())
                 .memo(request.getMemo())
+                .scheduleType(ScheduleType.CUSTOM)
                 .userId(userId)
                 .build();
 
@@ -69,7 +71,8 @@ public class ScheduleService {
                 request.getStartTime(),
                 request.getEndDate(),
                 request.getEndTime(),
-                request.getMemo()
+                request.getMemo(),
+                request.getScheduleType()
         );
 
         return ScheduleDetailResponse.from(schedule);

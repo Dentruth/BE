@@ -3,6 +3,8 @@ package com.dentruth.schedule.application.dto.response;
 import com.dentruth.schedule.domain.entity.Schedule;
 import java.time.LocalDate;
 import java.time.LocalTime;
+
+import com.dentruth.schedule.domain.entity.enums.ScheduleType;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -19,6 +21,7 @@ public class ScheduleDetailResponse {
     private LocalDate endDate;
     private LocalTime endTime;
     private String memo;
+    private ScheduleType scheduleType;
 
     public static ScheduleDetailResponse from(Schedule schedule) {
 
@@ -32,6 +35,7 @@ public class ScheduleDetailResponse {
                 .endDate(schedule.getEndDate())
                 .endTime(schedule.getEndTime())
                 .memo(schedule.getMemo())
+                .scheduleType(schedule.getScheduleType())
                 .build();
     }
 }

@@ -2,6 +2,7 @@ package com.dentruth.schedule.domain.entity;
 
 import com.dentruth.common.domain.BaseEntity;
 import com.dentruth.schedule.domain.entity.enums.ClinicPurpose;
+import com.dentruth.schedule.domain.entity.enums.ScheduleType;
 import com.dentruth.user.domain.entity.User;
 import jakarta.persistence.*;
 import java.time.LocalDate;
@@ -47,6 +48,10 @@ public class Schedule extends BaseEntity {
 
     private String memo;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private ScheduleType scheduleType;
+
     @JoinColumn(name = "user_id", nullable = false)
     private UUID userId;
 
@@ -60,6 +65,7 @@ public class Schedule extends BaseEntity {
             LocalDate endDate,
             LocalTime endTime,
             String memo,
+            ScheduleType scheduleType,
             UUID userId
     ) {
         this.clinicName = clinicName;
@@ -70,6 +76,7 @@ public class Schedule extends BaseEntity {
         this.endDate = endDate;
         this.endTime = endTime;
         this.memo = memo;
+        this.scheduleType = scheduleType;
         this.userId = userId;
     }
 
@@ -81,7 +88,8 @@ public class Schedule extends BaseEntity {
             LocalTime startTime,
             LocalDate endDate,
             LocalTime endTime,
-            String memo
+            String memo,
+            ScheduleType scheduleType
     ) {
         this.clinicName = clinicName;
         this.clinicPurpose = clinicPurpose;
@@ -91,5 +99,6 @@ public class Schedule extends BaseEntity {
         this.endDate = endDate;
         this.endTime = endTime;
         this.memo = memo;
+        this.scheduleType = scheduleType;
     }
 }
