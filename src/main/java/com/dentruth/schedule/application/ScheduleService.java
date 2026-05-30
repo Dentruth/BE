@@ -1,5 +1,6 @@
 package com.dentruth.schedule.application;
 
+import com.dentruth.schedule.application.dto.response.HomeScheduleResponse;
 import com.dentruth.schedule.presentation.dto.request.CreateScheduleRequest;
 import com.dentruth.schedule.presentation.dto.request.UpdateScheduleRequest;
 import com.dentruth.schedule.application.dto.response.CreateScheduleResponse;
@@ -12,7 +13,11 @@ import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.util.Comparator;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -85,5 +90,43 @@ public class ScheduleService {
                 .orElseThrow(() -> new IllegalArgumentException("일정을 찾을 수 없습니다."));
 
         return ScheduleDetailResponse.from(schedule);
+    }
+
+    public List<HomeScheduleResponse> getWeeklySchedules(UUID userId) {
+
+        LocalDate today = LocalDate.now();
+
+        LocalDate startDate =
+                today.minusDays(today.getDayOfWeek().getValue() % 7);
+
+        LocalDate endDate =
+                startDate.plusDays(6);
+
+        List<Schedule> schedules = scheduleRepository
+                .findAllByUserIdAndStartDateBetween(
+                        userId,
+                        startDate,
+                        endDate
+                );
+
+        return schedules.stream()
+                .collect(Collectors.groupingBy(Schedule::getStartDate))
+                .values()
+                .stream()
+                .map(dailySchedules -> {
+
+                    Schedule firstSchedule = dailySchedules.stream()
+                            .min(Comparator.comparing(Schedule::getStartTime))
+                            .orElseThrow();
+
+                    return HomeScheduleResponse.builder()
+                            .id(firstSchedule.getId())
+                            .date(firstSchedule.getStartDate())
+                            .scheduleName(firstSchedule.getScheduleName())
+                            .extraCount(dailySchedules.size() - 1)
+                            .build();
+                })
+                .sorted(Comparator.comparing(HomeScheduleResponse::getDate).reversed())
+                .toList();
     }
 }

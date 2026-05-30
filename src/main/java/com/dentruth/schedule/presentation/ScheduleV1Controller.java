@@ -4,6 +4,7 @@ import com.dentruth.common.jwt.CustomUserDetails;
 import com.dentruth.common.response.ApiResponse;
 import com.dentruth.common.response.code.SuccessStatus;
 import com.dentruth.schedule.application.ScheduleService;
+import com.dentruth.schedule.application.dto.response.HomeScheduleResponse;
 import com.dentruth.schedule.presentation.dto.request.CreateScheduleRequest;
 import com.dentruth.schedule.presentation.dto.request.UpdateScheduleRequest;
 import com.dentruth.schedule.application.dto.response.CreateScheduleResponse;
@@ -14,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -68,6 +70,19 @@ public class ScheduleV1Controller {
         return ApiResponse.onSuccess(
                 SuccessStatus.OK,
                 scheduleService.getSchedule(scheduleId)
+        );
+    }
+
+    @GetMapping
+    public ApiResponse<List<HomeScheduleResponse>> getWeeklySchedules(
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+
+        return ApiResponse.onSuccess(
+                SuccessStatus.OK,
+                scheduleService.getWeeklySchedules(
+                        UUID.fromString(userDetails.getUserId())
+                )
         );
     }
 }
