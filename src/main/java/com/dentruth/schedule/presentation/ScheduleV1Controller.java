@@ -5,6 +5,7 @@ import com.dentruth.common.response.ApiResponse;
 import com.dentruth.common.response.code.SuccessStatus;
 import com.dentruth.schedule.application.ScheduleService;
 import com.dentruth.schedule.application.dto.response.HomeScheduleResponse;
+import com.dentruth.schedule.application.dto.response.MonthlyScheduleResponse;
 import com.dentruth.schedule.presentation.dto.request.CreateScheduleRequest;
 import com.dentruth.schedule.presentation.dto.request.UpdateScheduleRequest;
 import com.dentruth.schedule.application.dto.response.CreateScheduleResponse;
@@ -73,7 +74,7 @@ public class ScheduleV1Controller {
         );
     }
 
-    @GetMapping
+    @GetMapping("/home")
     public ApiResponse<List<HomeScheduleResponse>> getWeeklySchedules(
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
@@ -82,6 +83,23 @@ public class ScheduleV1Controller {
                 SuccessStatus.OK,
                 scheduleService.getWeeklySchedules(
                         UUID.fromString(userDetails.getUserId())
+                )
+        );
+    }
+
+    @GetMapping
+    public ApiResponse<MonthlyScheduleResponse> getMonthlySchedules(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestParam int year,
+            @RequestParam int month
+    ) {
+
+        return ApiResponse.onSuccess(
+                SuccessStatus.OK,
+                scheduleService.getMonthlySchedules(
+                        UUID.fromString(userDetails.getUserId()),
+                        year,
+                        month
                 )
         );
     }

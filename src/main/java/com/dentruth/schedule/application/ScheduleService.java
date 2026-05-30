@@ -1,11 +1,9 @@
 package com.dentruth.schedule.application;
 
-import com.dentruth.schedule.application.dto.response.HomeScheduleResponse;
+import com.dentruth.schedule.application.dto.response.*;
 import com.dentruth.schedule.domain.entity.enums.ScheduleType;
 import com.dentruth.schedule.presentation.dto.request.CreateScheduleRequest;
 import com.dentruth.schedule.presentation.dto.request.UpdateScheduleRequest;
-import com.dentruth.schedule.application.dto.response.CreateScheduleResponse;
-import com.dentruth.schedule.application.dto.response.ScheduleDetailResponse;
 import com.dentruth.schedule.domain.entity.Schedule;
 import com.dentruth.schedule.domain.repository.ScheduleRepository;
 import com.dentruth.user.domain.entity.User;
@@ -131,5 +129,62 @@ public class ScheduleService {
                 })
                 .sorted(Comparator.comparing(HomeScheduleResponse::getDate).reversed())
                 .toList();
+    }
+
+    public MonthlyScheduleResponse getMonthlySchedules(
+            UUID userId,
+            int year,
+            int month
+    ) {
+
+        LocalDate startDate = LocalDate.of(year, month, 1);
+
+        LocalDate endDate =
+                startDate.withDayOfMonth(startDate.lengthOfMonth());
+
+        List<Schedule> schedules = scheduleRepository
+                .findAllByUserIdAndStartDateBetween(
+                        userId,
+                        startDate,
+                        endDate
+                );
+
+        List<LocalDate> scheduleDates = schedules.stream()
+                .map(Schedule::getStartDate)
+                .distinct()
+                .sorted()
+                .toList();
+
+        List<MonthlyScheduleItemResponse> monthlySchedules =
+                schedules.stream()
+                        .collect(Collectors.groupingBy(Schedule::getStartDate))
+                        .values()
+                        .stream()
+                        .map(dailySchedules -> {
+
+                            Schedule firstSchedule =
+                                    dailySchedules.stream()
+                                            .min(Comparator.comparing(Schedule::getStartTime))
+                                            .orElseThrow();
+
+                            return MonthlyScheduleItemResponse.builder()
+                                    .id(firstSchedule.getId())
+                                    .date(firstSchedule.getStartDate())
+                                    .scheduleType(firstSchedule.getScheduleType())
+                                    .scheduleName(firstSchedule.getScheduleName())
+                                    .extraCount(dailySchedules.size() - 1)
+                                    .build();
+                        })
+                        .sorted(
+                                Comparator.comparing(
+                                        MonthlyScheduleItemResponse::getDate
+                                )
+                        )
+                        .toList();
+
+        return MonthlyScheduleResponse.builder()
+                .scheduleDates(scheduleDates)
+                .schedules(monthlySchedules)
+                .build();
     }
 }
