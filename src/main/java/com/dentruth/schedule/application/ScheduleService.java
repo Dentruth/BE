@@ -187,4 +187,53 @@ public class ScheduleService {
                 .schedules(monthlySchedules)
                 .build();
     }
+
+    public DetailScheduleResponse getDetailSchedules(
+            UUID userId,
+            LocalDate date
+    ) {
+
+        List<Schedule> schedules =
+                scheduleRepository.findAllByUserIdAndStartDate(
+                        userId,
+                        date
+                );
+
+        List<CustomScheduleItemResponse> customSchedules =
+                schedules.stream()
+                        .filter(schedule ->
+                                schedule.getScheduleType() == ScheduleType.CUSTOM)
+                        .sorted(Comparator.comparing(Schedule::getStartTime))
+                        .map(schedule ->
+                                CustomScheduleItemResponse.builder()
+                                        .id(schedule.getId())
+                                        .date(schedule.getStartDate())
+                                        .time(schedule.getStartTime())
+                                        .clinicName(schedule.getClinicName())
+                                        .scheduleName(schedule.getScheduleName())
+                                        .memo(schedule.getMemo())
+                                        .build()
+                        )
+                        .toList();
+
+        List<ConsultationScheduleItemResponse> consultationSchedules =
+                schedules.stream()
+                        .filter(schedule ->
+                                schedule.getScheduleType() == ScheduleType.CONSULTATION)
+                        .sorted(Comparator.comparing(Schedule::getStartTime))
+                        .map(schedule ->
+                                ConsultationScheduleItemResponse.builder()
+                                        .id(schedule.getId())
+                                        .date(schedule.getStartDate())
+                                        .clinicName(schedule.getClinicName())
+                                        .scheduleName(schedule.getScheduleName())
+                                        .build()
+                        )
+                        .toList();
+
+        return DetailScheduleResponse.builder()
+                .custom(customSchedules)
+                .consultation(consultationSchedules)
+                .build();
+    }
 }
