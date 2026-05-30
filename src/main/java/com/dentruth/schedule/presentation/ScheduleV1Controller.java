@@ -30,7 +30,7 @@ public class ScheduleV1Controller {
     ) {
 
         return ApiResponse.onSuccess(
-                SuccessStatus.OK,
+                SuccessStatus.CREATED,
                 scheduleService.createSchedule(
                         UUID.fromString(userDetails.getUserId()),
                         request
