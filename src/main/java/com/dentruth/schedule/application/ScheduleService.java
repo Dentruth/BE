@@ -27,7 +27,6 @@ import java.util.stream.Collectors;
 public class ScheduleService {
 
     private final ScheduleRepository scheduleRepository;
-    private final UserRepository userRepository;
 
     private Schedule findScheduleById(Long scheduleId) {
         return scheduleRepository.findById(scheduleId)
