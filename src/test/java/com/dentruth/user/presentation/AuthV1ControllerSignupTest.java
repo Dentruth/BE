@@ -108,7 +108,7 @@ class AuthV1ControllerSignupTest extends ControllerTestSupport {
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.isSuccess").value(false))
                 .andExpect(jsonPath("$.code").value("USER_002"))
-                .andExpect(jsonPath("$.message").value("이미 가입된 이메일입니다."))
+                .andExpect(jsonPath("$.message").value("This email is already in use"))
                 .andReturn();
 
         //then
@@ -192,7 +192,7 @@ class AuthV1ControllerSignupTest extends ControllerTestSupport {
                 .andExpect(jsonPath("$.isSuccess").value(false))
                 .andExpect(jsonPath("$.code").value("COMMON_400"))
                 .andExpect(jsonPath("$.message").value("잘못된 요청입니다."))
-                .andExpect(jsonPath("$.result.email").value("이메일은 필수 입력입니다."));
+                .andExpect(jsonPath("$.result.email").value("Please enter your email"));
     }
 
     @DisplayName("비밀번호가 null이면 회원가입에 실패하고 400 에러를 반환한다.")
@@ -209,7 +209,7 @@ class AuthV1ControllerSignupTest extends ControllerTestSupport {
                 .andExpect(jsonPath("$.isSuccess").value(false))
                 .andExpect(jsonPath("$.code").value("COMMON_400"))
                 .andExpect(jsonPath("$.message").value("잘못된 요청입니다."))
-                .andExpect(jsonPath("$.result.password").value("비밀번호는 필수 입력입니다."));
+                .andExpect(jsonPath("$.result.password").value("Please enter your password"));
     }
 
     @DisplayName("이름이 null이면 회원가입에 실패하고 400 에러를 반환한다.")
@@ -226,7 +226,7 @@ class AuthV1ControllerSignupTest extends ControllerTestSupport {
                 .andExpect(jsonPath("$.isSuccess").value(false))
                 .andExpect(jsonPath("$.code").value("COMMON_400"))
                 .andExpect(jsonPath("$.message").value("잘못된 요청입니다."))
-                .andExpect(jsonPath("$.result.name").value("이름은 필수 입력입니다."));
+                .andExpect(jsonPath("$.result.name").value("Please enter your name"));
     }
 
     @DisplayName("언어 선택이 null이면 회원가입에 실패하고 400 에러를 반환한다.")
@@ -243,7 +243,7 @@ class AuthV1ControllerSignupTest extends ControllerTestSupport {
                 .andExpect(jsonPath("$.isSuccess").value(false))
                 .andExpect(jsonPath("$.code").value("COMMON_400"))
                 .andExpect(jsonPath("$.message").value("잘못된 요청입니다."))
-                .andExpect(jsonPath("$.result.language").value("언어 선택은 필수입니다."));
+                .andExpect(jsonPath("$.result.language").value("Please select a language"));
     }
 
     @DisplayName("생년월일이 null이면 회원가입에 실패하고 400 에러를 반환한다.")
@@ -260,7 +260,7 @@ class AuthV1ControllerSignupTest extends ControllerTestSupport {
                 .andExpect(jsonPath("$.isSuccess").value(false))
                 .andExpect(jsonPath("$.code").value("COMMON_400"))
                 .andExpect(jsonPath("$.message").value("잘못된 요청입니다."))
-                .andExpect(jsonPath("$.result.birthDate").value("생년월일은 필수입니다."));
+                .andExpect(jsonPath("$.result.birthDate").value("Please select your date of birth"));
     }
 
     @DisplayName("성별이 null이면 회원가입에 실패하고 400 에러를 반환한다.")
@@ -277,7 +277,7 @@ class AuthV1ControllerSignupTest extends ControllerTestSupport {
                 .andExpect(jsonPath("$.isSuccess").value(false))
                 .andExpect(jsonPath("$.code").value("COMMON_400"))
                 .andExpect(jsonPath("$.message").value("잘못된 요청입니다."))
-                .andExpect(jsonPath("$.result.gender").value("성별은 필수입니다."));
+                .andExpect(jsonPath("$.result.gender").value("Please select your gender"));
     }
 
     @DisplayName("거주지역이 null이면 회원가입에 실패하고 400 에러를 반환한다.")
@@ -294,7 +294,7 @@ class AuthV1ControllerSignupTest extends ControllerTestSupport {
                 .andExpect(jsonPath("$.isSuccess").value(false))
                 .andExpect(jsonPath("$.code").value("COMMON_400"))
                 .andExpect(jsonPath("$.message").value("잘못된 요청입니다."))
-                .andExpect(jsonPath("$.result.region").value("거주지역은 필수입니다."));
+                .andExpect(jsonPath("$.result.region").value("Please select your region"));
     }
 
     @DisplayName("국적이 null이면 회원가입에 실패하고 400 에러를 반환한다.")
@@ -311,7 +311,7 @@ class AuthV1ControllerSignupTest extends ControllerTestSupport {
                 .andExpect(jsonPath("$.isSuccess").value(false))
                 .andExpect(jsonPath("$.code").value("COMMON_400"))
                 .andExpect(jsonPath("$.message").value("잘못된 요청입니다."))
-                .andExpect(jsonPath("$.result.nationality").value("국적은 필수입니다."));
+                .andExpect(jsonPath("$.result.nationality").value("Please select your nationality"));
     }
 
     @DisplayName("체류기간이 null이면 회원가입에 실패하고 400 에러를 반환한다.")
@@ -328,7 +328,7 @@ class AuthV1ControllerSignupTest extends ControllerTestSupport {
                 .andExpect(jsonPath("$.isSuccess").value(false))
                 .andExpect(jsonPath("$.code").value("COMMON_400"))
                 .andExpect(jsonPath("$.message").value("잘못된 요청입니다."))
-                .andExpect(jsonPath("$.result.stayDuration").value("체류기간은 필수입니다."));
+                .andExpect(jsonPath("$.result.stayDuration").value("Please select your duration of stay"));
     }
 
     @DisplayName("보험 여부가 null이면 회원가입에 실패하고 400 에러를 반환한다.")
@@ -345,7 +345,7 @@ class AuthV1ControllerSignupTest extends ControllerTestSupport {
                 .andExpect(jsonPath("$.isSuccess").value(false))
                 .andExpect(jsonPath("$.code").value("COMMON_400"))
                 .andExpect(jsonPath("$.message").value("잘못된 요청입니다."))
-                .andExpect(jsonPath("$.result.insuranceStatus").value("보험 여부는 필수입니다."));
+                .andExpect(jsonPath("$.result.insuranceStatus").value("Please select your insurance status"));
     }
 
     @DisplayName("이메일 형식이 정규식에 맞지 않으면 회원가입에 실패하고 400 에러를 반환한다.")
@@ -362,14 +362,14 @@ class AuthV1ControllerSignupTest extends ControllerTestSupport {
                 .andExpect(jsonPath("$.isSuccess").value(false))
                 .andExpect(jsonPath("$.code").value("COMMON_400"))
                 .andExpect(jsonPath("$.message").value("잘못된 요청입니다."))
-                .andExpect(jsonPath("$.result.email").value("유효한 이메일 형식이 아닙니다."));
+                .andExpect(jsonPath("$.result.email").value("Please enter a valid email address"));
     }
 
-    @DisplayName("비밀번호가 요구조건(영문+숫자+특수문자 8~20자)에 맞지 않으면 회원가입에 실패하고 400 에러를 반환한다.")
+    @DisplayName("비밀번호가 요구조건(8~20자)에 맞지 않으면 회원가입에 실패하고 400 에러를 반환한다.")
     @Test
-    void shouldReturn400BadRequest_whenPasswordFormatIsInvalid() throws Exception {
+    void shouldReturn400BadRequest_whenPasswordFormatIsInvalid1() throws Exception {
         //given
-        SignupRequest request = createValidSignupRequest().toBuilder().password("short12").build();
+        SignupRequest request = createValidSignupRequest().toBuilder().password("!Pw12").build();
 
         //when, then
         mockMvc.perform(post("/api/v1/auth/signup/local")
@@ -379,7 +379,24 @@ class AuthV1ControllerSignupTest extends ControllerTestSupport {
                 .andExpect(jsonPath("$.isSuccess").value(false))
                 .andExpect(jsonPath("$.code").value("COMMON_400"))
                 .andExpect(jsonPath("$.message").value("잘못된 요청입니다."))
-                .andExpect(jsonPath("$.result.password").value("유효한 비밀번호 형식이 아닙니다."));
+                .andExpect(jsonPath("$.result.password").value("Password must be between 8 and 20 characters"));
+    }
+
+    @DisplayName("비밀번호가 요구조건(특수문자 + 대문자 + 소문자)에 맞지 않으면 회원가입에 실패하고 400 에러를 반환한다.")
+    @Test
+    void shouldReturn400BadRequest_whenPasswordFormatIsInvalid3() throws Exception {
+        //given
+        SignupRequest request = createValidSignupRequest().toBuilder().password("password1234").build();
+
+        //when, then
+        mockMvc.perform(post("/api/v1/auth/signup/local")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.isSuccess").value(false))
+                .andExpect(jsonPath("$.code").value("COMMON_400"))
+                .andExpect(jsonPath("$.message").value("잘못된 요청입니다."))
+                .andExpect(jsonPath("$.result.password").value("Password must include letters, numbers, and special characters"));
     }
 
     @DisplayName("이름이 2자 미만 또는 50자 초과면 회원가입에 실패하고 400 에러를 반환한다.")
@@ -396,7 +413,7 @@ class AuthV1ControllerSignupTest extends ControllerTestSupport {
                 .andExpect(jsonPath("$.isSuccess").value(false))
                 .andExpect(jsonPath("$.code").value("COMMON_400"))
                 .andExpect(jsonPath("$.message").value("잘못된 요청입니다."))
-                .andExpect(jsonPath("$.result.name").value("이름은 2~50자 사이여야 합니다."));
+                .andExpect(jsonPath("$.result.name").value("Name cannot exceed 50 characters"));
     }
 
     @DisplayName("정해진 언어가 아니라면 회원가입에 실패하고 400 에러를 반환한다.")
