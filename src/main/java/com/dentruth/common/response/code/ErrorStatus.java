@@ -29,7 +29,8 @@ public enum ErrorStatus implements BaseErrorCode {
     INVALID_AUTH_CODE(HttpStatus.BAD_REQUEST, "USER_008", "인증 코드가 잘못되었습니다."),
     EXPIRED_AUTH_CODE(HttpStatus.BAD_REQUEST, "USER_009", "유효기간이 지난 인증코드입니다."),
 
-
+    // schedule
+    SCHEDULE_NOT_FOUND(HttpStatus.NOT_FOUND, "SCHEDULE_404", "일정을 찾을 수 없습니다."),
 
 
     ;

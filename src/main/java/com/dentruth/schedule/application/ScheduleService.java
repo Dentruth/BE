@@ -1,5 +1,7 @@
 package com.dentruth.schedule.application;
 
+import com.dentruth.common.exception.DentruthException;
+import com.dentruth.common.response.code.ErrorStatus;
 import com.dentruth.schedule.application.dto.response.*;
 import com.dentruth.schedule.domain.entity.enums.ScheduleType;
 import com.dentruth.schedule.presentation.dto.request.CreateScheduleRequest;
@@ -24,6 +26,12 @@ public class ScheduleService {
 
     private final ScheduleRepository scheduleRepository;
     private final UserRepository userRepository;
+
+    private Schedule findScheduleById(Long scheduleId) {
+        return scheduleRepository.findById(scheduleId)
+                .orElseThrow(() ->
+                        new DentruthException(ErrorStatus.SCHEDULE_NOT_FOUND));
+    }
 
     @Transactional
     public CreateScheduleResponse createSchedule(UUID userId, CreateScheduleRequest request) {
@@ -54,8 +62,7 @@ public class ScheduleService {
             UpdateScheduleRequest request
     ) {
 
-        Schedule schedule = scheduleRepository.findById(scheduleId)
-                .orElseThrow(() -> new IllegalArgumentException("일정을 찾을 수 없습니다."));
+        Schedule schedule = findScheduleById(scheduleId);
 
         schedule.updateSchedule(
                 request.getClinicName(),
@@ -75,16 +82,14 @@ public class ScheduleService {
     @Transactional
     public void deleteSchedule(Long scheduleId) {
 
-        Schedule schedule = scheduleRepository.findById(scheduleId)
-                .orElseThrow(() -> new IllegalArgumentException("일정을 찾을 수 없습니다."));
+        Schedule schedule = findScheduleById(scheduleId);
 
         scheduleRepository.delete(schedule);
     }
 
     public ScheduleDetailResponse getSchedule(Long scheduleId) {
 
-        Schedule schedule = scheduleRepository.findById(scheduleId)
-                .orElseThrow(() -> new IllegalArgumentException("일정을 찾을 수 없습니다."));
+        Schedule schedule = findScheduleById(scheduleId);
 
         return ScheduleDetailResponse.from(schedule);
     }
