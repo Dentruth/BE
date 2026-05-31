@@ -36,7 +36,7 @@ public class ConsultSummaryService {
                 .orElseThrow(() -> new DentruthException(ErrorStatus.SUMMARY_RECORD_NOT_FOUND));
 
         summary.markAsCompleted(
-                result.getRawJson(), result.getDiagnosis(), result.getTreatmentPlan(), result.getTitle());
+                result.getRawJson(), result.getDiagnosis(), result.getTitle());
     }
 
     @Transactional

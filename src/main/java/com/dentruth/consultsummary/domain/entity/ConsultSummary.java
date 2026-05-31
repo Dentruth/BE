@@ -48,10 +48,6 @@ public class ConsultSummary extends BaseEntity {
 
     @Convert(converter = EncryptedStringConverter.class)
     @Column(columnDefinition = "TEXT")
-    private String treatmentPlan;
-
-    @Convert(converter = EncryptedStringConverter.class)
-    @Column(columnDefinition = "TEXT")
     private String diagnosticResult;
 
     @Column(nullable = false)
@@ -73,10 +69,9 @@ public class ConsultSummary extends BaseEntity {
                 .build();
     }
 
-    public void markAsCompleted(String diagnosticResult, String diagnosis, String treatmentPlan, String title) {
+    public void markAsCompleted(String diagnosticResult, String diagnosis, String title) {
         this.status = SummaryStatus.COMPLETED;
         this.diagnosis = diagnosis;
-        this.treatmentPlan = treatmentPlan;
         this.title = title;
         this.diagnosticResult = diagnosticResult;
     }
