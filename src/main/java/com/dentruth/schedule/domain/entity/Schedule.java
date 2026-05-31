@@ -3,6 +3,7 @@ package com.dentruth.schedule.domain.entity;
 import com.dentruth.common.domain.BaseEntity;
 import com.dentruth.schedule.domain.entity.enums.ClinicPurpose;
 import com.dentruth.schedule.domain.entity.enums.ScheduleType;
+import com.dentruth.schedule.presentation.dto.request.CreateScheduleRequest;
 import com.dentruth.user.domain.entity.User;
 import jakarta.persistence.*;
 import java.time.LocalDate;
@@ -53,6 +54,24 @@ public class Schedule extends BaseEntity {
 
     @JoinColumn(name = "user_id", nullable = false)
     private UUID userId;
+
+    public static Schedule createCustomSchedule(
+            UUID userId,
+            CreateScheduleRequest request
+    ) {
+        return Schedule.builder()
+                .clinicName(request.getClinicName())
+                .clinicPurpose(request.getClinicPurpose())
+                .scheduleName(request.getScheduleName())
+                .startDate(request.getStartDate())
+                .startTime(request.getStartTime())
+                .endDate(request.getEndDate())
+                .endTime(request.getEndTime())
+                .memo(request.getMemo())
+                .scheduleType(ScheduleType.CUSTOM)
+                .userId(userId)
+                .build();
+    }
 
     public void updateSchedule(
             String clinicName,

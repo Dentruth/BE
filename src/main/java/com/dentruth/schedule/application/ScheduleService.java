@@ -59,18 +59,8 @@ public class ScheduleService {
                 request.getEndTime()
         );
 
-        Schedule schedule = Schedule.builder()
-                .clinicName(request.getClinicName())
-                .clinicPurpose(request.getClinicPurpose())
-                .scheduleName(request.getScheduleName())
-                .startDate(request.getStartDate())
-                .startTime(request.getStartTime())
-                .endDate(request.getEndDate())
-                .endTime(request.getEndTime())
-                .memo(request.getMemo())
-                .scheduleType(ScheduleType.CUSTOM)
-                .userId(userId)
-                .build();
+        Schedule schedule =
+                Schedule.createCustomSchedule(userId, request);
 
         Schedule savedSchedule = scheduleRepository.save(schedule);
 
