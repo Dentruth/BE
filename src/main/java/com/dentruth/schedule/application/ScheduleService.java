@@ -6,7 +6,6 @@ import com.dentruth.schedule.presentation.dto.request.CreateScheduleRequest;
 import com.dentruth.schedule.presentation.dto.request.UpdateScheduleRequest;
 import com.dentruth.schedule.domain.entity.Schedule;
 import com.dentruth.schedule.domain.repository.ScheduleRepository;
-import com.dentruth.user.domain.entity.User;
 import com.dentruth.user.domain.repository.UserRepository;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -28,9 +27,6 @@ public class ScheduleService {
 
     @Transactional
     public CreateScheduleResponse createSchedule(UUID userId, CreateScheduleRequest request) {
-
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
         Schedule schedule = Schedule.builder()
                 .clinicName(request.getClinicName())
