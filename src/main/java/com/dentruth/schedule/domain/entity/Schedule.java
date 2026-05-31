@@ -9,15 +9,14 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.UUID;
 
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Getter
+@Builder
 @Table(name = "schedules")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Schedule extends BaseEntity {
 
     @Id
@@ -54,31 +53,6 @@ public class Schedule extends BaseEntity {
 
     @JoinColumn(name = "user_id", nullable = false)
     private UUID userId;
-
-    @Builder
-    public Schedule(
-            String clinicName,
-            ClinicPurpose clinicPurpose,
-            String scheduleName,
-            LocalDate startDate,
-            LocalTime startTime,
-            LocalDate endDate,
-            LocalTime endTime,
-            String memo,
-            ScheduleType scheduleType,
-            UUID userId
-    ) {
-        this.clinicName = clinicName;
-        this.clinicPurpose = clinicPurpose;
-        this.scheduleName = scheduleName;
-        this.startDate = startDate;
-        this.startTime = startTime;
-        this.endDate = endDate;
-        this.endTime = endTime;
-        this.memo = memo;
-        this.scheduleType = scheduleType;
-        this.userId = userId;
-    }
 
     public void updateSchedule(
             String clinicName,
