@@ -31,7 +31,7 @@ public enum ErrorStatus implements BaseErrorCode {
 
     // schedule
     SCHEDULE_NOT_FOUND(HttpStatus.NOT_FOUND, "SCHEDULE_404", "일정을 찾을 수 없습니다."),
-
+    INVALID_SCHEDULE_TIME(HttpStatus.BAD_REQUEST, "SCHEDULE_001", "시작 시간은 종료 시간보다 이전이어야 합니다."),
 
     ;
 

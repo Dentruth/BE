@@ -14,6 +14,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
@@ -33,8 +35,30 @@ public class ScheduleService {
                         new DentruthException(ErrorStatus.SCHEDULE_NOT_FOUND));
     }
 
+    private void validateScheduleTime(
+            LocalDate startDate,
+            LocalTime startTime,
+            LocalDate endDate,
+            LocalTime endTime
+    ) {
+
+        LocalDateTime start = LocalDateTime.of(startDate, startTime);
+        LocalDateTime end = LocalDateTime.of(endDate, endTime);
+
+        if (start.isAfter(end)) {
+            throw new DentruthException(ErrorStatus.INVALID_SCHEDULE_TIME);
+        }
+    }
+
     @Transactional
     public CreateScheduleResponse createSchedule(UUID userId, CreateScheduleRequest request) {
+
+        validateScheduleTime(
+                request.getStartDate(),
+                request.getStartTime(),
+                request.getEndDate(),
+                request.getEndTime()
+        );
 
         Schedule schedule = Schedule.builder()
                 .clinicName(request.getClinicName())
@@ -61,6 +85,13 @@ public class ScheduleService {
             Long scheduleId,
             UpdateScheduleRequest request
     ) {
+
+        validateScheduleTime(
+                request.getStartDate(),
+                request.getStartTime(),
+                request.getEndDate(),
+                request.getEndTime()
+        );
 
         Schedule schedule = findScheduleById(scheduleId);
 
