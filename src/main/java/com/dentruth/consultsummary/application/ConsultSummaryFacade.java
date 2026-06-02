@@ -1,8 +1,10 @@
 package com.dentruth.consultsummary.application;
 
 import com.dentruth.common.exception.DentruthException;
+import com.dentruth.common.response.CursorResponse;
 import com.dentruth.common.response.code.ErrorStatus;
 import com.dentruth.consultsummary.application.dto.request.CreateConsultSummaryApplicationRequest;
+import com.dentruth.consultsummary.application.dto.response.ConsultSummariesResponse;
 import com.dentruth.consultsummary.application.dto.response.CreateConsultSummaryResponse;
 import com.dentruth.consultsummary.application.dto.response.GetConsultSummaryResponse;
 import com.dentruth.consultsummary.application.dto.response.PresignedUrlResponse;
@@ -16,6 +18,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -64,7 +67,7 @@ public class ConsultSummaryFacade {
         findUser(userId, "ai 요약 내용 조회");
         ConsultSummary consultSummary = consultSummaryService.findById(consultSummaryId, userId);
 
-        if (consultSummary.getIsDeleted().equals(Boolean.TRUE)){
+        if (consultSummary.getIsDeleted().equals(Boolean.TRUE)) {
             throw new DentruthException(ErrorStatus.SUMMARY_RECORD_NOT_FOUND);
         }
 
@@ -73,6 +76,29 @@ public class ConsultSummaryFacade {
                 : null;
 
         return GetConsultSummaryResponse.from(consultSummary, root);
+    }
+
+    public CursorResponse<ConsultSummariesResponse> getConsultSummaries(UUID userId, UUID cursor, int size) {
+        findUser(userId, "ai 요약 기록 전체 조회");
+        List<ConsultSummary> allSummaries = consultSummaryService.findAllSummaries(userId, cursor, size);
+
+        return getConsultSummariesResponseCursorResponse(size, allSummaries);
+    }
+
+    private CursorResponse<ConsultSummariesResponse> getConsultSummariesResponseCursorResponse(int size,
+                                                                                               List<ConsultSummary> allSummaries) {
+        boolean hasNext = allSummaries.size() > size;
+
+        List<ConsultSummary> page = hasNext ? allSummaries.subList(0, size) : allSummaries;
+
+        List<ConsultSummariesResponse> items = page.stream()
+                .map(ConsultSummariesResponse::from)
+                .toList();
+
+        String nextCursor = (hasNext && !page.isEmpty()) ?
+                page.get(page.size() - 1).getId().toString() : null;
+
+        return CursorResponse.of(items, nextCursor, hasNext);
     }
 
     private void findUser(UUID userId, String method) {

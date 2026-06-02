@@ -2,8 +2,10 @@ package com.dentruth.consultsummary.presentation;
 
 import com.dentruth.common.jwt.CustomUserDetails;
 import com.dentruth.common.response.ApiResponse;
+import com.dentruth.common.response.CursorResponse;
 import com.dentruth.common.response.code.SuccessStatus;
 import com.dentruth.consultsummary.application.ConsultSummaryFacade;
+import com.dentruth.consultsummary.application.dto.response.ConsultSummariesResponse;
 import com.dentruth.consultsummary.application.dto.response.CreateConsultSummaryResponse;
 import com.dentruth.consultsummary.application.dto.response.GetConsultSummaryResponse;
 import com.dentruth.consultsummary.application.dto.response.PresignedUrlResponse;
@@ -58,6 +60,16 @@ public class ConsultSummaryV1Controller {
             @PathVariable UUID id) {
         UUID userId = UUID.fromString(userDetails.getUserId());
         return ApiResponse.onSuccess(SuccessStatus.OK, consultSummaryFacade.getDetail(userId, id));
+    }
+
+    @GetMapping
+    @Operation(summary = "ai 요약 전체 조회")
+    public ApiResponse<CursorResponse<ConsultSummariesResponse>> getAllConsultSummaries(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestParam(required = false) UUID cursor,
+            @RequestParam(defaultValue = "20") int size) {
+        UUID userId = UUID.fromString(userDetails.getUserId());
+        return ApiResponse.onSuccess(SuccessStatus.OK, consultSummaryFacade.getConsultSummaries(userId, cursor, size));
     }
 
 }
