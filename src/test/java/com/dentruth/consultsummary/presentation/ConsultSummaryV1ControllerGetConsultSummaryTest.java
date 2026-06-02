@@ -214,6 +214,39 @@ class ConsultSummaryV1ControllerGetConsultSummaryTest extends ControllerTestSupp
                 .andExpect(jsonPath("$.message").value("요약 기록 정보가 없습니다."));
     }
 
+    @DisplayName("요약 기록 정보가 삭제되었으면 404를 반환한다.")
+    @Test
+    void shouldReturn404_whenConsultSummaryIsAlreadyDeleted() throws Exception {
+        //given
+        UUID userId = UUID.randomUUID();
+        UUID consultSummaryId = UUID.randomUUID();
+
+        ConsultSummary consultSummary = ConsultSummary.builder()
+                .id(consultSummaryId)
+                .userId(userId)
+                .audioLink("audioLink")
+                .failReason("[WHISPER_ERR] OpenAI STT Connection Timeout")
+                .status(SummaryStatus.COMPLETED)
+                .clinicName("강남 치과의원")
+                .title(null)
+                .diagnosticResult(mockJson)
+                .isDeleted(true)
+                .build();
+
+        consultSummaryRepository.save(consultSummary);
+        userRepository.save(getUser(userId, UserStatus.ACTIVE));
+
+        String token = jwtProvider.generateAccessToken(userId.toString(), Language.KOREAN.name());
+
+        //when, then
+        mockMvc.perform(get("/api/v1/consult-summaries/" + consultSummaryId)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + token))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.isSuccess").value(false))
+                .andExpect(jsonPath("$.code").value("CON_001"))
+                .andExpect(jsonPath("$.message").value("요약 기록 정보가 없습니다."));
+    }
+
     @DisplayName("유저 상태가 WITHDRAWN, DELETED라면 404를 반환한다.")
     @ParameterizedTest(name = "[{index}] 유저 상태 : {0}")
     @EnumSource(value = UserStatus.class, names = {"WITHDRAWN", "DELETED"})

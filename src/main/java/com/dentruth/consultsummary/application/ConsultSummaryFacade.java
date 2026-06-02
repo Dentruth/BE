@@ -64,6 +64,10 @@ public class ConsultSummaryFacade {
         findUser(userId, "ai 요약 내용 조회");
         ConsultSummary consultSummary = consultSummaryService.findById(consultSummaryId, userId);
 
+        if (consultSummary.getIsDeleted().equals(Boolean.TRUE)){
+            throw new DentruthException(ErrorStatus.SUMMARY_RECORD_NOT_FOUND);
+        }
+
         JsonNode root = consultSummary.getStatus() == SummaryStatus.COMPLETED
                 ? parseJson(consultSummary.getDiagnosticResult(), consultSummaryId)
                 : null;

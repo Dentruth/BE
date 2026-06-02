@@ -1,8 +1,11 @@
 package com.dentruth.consultsummary.application;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.BDDMockito.given;
 
+import com.dentruth.common.exception.DentruthException;
+import com.dentruth.common.response.code.ErrorStatus;
 import com.dentruth.consultsummary.application.dto.response.GetConsultSummaryResponse;
 import com.dentruth.consultsummary.domain.entity.ConsultSummary;
 import com.dentruth.consultsummary.domain.entity.enums.SummaryStatus;
@@ -168,6 +171,36 @@ class ConsultSummaryFacadeGetDetailTest {
         assertThat(response.getTreatmentPlan()).isNull();
         assertThat(response.getTreatmentDelay()).isNull();
         assertThat(response.getTreatmentAfterCare()).isNull();
+    }
+
+    @DisplayName("요약 기록 정보가 삭제되었으면 예외가 발생한다.")
+    @Test
+    void shouldThrowException_whenConsultSummaryIsAlreadyDeleted() {
+        //given
+        UUID userId = UUID.randomUUID();
+        User mockUser = User.builder()
+                .id(userId)
+                .status(UserStatus.ACTIVE)
+                .build();
+        given(userService.findById(userId, "ai 요약 내용 조회")).willReturn(mockUser);
+
+        UUID consultSummaryId = UUID.randomUUID();
+        ConsultSummary mockConsultSummary = ConsultSummary.builder()
+                .id(consultSummaryId)
+                .isDeleted(true)
+                .audioLink("audioLink")
+                .clinicName("강남 치과의원")
+                .status(SummaryStatus.COMPLETED)
+                .failReason("[WHISPER_ERR] OpenAI STT Connection Timeout")
+                .diagnosticResult(mockJson)
+                .build();
+        ReflectionTestUtils.setField(mockConsultSummary, "createdAt", Instant.parse("2026-06-01T23:00:00Z"));
+        given(consultSummaryService.findById(consultSummaryId, userId)).willReturn(mockConsultSummary);
+
+        //when, then
+        assertThatThrownBy(()->consultSummaryFacade.getDetail(userId, consultSummaryId))
+                .isInstanceOf(DentruthException.class)
+                .hasMessage(ErrorStatus.SUMMARY_RECORD_NOT_FOUND.getMessage());
     }
 
 }
