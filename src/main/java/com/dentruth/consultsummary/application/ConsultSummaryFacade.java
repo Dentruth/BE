@@ -1,11 +1,18 @@
 package com.dentruth.consultsummary.application;
 
+import com.dentruth.common.exception.DentruthException;
+import com.dentruth.common.response.code.ErrorStatus;
 import com.dentruth.consultsummary.application.dto.request.CreateConsultSummaryApplicationRequest;
 import com.dentruth.consultsummary.application.dto.response.CreateConsultSummaryResponse;
+import com.dentruth.consultsummary.application.dto.response.GetConsultSummaryResponse;
 import com.dentruth.consultsummary.application.dto.response.PresignedUrlResponse;
 import com.dentruth.consultsummary.domain.entity.ConsultSummary;
+import com.dentruth.consultsummary.domain.entity.enums.SummaryStatus;
 import com.dentruth.user.application.UserService;
 import com.dentruth.user.domain.entity.User;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -23,6 +30,7 @@ public class ConsultSummaryFacade {
     private final UserService userService;
     private final ConsultSummaryService consultSummaryService;
     private final TranscriptionEventPublisher transcriptionEventPublisher;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     public PresignedUrlResponse getUploadUrl(String filename, String contentType, UUID userId) {
         log.info("Presigned URL 발급 요청. filename: [{}], contentType: [{}], User Id : [{}]",
@@ -52,6 +60,17 @@ public class ConsultSummaryFacade {
                 .build();
     }
 
+    public GetConsultSummaryResponse getDetail(UUID userId, UUID consultSummaryId) {
+        findUser(userId, "ai 요약 내용 조회");
+        ConsultSummary consultSummary = consultSummaryService.findById(consultSummaryId, userId);
+
+        JsonNode root = consultSummary.getStatus() == SummaryStatus.COMPLETED
+                ? parseJson(consultSummary.getDiagnosticResult(), consultSummaryId)
+                : null;
+
+        return GetConsultSummaryResponse.from(consultSummary, root);
+    }
+
     private void findUser(UUID userId, String method) {
         User user = userService.findById(userId, method);
         user.validateStatus();
@@ -60,6 +79,15 @@ public class ConsultSummaryFacade {
     private LocalDateTime convertToLocalDateTime(Instant time) {
         return time.atZone(ZoneId.of("Asia/Seoul"))
                 .toLocalDateTime();
+    }
+
+    private JsonNode parseJson(String json, UUID summaryId) {
+        try {
+            return objectMapper.readTree(json);
+        } catch (JsonProcessingException e) {
+            log.error("Diagnostic Result Json 파싱 실패. Summary Id : [{}]", summaryId, e);
+            throw new DentruthException(ErrorStatus.SUMMARIZATION_FAILED);
+        }
     }
 
 }

@@ -5,6 +5,7 @@ import com.dentruth.common.response.ApiResponse;
 import com.dentruth.common.response.code.SuccessStatus;
 import com.dentruth.consultsummary.application.ConsultSummaryFacade;
 import com.dentruth.consultsummary.application.dto.response.CreateConsultSummaryResponse;
+import com.dentruth.consultsummary.application.dto.response.GetConsultSummaryResponse;
 import com.dentruth.consultsummary.application.dto.response.PresignedUrlResponse;
 import com.dentruth.consultsummary.presentation.dto.reqeust.CreateConsultSummaryRequest;
 import io.swagger.v3.oas.annotations.Operation;
@@ -14,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -47,6 +49,15 @@ public class ConsultSummaryV1Controller {
                 SuccessStatus.ACCEPTED,
                 consultSummaryFacade.createConsultSummary(userId, request.toApplicationRequest())
         ));
+    }
+
+    @GetMapping("/{id}")
+    @Operation(summary = "ai 요약 상세 조회")
+    public ApiResponse<GetConsultSummaryResponse> getConsultSummary(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable UUID id) {
+        UUID userId = UUID.fromString(userDetails.getUserId());
+        return ApiResponse.onSuccess(SuccessStatus.OK, consultSummaryFacade.getDetail(userId, id));
     }
 
 }

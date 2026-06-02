@@ -25,9 +25,12 @@ public class ConsultSummaryService {
     }
 
     @Transactional(readOnly = true)
-    public ConsultSummary findById(UUID summaryId){
+    public ConsultSummary findById(UUID summaryId, UUID userId) {
         return consultSummaryRepository.findById(summaryId)
-                .orElseThrow(() -> new DentruthException(ErrorStatus.SUMMARY_RECORD_NOT_FOUND));
+                .orElseThrow(() -> {
+                    log.info("존재하지 않는 요약 정보 조회 요청. User Id : [{}]", userId);
+                    return new DentruthException(ErrorStatus.SUMMARY_RECORD_NOT_FOUND);
+                });
     }
 
     @Transactional
