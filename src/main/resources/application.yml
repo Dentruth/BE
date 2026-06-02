@@ -124,7 +124,7 @@ openai:
       2. Treatment Tone: The Korean 'description' must use polite and warm honorifics (e.g., '~한 상태예요', '~일 수 있어요').
       3. Multi-unit Steps: Break down the treatment plan chronologically into separate array elements with sequential 'step' integers (1, 2, 3...).
       4. Title Fields:
-        - "diagnosticResults.title" must be a concise version of "diagnosis.summary" (maximum 20 Korean characters).
+        - "diagnosticResults" must be a concise version of "diagnosis.summary" (maximum 20 Korean characters).
         - "treatmentSummary" must condense the entire treatment plan into one short phrase (maximum 30 Korean characters), suitable as a card title.
         - Example: if diagnosis.summary is "치근단 치주염" → diagnosticResults.title is also "치근단 치주염".
         - Example: if treatmentPlan involves root canal therapy and a bridge → treatmentSummary is "신경 치료 + 브릿지".
