@@ -84,4 +84,18 @@ public class ConsultSummary extends BaseEntity {
     public void delete() {
         this.isDeleted = true;
     }
+
+    public void updateSummary(String clinicName, String shortDiagnosis, String jsonDiagnosticResult) {
+        if (clinicName != null) {
+            this.clinicName = clinicName;
+        }
+        if (shortDiagnosis != null) {
+            this.diagnosis = shortDiagnosis;
+            this.title = shortDiagnosis;
+        }
+        if (jsonDiagnosticResult != null) {
+            this.diagnosticResult = jsonDiagnosticResult;
+        }
+    }
+
 }

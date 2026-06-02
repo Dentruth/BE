@@ -4,6 +4,7 @@ import com.dentruth.common.exception.DentruthException;
 import com.dentruth.common.response.CursorResponse;
 import com.dentruth.common.response.code.ErrorStatus;
 import com.dentruth.consultsummary.application.dto.request.CreateConsultSummaryApplicationRequest;
+import com.dentruth.consultsummary.application.dto.request.UpdateSummaryApplicationRequest;
 import com.dentruth.consultsummary.application.dto.response.ConsultSummariesResponse;
 import com.dentruth.consultsummary.application.dto.response.CreateConsultSummaryResponse;
 import com.dentruth.consultsummary.application.dto.response.GetConsultSummaryResponse;
@@ -107,7 +108,19 @@ public class ConsultSummaryFacade {
         consultSummaryService.deleteAll(summaryIds, userId);
     }
 
-    private void findUser(UUID userId, String method) {
+    public GetConsultSummaryResponse updateSummary(UUID userId, UUID id, UpdateSummaryApplicationRequest request) {
+        log.info("ai 녹음 요약 수정 요청. User Id : [{}]", userId);
+        findUser(userId, "ai 녹음 요약 수정 요청");
+        ConsultSummary updated = consultSummaryService.update(userId, id, request);
+
+        JsonNode root = updated.getStatus() == SummaryStatus.COMPLETED
+                ? parseJson(updated.getDiagnosticResult(), id)
+                : null;
+
+        return GetConsultSummaryResponse.from(updated, root);
+    }
+
+    public void findUser(UUID userId, String method) {
         User user = userService.findById(userId, method);
         user.validateStatus();
     }
@@ -125,4 +138,5 @@ public class ConsultSummaryFacade {
             throw new DentruthException(ErrorStatus.SUMMARIZATION_FAILED);
         }
     }
+
 }

@@ -3,8 +3,11 @@ package com.dentruth.consultsummary.application;
 import com.dentruth.common.exception.DentruthException;
 import com.dentruth.common.response.code.ErrorStatus;
 import com.dentruth.consultsummary.application.dto.SummarizedResult;
+import com.dentruth.consultsummary.application.dto.request.UpdateSummaryApplicationRequest;
 import com.dentruth.consultsummary.domain.entity.ConsultSummary;
 import com.dentruth.consultsummary.domain.repository.ConsultSummaryRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class ConsultSummaryService {
 
     private final ConsultSummaryRepository consultSummaryRepository;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Transactional
     public ConsultSummary saveCreateConsultSummary(UUID userId, String audioLink, String clinicName) {
@@ -59,11 +63,7 @@ public class ConsultSummaryService {
             return consultSummaryRepository.findFirstPage(userId, pageRequest);
         }
 
-        ConsultSummary consultSummary = consultSummaryRepository.findById(cursor)
-                .orElseThrow(() -> {
-                    log.info("존재하지 않는 요약 정보 조회 요청. User Id : [{}]", userId);
-                    return new DentruthException(ErrorStatus.SUMMARY_RECORD_NOT_FOUND);
-                });
+        ConsultSummary consultSummary = findById(cursor, userId);
 
         return consultSummaryRepository.findNextPage(userId, consultSummary.getCreatedAt(), cursor, pageRequest);
     }
@@ -84,6 +84,32 @@ public class ConsultSummaryService {
             }
             s.delete();
         });
+    }
+
+    @Transactional
+    public ConsultSummary update(UUID userId, UUID summaryId, UpdateSummaryApplicationRequest request) {
+        ConsultSummary consultSummary = findById(summaryId, userId);
+
+        if (consultSummary.getIsDeleted().equals(Boolean.TRUE)) {
+            log.info("삭제된 요약 정보 수정 요청. User Id : [{}], summary Id : [{}]", userId, summaryId);
+            throw new DentruthException(ErrorStatus.SUMMARY_RECORD_NOT_FOUND);
+        }
+
+        if (!consultSummary.getUserId().equals(userId)) {
+            log.info("본인 요약본이 아닌 요약본 수정 요청. User Id : [{}], 요약본 id : [{}]", userId, summaryId);
+            throw new DentruthException(ErrorStatus.FORBIDDEN);
+        }
+
+        String jsonResult = null;
+        try {
+            jsonResult = objectMapper.writeValueAsString(request);
+        } catch (JsonProcessingException e) {
+            log.error("요약 수정본 데이터 JSON 직렬화 실패. Summary Id : [{}]", summaryId, e);
+            throw new DentruthException(ErrorStatus.SUMMARIZATION_FAILED);
+        }
+
+        consultSummary.updateSummary(request.getClinicName(), request.getDiagnosis().getSummary(), jsonResult);
+        return consultSummary;
     }
 
 }

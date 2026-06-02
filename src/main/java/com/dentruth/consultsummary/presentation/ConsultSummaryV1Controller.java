@@ -10,6 +10,7 @@ import com.dentruth.consultsummary.application.dto.response.CreateConsultSummary
 import com.dentruth.consultsummary.application.dto.response.GetConsultSummaryResponse;
 import com.dentruth.consultsummary.application.dto.response.PresignedUrlResponse;
 import com.dentruth.consultsummary.presentation.dto.request.CreateConsultSummaryRequest;
+import com.dentruth.consultsummary.presentation.dto.request.UpdateSummaryRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -81,6 +83,16 @@ public class ConsultSummaryV1Controller {
         UUID userId = UUID.fromString(userDetails.getUserId());
         consultSummaryFacade.deleteSummaries(userId, summaryIds);
         return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/{id}")
+    @Operation(summary = "ai 요약 수정")
+    public ApiResponse<GetConsultSummaryResponse> updateSummary(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                                                @PathVariable UUID id,
+                                                                @Valid @RequestBody UpdateSummaryRequest request) {
+        UUID userId = UUID.fromString(userDetails.getUserId());
+        return ApiResponse.onSuccess(SuccessStatus.OK,
+                consultSummaryFacade.updateSummary(userId, id, request.toApplicationRequest()));
     }
 
 }
