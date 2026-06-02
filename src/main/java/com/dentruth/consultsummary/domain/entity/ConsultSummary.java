@@ -81,4 +81,7 @@ public class ConsultSummary extends BaseEntity {
         this.failReason = failReason;
     }
 
+    public void delete() {
+        this.isDeleted = true;
+    }
 }

@@ -28,4 +28,5 @@ public interface ConsultSummaryRepository extends JpaRepository<ConsultSummary, 
     List<ConsultSummary> findNextPage(@Param("userId") UUID userId,
                                       @Param("cursorCreatedAt") Instant cursorCreatedAt,
                                       UUID cursorId, PageRequest pageRequest);
+
 }

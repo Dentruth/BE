@@ -68,4 +68,22 @@ public class ConsultSummaryService {
         return consultSummaryRepository.findNextPage(userId, consultSummary.getCreatedAt(), cursor, pageRequest);
     }
 
+    @Transactional
+    public void deleteAll(List<UUID> summaryIds, UUID userId) {
+        List<ConsultSummary> summaries = consultSummaryRepository.findAllById(summaryIds);
+
+        if (summaries.size() != summaryIds.size()) {
+            log.info("존재하지 않는 요약 내역을 포함한 삭제 요청. User Id : [{}]", userId);
+            throw new DentruthException(ErrorStatus.SUMMARY_RECORD_NOT_FOUND);
+        }
+
+        summaries.forEach(s -> {
+            if (!s.getUserId().equals(userId)) {
+                log.info("본인 요약본이 아닌 요약본 삭제 요청. User Id : [{}], 요약본 id : [{}]", userId, s.getId());
+                throw new DentruthException(ErrorStatus.FORBIDDEN);
+            }
+            s.delete();
+        });
+    }
+
 }

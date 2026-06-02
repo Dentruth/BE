@@ -15,7 +15,7 @@ import com.dentruth.common.jwt.JwtProvider;
 import com.dentruth.consultsummary.application.TranscriptionEventPublisher;
 import com.dentruth.consultsummary.domain.entity.ConsultSummary;
 import com.dentruth.consultsummary.domain.repository.ConsultSummaryRepository;
-import com.dentruth.consultsummary.presentation.dto.reqeust.CreateConsultSummaryRequest;
+import com.dentruth.consultsummary.presentation.dto.request.CreateConsultSummaryRequest;
 import com.dentruth.user.domain.entity.User;
 import com.dentruth.user.domain.entity.enums.Gender;
 import com.dentruth.user.domain.entity.enums.InsuranceStatus;

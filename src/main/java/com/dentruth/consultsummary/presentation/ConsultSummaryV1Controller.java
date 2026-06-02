@@ -9,13 +9,15 @@ import com.dentruth.consultsummary.application.dto.response.ConsultSummariesResp
 import com.dentruth.consultsummary.application.dto.response.CreateConsultSummaryResponse;
 import com.dentruth.consultsummary.application.dto.response.GetConsultSummaryResponse;
 import com.dentruth.consultsummary.application.dto.response.PresignedUrlResponse;
-import com.dentruth.consultsummary.presentation.dto.reqeust.CreateConsultSummaryRequest;
+import com.dentruth.consultsummary.presentation.dto.request.CreateConsultSummaryRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
+import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -70,6 +72,15 @@ public class ConsultSummaryV1Controller {
             @RequestParam(defaultValue = "20") int size) {
         UUID userId = UUID.fromString(userDetails.getUserId());
         return ApiResponse.onSuccess(SuccessStatus.OK, consultSummaryFacade.getConsultSummaries(userId, cursor, size));
+    }
+
+    @DeleteMapping
+    @Operation(summary = "ai 요약 선택 삭제")
+    public ResponseEntity<Void> deleteSummaries(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                                @RequestParam("summaryIds") List<UUID> summaryIds) {
+        UUID userId = UUID.fromString(userDetails.getUserId());
+        consultSummaryFacade.deleteSummaries(userId, summaryIds);
+        return ResponseEntity.noContent().build();
     }
 
 }

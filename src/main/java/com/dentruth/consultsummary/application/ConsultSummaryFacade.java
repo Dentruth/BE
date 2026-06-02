@@ -101,6 +101,12 @@ public class ConsultSummaryFacade {
         return CursorResponse.of(items, nextCursor, hasNext);
     }
 
+    public void deleteSummaries(UUID userId, List<UUID> summaryIds) {
+        log.info("ai 녹음 요약 삭제 요청. User Id : [{}]", userId);
+        findUser(userId, "ai 녹음 요약 삭제 요청");
+        consultSummaryService.deleteAll(summaryIds, userId);
+    }
+
     private void findUser(UUID userId, String method) {
         User user = userService.findById(userId, method);
         user.validateStatus();
@@ -119,5 +125,4 @@ public class ConsultSummaryFacade {
             throw new DentruthException(ErrorStatus.SUMMARIZATION_FAILED);
         }
     }
-
 }
