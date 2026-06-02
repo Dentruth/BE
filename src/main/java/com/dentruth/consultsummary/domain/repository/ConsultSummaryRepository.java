@@ -1,13 +1,13 @@
 package com.dentruth.consultsummary.domain.repository;
 
 import com.dentruth.consultsummary.domain.entity.ConsultSummary;
-import io.lettuce.core.dynamic.annotation.Param;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
