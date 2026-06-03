@@ -8,4 +8,9 @@ public interface EmailAuthCodeStore {
     Optional<String> findByEmail(String email);
 
     void deleteByEmail(String email);
+
+    void saveVerifiedToken(String email, String verifyToken, int ttl);
+
+    Optional<String> findVerifiedTokenByEmail(String email);
+
 }
