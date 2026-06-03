@@ -11,6 +11,6 @@ public interface EmailAuthCodeStore {
 
     void saveVerifiedToken(String email, String verifyToken, int ttl);
 
-    Optional<String> findVerifiedTokenByEmail(String email);
+    String findVerifiedTokenByEmail(String email);
 
 }

@@ -89,7 +89,7 @@ public class RedisEmailAuthCodeRepository implements EmailAuthCodeStore {
     }
 
     @Override
-    public Optional<String> findVerifiedTokenByEmail(String email) {
+    public String findVerifiedTokenByEmail(String email) {
         String key = TOKEN_PREFIX + email;
         String token = redisTemplate.opsForValue().get(key);
 
@@ -98,7 +98,7 @@ public class RedisEmailAuthCodeRepository implements EmailAuthCodeStore {
             throw new DentruthException(ErrorStatus.UNAUTHORIZED_EMAIL_VERIFICATION);
         }
 
-        return Optional.of(token);
+        return token;
     }
 
 }

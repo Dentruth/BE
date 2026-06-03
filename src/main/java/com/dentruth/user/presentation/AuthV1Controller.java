@@ -32,7 +32,7 @@ public class AuthV1Controller {
     @PostMapping("/signup/local")
     @Operation(summary = "로컬 회원가입")
     public ResponseEntity<ApiResponse<?>> signup(@Valid @RequestBody SignupRequest signupRequest) {
-        authService.signup(signupRequest.toApplicationRequest());
+        authFacade.signup(signupRequest.toApplicationRequest());
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.onSuccess(SuccessStatus.CREATED, null));
     }
 

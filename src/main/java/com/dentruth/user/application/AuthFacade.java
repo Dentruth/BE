@@ -1,12 +1,14 @@
 package com.dentruth.user.application;
 
+import com.dentruth.common.exception.DentruthException;
 import com.dentruth.common.exception.JwtAuthenticationException;
 import com.dentruth.common.jwt.JwtProvider;
 import com.dentruth.common.response.code.ErrorStatus;
 import com.dentruth.common.util.SecurityUtils;
 import com.dentruth.user.application.dto.request.LoginApplicationRequest;
-import com.dentruth.user.domain.entity.User;
+import com.dentruth.user.application.dto.request.SignupApplicationRequest;
 import com.dentruth.user.application.dto.response.TokenResponse;
+import com.dentruth.user.domain.entity.User;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +23,24 @@ public class AuthFacade {
     private final TokenService tokenService;
     private final AuthService authService;
     private final JwtProvider jwtProvider;
+    private final EmailAuthCodeStore emailAuthCodeStore;
+
+    public void signup(SignupApplicationRequest request) {
+        String email = request.getEmail();
+        String verifiedToken = emailAuthCodeStore.findVerifiedTokenByEmail(email);
+
+        if (verifiedToken.isEmpty()) {
+            log.warn("유효한 이메일 인증 토큰이 존재하지 않거나 만료되었습니다. 이메일 : [{}]", SecurityUtils.convertToMaskedEmail(email));
+            throw new DentruthException(ErrorStatus.UNAUTHORIZED_EMAIL_VERIFICATION);
+        }
+
+        if (!verifiedToken.equals(request.getVerifiedToken())){
+            log.info("이메일 인증 토큰이 동일하지 않습니다. 이메일 : [{}]", SecurityUtils.convertToMaskedEmail(email));
+            throw new DentruthException(ErrorStatus.UNAUTHORIZED_EMAIL_VERIFICATION);
+        }
+
+        authService.signup(request);
+    }
 
     public TokenResponse login(LoginApplicationRequest request) {
         String maskedEmail = SecurityUtils.convertToMaskedEmail(request.getEmail());
@@ -69,5 +89,4 @@ public class AuthFacade {
                 .refreshToken(newRefreshToken)
                 .build();
     }
-
 }
