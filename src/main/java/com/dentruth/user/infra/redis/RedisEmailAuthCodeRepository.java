@@ -19,6 +19,7 @@ public class RedisEmailAuthCodeRepository implements EmailAuthCodeStore {
     private final RedisTemplate<String, String> redisTemplate;
 
     private static final String KEY_PREFIX = "auth:email:";
+    private static final String TOKEN_PREFIX = "verified:email:";
     private static final long REDIS_TTL_MINUTES = 10L;
     private static final long AUTH_VALID_MINUTES = 5L;
 
@@ -74,6 +75,36 @@ public class RedisEmailAuthCodeRepository implements EmailAuthCodeStore {
     public void deleteByEmail(String email) {
         String key = KEY_PREFIX + email;
         log.info("이메일 인증 정보 삭제. 이메일 : [{}]", SecurityUtils.convertToMaskedEmail(email));
+        redisTemplate.delete(key);
+    }
+
+    @Override
+    public void saveVerifiedToken(String email, String verifyToken, int ttl) {
+        String key = TOKEN_PREFIX + email;
+        String maskedEmail = SecurityUtils.convertToMaskedEmail(email);
+
+        log.info("이메일 인증 성공 증명 토큰 레디스 저장. 이메일 : [{}], TTL : [{}분]", maskedEmail, ttl);
+
+        redisTemplate.opsForValue().set(key, verifyToken, ttl, TimeUnit.MINUTES);
+    }
+
+    @Override
+    public String findVerifiedTokenByEmail(String email) {
+        String key = TOKEN_PREFIX + email;
+        String token = redisTemplate.opsForValue().get(key);
+
+        if (token == null) {
+            log.warn("유효한 이메일 인증 증명 토큰이 존재하지 않거나 만료되었습니다. 이메일 : [{}]", SecurityUtils.convertToMaskedEmail(email));
+            throw new DentruthException(ErrorStatus.UNAUTHORIZED_EMAIL_VERIFICATION);
+        }
+
+        return token;
+    }
+
+    @Override
+    public void deleteVerifiedTokenByEmail(String email) {
+        String key = TOKEN_PREFIX + email;
+        log.info("이메일 인증 토큰 정보 삭제. 이메일 : [{}]", SecurityUtils.convertToMaskedEmail(email));
         redisTemplate.delete(key);
     }
 

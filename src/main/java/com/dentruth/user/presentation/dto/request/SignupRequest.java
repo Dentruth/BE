@@ -1,10 +1,10 @@
 package com.dentruth.user.presentation.dto.request;
 
+import com.dentruth.common.domain.enums.Language;
 import com.dentruth.common.validation.ValidEnum;
 import com.dentruth.user.application.dto.request.SignupApplicationRequest;
 import com.dentruth.user.domain.entity.enums.Gender;
 import com.dentruth.user.domain.entity.enums.InsuranceStatus;
-import com.dentruth.common.domain.enums.Language;
 import com.dentruth.user.domain.entity.enums.StayDuration;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -64,6 +64,9 @@ public class SignupRequest {
     @ValidEnum(enumClass = InsuranceStatus.class, message = "유효한 보험 여부 형식이 아닙니다.")
     private String insuranceStatus;
 
+    @NotBlank(message = "Please enter verifiedToken")
+    private String verifiedToken;
+
     public SignupApplicationRequest toApplicationRequest(){
         return SignupApplicationRequest.builder()
                 .email(this.email)
@@ -76,6 +79,7 @@ public class SignupRequest {
                 .nationality(this.nationality)
                 .stayDuration(StayDuration.valueOf(this.stayDuration.toUpperCase()))
                 .insuranceStatus(InsuranceStatus.valueOf(this.insuranceStatus.toUpperCase()))
+                .verifiedToken(this.verifiedToken)
                 .build();
     }
 

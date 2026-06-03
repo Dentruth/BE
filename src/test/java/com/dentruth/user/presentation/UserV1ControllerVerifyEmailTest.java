@@ -1,7 +1,7 @@
 package com.dentruth.user.presentation;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doThrow;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -10,7 +10,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.dentruth.common.exception.DentruthException;
 import com.dentruth.common.response.code.ErrorStatus;
 import com.dentruth.user.application.EmailService;
+import com.dentruth.user.application.dto.response.VerifyEmailResponse;
 import com.dentruth.user.presentation.dto.request.VerifyEmailRequest;
+import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
@@ -25,8 +27,11 @@ class UserV1ControllerVerifyEmailTest extends ControllerTestSupport {
     @Test
     void shouldSucceedVerification_whenAuthCodeIsValid() throws Exception {
         //given
+        UUID verifiedToken = UUID.randomUUID();
+
         VerifyEmailRequest request = new VerifyEmailRequest("test@test.com", "ABC123");
-        doNothing().when(emailService).verifyEmail(any());
+
+        given(emailService.verifyEmail(any())).willReturn(new VerifyEmailResponse(verifiedToken.toString()));
 
         //when, then
         mockMvc.perform(patch("/api/v1/users/email/verification")
@@ -34,7 +39,8 @@ class UserV1ControllerVerifyEmailTest extends ControllerTestSupport {
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.isSuccess").value(true))
-                .andExpect(jsonPath("$.code").value("COMMON_200"));
+                .andExpect(jsonPath("$.code").value("COMMON_200"))
+                .andExpect(jsonPath("$.result.verifiedToken").value(verifiedToken.toString()));
     }
 
     @DisplayName("인증 코드가 만료되면 이메일 인증에 실패한다.")

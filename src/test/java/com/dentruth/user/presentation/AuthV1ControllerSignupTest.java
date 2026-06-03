@@ -1,14 +1,21 @@
 package com.dentruth.user.presentation;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.dentruth.common.domain.enums.Language;
+import com.dentruth.common.response.code.ErrorStatus;
+import com.dentruth.user.application.EmailAuthCodeStore;
 import com.dentruth.user.domain.entity.User;
 import com.dentruth.user.domain.entity.enums.Gender;
 import com.dentruth.user.domain.entity.enums.InsuranceStatus;
-import com.dentruth.common.domain.enums.Language;
 import com.dentruth.user.domain.entity.enums.StayDuration;
 import com.dentruth.user.domain.entity.enums.UserStatus;
 import com.dentruth.user.domain.entity.enums.UserType;
@@ -25,11 +32,15 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 class AuthV1ControllerSignupTest extends ControllerTestSupport {
 
     @Autowired
     private UserRepository userRepository;
+
+    @MockitoBean
+    private EmailAuthCodeStore emailAuthCodeStore;
 
     @AfterEach
     void tearDown() {
@@ -40,8 +51,14 @@ class AuthV1ControllerSignupTest extends ControllerTestSupport {
     @Test
     void shouldSucceedSignUp_successfully() throws Exception {
         //given
+        String email = "test@test.com";
+        String verifiedToken = UUID.randomUUID().toString();
+
+        given(emailAuthCodeStore.findVerifiedTokenByEmail(email))
+                .willReturn(verifiedToken);
+
         SignupRequest signupRequest = SignupRequest.builder()
-                .email("test@test.com")
+                .email(email)
                 .password("password1234Test!")
                 .name("테스트 유저")
                 .language("KOREAN")
@@ -51,6 +68,7 @@ class AuthV1ControllerSignupTest extends ControllerTestSupport {
                 .nationality("미국")
                 .stayDuration("ONE_TO_THREE_M")
                 .insuranceStatus("INSURED")
+                .verifiedToken(verifiedToken)
                 .build();
 
         //when
@@ -64,6 +82,7 @@ class AuthV1ControllerSignupTest extends ControllerTestSupport {
 
         //then
         assertThat(userRepository.count()).isEqualTo(1);
+        then(emailAuthCodeStore).should(times(1)).deleteVerifiedTokenByEmail(email);
     }
 
     @DisplayName("이미 가입된 계정이 게스트, 정지, 차단, 정상 계정이면 회원가입에 실패하고, 409를 반환한다.")
@@ -72,9 +91,15 @@ class AuthV1ControllerSignupTest extends ControllerTestSupport {
     void shouldReturn409Conflict_whenSignUpWithAlreadyRegisteredAccount(String status, UserStatus userStatus)
             throws Exception {
         //given
+        String verifiedToken = UUID.randomUUID().toString();
+        String email = "test@test.com";
+
+        given(emailAuthCodeStore.findVerifiedTokenByEmail(email))
+                .willReturn(verifiedToken);
+
         userRepository.save(User.builder()
                 .id(UUID.randomUUID())
-                .email("test@test.com")
+                .email(email)
                 .password("paosdfalsfjlas")
                 .name("이미 가입된 유저")
                 .language(Language.KOREAN)
@@ -89,7 +114,7 @@ class AuthV1ControllerSignupTest extends ControllerTestSupport {
                 .build());
 
         SignupRequest signupRequest = SignupRequest.builder()
-                .email("test@test.com")
+                .email(email)
                 .password("password1234Test!")
                 .name("테스트 유저")
                 .language("KOREAN")
@@ -99,6 +124,7 @@ class AuthV1ControllerSignupTest extends ControllerTestSupport {
                 .nationality("미국")
                 .stayDuration("ONE_TO_THREE_M")
                 .insuranceStatus("INSURED")
+                .verifiedToken(verifiedToken)
                 .build();
 
         //when
@@ -129,9 +155,15 @@ class AuthV1ControllerSignupTest extends ControllerTestSupport {
     @MethodSource("provideWithdrawableOrDeletedStatuses")
     void shouldSucceedSignUp_whenAccountIsWithdrawnOrDeleted(String status, UserStatus userStatus) throws Exception {
         //given
+        String email = "test@test.com";
+        String verifiedToken = UUID.randomUUID().toString();
+
+        given(emailAuthCodeStore.findVerifiedTokenByEmail(email))
+                .willReturn(verifiedToken);
+
         userRepository.save(User.builder()
                 .id(UUID.randomUUID())
-                .email("test@test.com")
+                .email(email)
                 .password("paosdfalsfjlas")
                 .name("이미 가입된 유저")
                 .language(Language.KOREAN)
@@ -146,7 +178,7 @@ class AuthV1ControllerSignupTest extends ControllerTestSupport {
                 .build());
 
         SignupRequest signupRequest = SignupRequest.builder()
-                .email("test@test.com")
+                .email(email)
                 .password("password1234Test!")
                 .name("테스트 유저")
                 .language("KOREAN")
@@ -156,6 +188,7 @@ class AuthV1ControllerSignupTest extends ControllerTestSupport {
                 .nationality("미국")
                 .stayDuration("ONE_TO_THREE_M")
                 .insuranceStatus("INSURED")
+                .verifiedToken(verifiedToken)
                 .build();
 
         //when
@@ -169,6 +202,7 @@ class AuthV1ControllerSignupTest extends ControllerTestSupport {
 
         //then
         assertThat(userRepository.count()).isEqualTo(2);
+        then(emailAuthCodeStore).should(times(1)).deleteVerifiedTokenByEmail(email);
     }
 
     private static Stream<Arguments> provideWithdrawableOrDeletedStatuses() {
@@ -176,6 +210,74 @@ class AuthV1ControllerSignupTest extends ControllerTestSupport {
                 Arguments.of("삭제", UserStatus.DELETED),
                 Arguments.of("탈퇴", UserStatus.WITHDRAWN)
         );
+    }
+
+    @DisplayName("이메일 인증 토큰이 없으면 회원가입에 실패한다.")
+    @Test
+    void shouldFailSignUp_whenVerifiedTokenNotFound() throws Exception {
+        //given
+        String email = "test@test.com";
+
+        given(emailAuthCodeStore.findVerifiedTokenByEmail(email))
+                .willReturn("");
+
+        SignupRequest signupRequest = SignupRequest.builder()
+                .email(email)
+                .password("password1234Test!")
+                .name("테스트 유저")
+                .language("KOREAN")
+                .birthDate(LocalDate.of(2026, 5, 19))
+                .gender("F")
+                .region("서울시 강남구")
+                .nationality("미국")
+                .stayDuration("ONE_TO_THREE_M")
+                .insuranceStatus("INSURED")
+                .verifiedToken(UUID.randomUUID().toString())
+                .build();
+
+        //when, then
+        mockMvc.perform(post("/api/v1/auth/signup/local")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(signupRequest)))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.message").value(ErrorStatus.UNAUTHORIZED_EMAIL_VERIFICATION.getMessage()));
+
+        assertThat(userRepository.count()).isEqualTo(0);
+        then(emailAuthCodeStore).should(never()).deleteVerifiedTokenByEmail(any());
+    }
+
+    @DisplayName("이메일 인증 토큰이 일치하지 않으면 회원가입에 실패한다.")
+    @Test
+    void shouldFailSignUp_whenVerifiedTokenMismatch() throws Exception {
+        //given
+        String email = "test@test.com";
+
+        given(emailAuthCodeStore.findVerifiedTokenByEmail(email))
+                .willReturn(UUID.randomUUID().toString());
+
+        SignupRequest signupRequest = SignupRequest.builder()
+                .email(email)
+                .password("password1234Test!")
+                .name("테스트 유저")
+                .language("KOREAN")
+                .birthDate(LocalDate.of(2026, 5, 19))
+                .gender("F")
+                .region("서울시 강남구")
+                .nationality("미국")
+                .stayDuration("ONE_TO_THREE_M")
+                .insuranceStatus("INSURED")
+                .verifiedToken(UUID.randomUUID().toString())
+                .build();
+
+        //when, then
+        mockMvc.perform(post("/api/v1/auth/signup/local")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(signupRequest)))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.message").value(ErrorStatus.UNAUTHORIZED_EMAIL_VERIFICATION.getMessage()));
+
+        assertThat(userRepository.count()).isEqualTo(0);
+        then(emailAuthCodeStore).should(never()).deleteVerifiedTokenByEmail(any());
     }
 
     @DisplayName("이메일이 null이면 회원가입에 실패하고 400 에러를 반환한다.")

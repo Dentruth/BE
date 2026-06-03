@@ -4,7 +4,9 @@ import com.dentruth.common.exception.DentruthException;
 import com.dentruth.common.response.code.ErrorStatus;
 import com.dentruth.user.application.dto.request.SendVerifyEmailApplicationRequest;
 import com.dentruth.user.application.dto.request.VerifyEmailApplicationRequest;
+import com.dentruth.user.application.dto.response.VerifyEmailResponse;
 import java.security.SecureRandom;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -24,7 +26,7 @@ public class EmailService {
         emailAuthCodeStore.save(request.getEmail(), authCode);
     }
 
-    public void verifyEmail(VerifyEmailApplicationRequest request) {
+    public VerifyEmailResponse verifyEmail(VerifyEmailApplicationRequest request) {
         String authCode = emailAuthCodeStore.findByEmail(request.getEmail())
                 .orElseThrow(() -> new DentruthException(ErrorStatus.INVALID_AUTH_CODE));
 
@@ -33,6 +35,11 @@ public class EmailService {
         }
 
         emailAuthCodeStore.deleteByEmail(request.getEmail());
+
+        String verifyToken = UUID.randomUUID().toString();
+        emailAuthCodeStore.saveVerifiedToken(request.getEmail(), verifyToken, 5);
+
+        return new VerifyEmailResponse(verifyToken);
     }
 
     private String generateAuthCode() {
