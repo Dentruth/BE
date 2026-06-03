@@ -6,6 +6,7 @@ import com.dentruth.common.jwt.JwtProvider;
 import com.dentruth.common.response.code.ErrorStatus;
 import com.dentruth.common.util.SecurityUtils;
 import com.dentruth.user.application.dto.request.LoginApplicationRequest;
+import com.dentruth.user.application.dto.request.ResetPasswordApplicationRequest;
 import com.dentruth.user.application.dto.request.SignupApplicationRequest;
 import com.dentruth.user.application.dto.response.TokenResponse;
 import com.dentruth.user.domain.entity.User;
@@ -29,15 +30,7 @@ public class AuthFacade {
         String email = request.getEmail();
         String verifiedToken = emailAuthCodeStore.findVerifiedTokenByEmail(email);
 
-        if (verifiedToken.isEmpty()) {
-            log.warn("유효한 이메일 인증 토큰이 존재하지 않거나 만료되었습니다. 이메일 : [{}]", SecurityUtils.convertToMaskedEmail(email));
-            throw new DentruthException(ErrorStatus.UNAUTHORIZED_EMAIL_VERIFICATION);
-        }
-
-        if (!verifiedToken.equals(request.getVerifiedToken())){
-            log.info("이메일 인증 토큰이 동일하지 않습니다. 이메일 : [{}]", SecurityUtils.convertToMaskedEmail(email));
-            throw new DentruthException(ErrorStatus.UNAUTHORIZED_EMAIL_VERIFICATION);
-        }
+        validEmailVerificationToken(verifiedToken, email, request.getVerifiedToken());
 
         authService.signup(request);
     }
@@ -89,4 +82,27 @@ public class AuthFacade {
                 .refreshToken(newRefreshToken)
                 .build();
     }
+
+    public void resetPassword(ResetPasswordApplicationRequest request) {
+        String email = request.getEmail();
+        String verifiedToken = emailAuthCodeStore.findVerifiedTokenByEmail(email);
+
+        validEmailVerificationToken(verifiedToken, email, request.getVerifiedToken());
+
+        User user = userService.findValidUserByEmail("비밀번호 초기화", request.getEmail());
+        authService.updatePassword(user, request.getPassword());
+    }
+
+    private void validEmailVerificationToken(String verifiedToken, String email, String request) {
+        if (verifiedToken.isEmpty()) {
+            log.warn("유효한 이메일 인증 토큰이 존재하지 않거나 만료되었습니다. 이메일 : [{}]", SecurityUtils.convertToMaskedEmail(email));
+            throw new DentruthException(ErrorStatus.UNAUTHORIZED_EMAIL_VERIFICATION);
+        }
+
+        if (!verifiedToken.equals(request)) {
+            log.info("이메일 인증 토큰이 동일하지 않습니다. 이메일 : [{}]", SecurityUtils.convertToMaskedEmail(email));
+            throw new DentruthException(ErrorStatus.UNAUTHORIZED_EMAIL_VERIFICATION);
+        }
+    }
+
 }
