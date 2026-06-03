@@ -13,4 +13,6 @@ public interface EmailAuthCodeStore {
 
     String findVerifiedTokenByEmail(String email);
 
+    void deleteVerifiedTokenByEmail(String email);
+
 }

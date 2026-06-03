@@ -101,4 +101,11 @@ public class RedisEmailAuthCodeRepository implements EmailAuthCodeStore {
         return token;
     }
 
+    @Override
+    public void deleteVerifiedTokenByEmail(String email) {
+        String key = TOKEN_PREFIX + email;
+        log.info("이메일 인증 토큰 정보 삭제. 이메일 : [{}]", SecurityUtils.convertToMaskedEmail(email));
+        redisTemplate.delete(key);
+    }
+
 }

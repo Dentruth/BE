@@ -33,6 +33,8 @@ public class AuthFacade {
         validEmailVerificationToken(verifiedToken, email, request.getVerifiedToken());
 
         authService.signup(request);
+
+        emailAuthCodeStore.deleteVerifiedTokenByEmail(email);
     }
 
     public TokenResponse login(LoginApplicationRequest request) {
@@ -91,6 +93,8 @@ public class AuthFacade {
 
         User user = userService.findValidUserByEmail("비밀번호 초기화", request.getEmail());
         authService.updatePassword(user, request.getPassword());
+
+        emailAuthCodeStore.deleteVerifiedTokenByEmail(email);
     }
 
     private void validEmailVerificationToken(String verifiedToken, String email, String request) {

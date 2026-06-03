@@ -1,7 +1,11 @@
 package com.dentruth.user.presentation;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -78,6 +82,7 @@ class AuthV1ControllerSignupTest extends ControllerTestSupport {
 
         //then
         assertThat(userRepository.count()).isEqualTo(1);
+        then(emailAuthCodeStore).should(times(1)).deleteVerifiedTokenByEmail(email);
     }
 
     @DisplayName("이미 가입된 계정이 게스트, 정지, 차단, 정상 계정이면 회원가입에 실패하고, 409를 반환한다.")
@@ -197,6 +202,7 @@ class AuthV1ControllerSignupTest extends ControllerTestSupport {
 
         //then
         assertThat(userRepository.count()).isEqualTo(2);
+        then(emailAuthCodeStore).should(times(1)).deleteVerifiedTokenByEmail(email);
     }
 
     private static Stream<Arguments> provideWithdrawableOrDeletedStatuses() {
@@ -237,6 +243,7 @@ class AuthV1ControllerSignupTest extends ControllerTestSupport {
                 .andExpect(jsonPath("$.message").value(ErrorStatus.UNAUTHORIZED_EMAIL_VERIFICATION.getMessage()));
 
         assertThat(userRepository.count()).isEqualTo(0);
+        then(emailAuthCodeStore).should(never()).deleteVerifiedTokenByEmail(any());
     }
 
     @DisplayName("이메일 인증 토큰이 일치하지 않으면 회원가입에 실패한다.")
@@ -270,6 +277,7 @@ class AuthV1ControllerSignupTest extends ControllerTestSupport {
                 .andExpect(jsonPath("$.message").value(ErrorStatus.UNAUTHORIZED_EMAIL_VERIFICATION.getMessage()));
 
         assertThat(userRepository.count()).isEqualTo(0);
+        then(emailAuthCodeStore).should(never()).deleteVerifiedTokenByEmail(any());
     }
 
     @DisplayName("이메일이 null이면 회원가입에 실패하고 400 에러를 반환한다.")

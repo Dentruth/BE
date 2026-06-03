@@ -1,7 +1,11 @@
 package com.dentruth.user.presentation;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -73,6 +77,7 @@ class AuthV1ControllerResetPasswordTest extends ControllerTestSupport {
         //then
         User updatedUser = userRepository.findById(user.getId()).get();
         assertThat(passwordEncoder.matches(newPassword, updatedUser.getPassword())).isTrue();
+        then(emailAuthCodeStore).should(times(1)).deleteVerifiedTokenByEmail(email);
     }
 
     @DisplayName("존재하지 않는 유저면 비밀번호 초기화에 실패한다.")
@@ -95,6 +100,7 @@ class AuthV1ControllerResetPasswordTest extends ControllerTestSupport {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isNotFound());
+        then(emailAuthCodeStore).should(never()).deleteVerifiedTokenByEmail(any());
     }
 
     @DisplayName("이메일 인증 토큰이 없으면 비밀번호 초기화에 실패한다.")
@@ -119,6 +125,7 @@ class AuthV1ControllerResetPasswordTest extends ControllerTestSupport {
                 .andExpect(jsonPath("$.message").value(ErrorStatus.UNAUTHORIZED_EMAIL_VERIFICATION.getMessage()));
 
         assertThat(userRepository.count()).isEqualTo(0);
+        then(emailAuthCodeStore).should(never()).deleteVerifiedTokenByEmail(any());
     }
 
     @DisplayName("이메일 인증 토큰이 일치하지 않으면 비밀번호 초기화에 실패한다.")
@@ -144,6 +151,7 @@ class AuthV1ControllerResetPasswordTest extends ControllerTestSupport {
                 .andExpect(jsonPath("$.message").value(ErrorStatus.UNAUTHORIZED_EMAIL_VERIFICATION.getMessage()));
 
         assertThat(userRepository.count()).isEqualTo(0);
+        then(emailAuthCodeStore).should(never()).deleteVerifiedTokenByEmail(any());
     }
 
     private User getUser(UUID userId, UserStatus userStatus) {
