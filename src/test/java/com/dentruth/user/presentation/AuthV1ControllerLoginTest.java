@@ -229,7 +229,7 @@ class AuthV1ControllerLoginTest extends ControllerTestSupport {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.isSuccess").value("false"))
                 .andExpect(jsonPath("$.code").value("USER_004"))
-                .andExpect(jsonPath("$.message").value("비밀번호가 일치하지 않습니다."));
+                .andExpect(jsonPath("$.message").value("Passwords do not match"));
     }
 
     @DisplayName("이메일을 입력하지 않고 로그인을 시도하면 400을 반환한다.")
@@ -254,7 +254,7 @@ class AuthV1ControllerLoginTest extends ControllerTestSupport {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.isSuccess").value("false"))
                 .andExpect(jsonPath("$.code").value("COMMON_400"))
-                .andExpect(jsonPath("$.result.email").value("이메일은 필수 입력입니다."));
+                .andExpect(jsonPath("$.result.email").value("Please enter your email"));
 
     }
 
@@ -279,7 +279,7 @@ class AuthV1ControllerLoginTest extends ControllerTestSupport {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.isSuccess").value("false"))
                 .andExpect(jsonPath("$.code").value("COMMON_400"))
-                .andExpect(jsonPath("$.result.password").value("비밀번호는 필수 입력입니다."));
+                .andExpect(jsonPath("$.result.password").value("Please enter your password"));
 
     }
 
@@ -306,16 +306,16 @@ class AuthV1ControllerLoginTest extends ControllerTestSupport {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.isSuccess").value("false"))
                 .andExpect(jsonPath("$.code").value("COMMON_400"))
-                .andExpect(jsonPath("$.result.email").value("유효한 이메일 형식이 아닙니다."));
+                .andExpect(jsonPath("$.result.email").value("Please enter a valid email address"));
     }
 
-    @DisplayName("비밀번호가 요구조건(영문+숫자+특수문자 8~20자)에 맞지 않으면 로그인에 실패하고 400을 반환한다.")
+    @DisplayName("비밀번호가 요구된 글자수에 맞지 않으면 로그인에 실패하고 400을 반환한다.")
     @Test
     void shouldReturn400BadRequest_whenPasswordDoesNotMatchRequirements() throws Exception {
         //given
         UUID userId = UUID.randomUUID();
         String email = "test@test.com";
-        String password = "short12";
+        String password = "!Pw12";
         String encodePassword = "testest1234";
 
         saveUser(userId, email, encodePassword, UserStatus.ACTIVE);
@@ -332,7 +332,33 @@ class AuthV1ControllerLoginTest extends ControllerTestSupport {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.isSuccess").value("false"))
                 .andExpect(jsonPath("$.code").value("COMMON_400"))
-                .andExpect(jsonPath("$.result.password").value("유효한 비밀번호 형식이 아닙니다."));
+                .andExpect(jsonPath("$.result.password").value("Password must be between 8 and 20 characters"));
+    }
+
+    @DisplayName("비밀번호가 요구조건(영문+숫자+특수문자)에 맞지 않으면 로그인에 실패하고 400을 반환한다.")
+    @Test
+    void shouldReturn400BadRequest_whenPasswordDoesNotMatchRequirements2() throws Exception {
+        //given
+        UUID userId = UUID.randomUUID();
+        String email = "test@test.com";
+        String password = "testtest123";
+        String encodePassword = "testest1234";
+
+        saveUser(userId, email, encodePassword, UserStatus.ACTIVE);
+
+        LoginRequest request = LoginRequest.builder()
+                .email(email)
+                .password(password)
+                .build();
+
+        //when, then
+        mockMvc.perform(post("/api/v1/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.isSuccess").value("false"))
+                .andExpect(jsonPath("$.code").value("COMMON_400"))
+                .andExpect(jsonPath("$.result.password").value("Password must include letters, numbers, and special characters"));
     }
 
     private void saveUser(UUID userId, String email, String encodePassword, UserStatus deleted) {

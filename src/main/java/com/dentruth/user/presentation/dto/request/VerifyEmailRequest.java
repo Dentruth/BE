@@ -13,14 +13,14 @@ import lombok.Getter;
 @Getter
 public class VerifyEmailRequest {
 
-    @NotNull(message = "이메일은 필수 입력입니다.")
+    @NotNull(message = "Please enter your email")
     @Pattern(
             regexp = "^[a-zA-Z0-9+\\-_.]+@[a-zA-Z0-9-]+\\.[a-zA-Z]{2,}$",
-            message = "유효한 이메일 형식이 아닙니다."
+            message = "Please enter a valid email address"
     )
     private String email;
 
-    @NotBlank(message = "인증코드는 필수 입력입니다.")
+    @NotBlank(message = "Please enter the verification code")
     private String authCode;
 
     public VerifyEmailApplicationRequest toApplicationRequest(){

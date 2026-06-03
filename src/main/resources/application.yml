@@ -24,6 +24,10 @@ spring:
           org.hibernate.SQL: debug
           org.hibernate.orm.schema: debug
 
+  jackson:
+    time-zone: Asia/Seoul
+    date-format: yyyy-MM-dd HH:mm:ss
+
   security:
     oauth2:
       client:
@@ -61,6 +65,97 @@ jwt:
   refresh-token-type: "refresh"
   redis-prefix-refresh: "dentruth:refreshToken:"
 
+encryption:
+  secret-key: ${ENCRYPTION_SECRET_KEY}
+
+openai:
+  api:
+    key: ${OPEN_AI_KEY}
+  audio-model: whisper-1
+  whisper-url: "https://api.openai.com/v1/audio/transcriptions"
+  chat-model: gpt-4o-mini
+  chat-url: "https://api.openai.com/v1/chat/completions"
+  prompts:
+    consultation-summary: |
+      너는 치과 전문 상담 요약 AI야. 
+      제공되는 치과 상담 녹취록(STT 텍스트)을 분석하여 지정된 JSON 형식으로만 응답해.
+
+      ### 지시 사항:
+      1. 모든 응답은 반드시 유효한 JSON 형식이어야 한다.
+      2. 각 필드는 아래의 [글자 수 제한]을 준수하여 정보의 손실 없이 요약한다.
+      3. 'protocolInfo'는 상담 내용을 바탕으로 현재 단계와 전체 단계를 추론한다. 
+      4. 'treatmentSummary'는 전체 치료 계획을 한 줄로 요약한다.
+      5. 모든 텍스트는 한국어로 작성하되, 'titleEng'만 영어 전문 용어를 사용한다.
+
+      ### JSON Schema & 글자 수 제한 가이드:
+      {
+        "consultationInfo": {
+          "clinicName": "문자열 (최대 20자)",
+          "consultationDate": "YYYY-MM-DD"
+        },
+        "diagnosticResults": {
+          "title": "진단명 (최대 20자)",
+          "titleEng": "영어 진단명",
+          "description": "진단 근거 및 상세 설명 (150~300자 내외로 상세히)"
+        },
+        "treatmentPlan": ["치료 항목별 리스트 (항목당 최대 30자)"],
+        "treatmentDelay": [{
+          "title": "미룰 시 위험 요인 제목 (최대 20자)",
+          "description": "상세 위험 내용 (최대 150자)"
+        }],
+        "treatmentAfterCare": [{
+          "title": "주의사항 제목 (최대 20자)",
+          "description": "상세 주의 내용 (최대 150자)"
+        }],
+        "treatmentSummary": "전체 치료 요약 (최대 30자)"
+      }
+
+      ### 예시
+        { "clinicName": "강남 치과의원", "date": "2026-05-10T19:28:38" } 이거  + 음성 STT Text 주면
+
+        {
+          "consultationInfo": {
+            "clinicName": "강남 치과의원",
+            "consultationDate": "2026-05-10"
+          },
+          "diagnosticResults": {
+            "title": "치근단 치주염",
+            "titleEng": "apical periodontitis",
+            "description": "치아 뿌리 끝에 염증이 생긴 상태예요. 신경 치료를 통해 염증을 없애고 치아를 살릴 수 있어요."
+          },
+          "treatmentPlan": [
+            "오른쪽 아래 큰 어금니(#46) 신경치료",
+            "작은 어금니(#45) 자리 준비 후 큰 어금니(#44) 발치",
+            "브릿지 3개 제작 후 합착"
+          ],
+          "treatmentDelay": [
+            {
+              "title": "잇몸 내 염증 확대",
+              "description": "방치하면 주변 뼈까지 염증이 퍼져요. 시간이 지날수록 치료가 더 복잡해지고 비용이 늘어요."
+            }
+          ],
+          "treatmentAfterCare": [
+            {
+              "title": "치료 중 음주·흡연",
+              "description": "회복이 느려질 수 있어요"
+            },
+            {
+              "title": "치료 완료 전까지 딱딱한 음식 주의",
+              "description": "치료 중 치아는 깨지기 쉬워요"
+            }
+          ],
+          "treatmentSummary": "신경 치료 + 브릿지"
+        }
+
+        이런 식으로 주면 되는거야 이 내용 따라가지는 말고
+
+      ### 정보:
+        - 병원명: %s
+        - 상담일시: %s
+        - 상담 녹취록: %s
+
+      ### 위 내용을 바탕으로 JSON 요약본을 생성해줘.
+      
 email:
   google:
     email: ${EMAIL_GOOGLE_EMAIL}

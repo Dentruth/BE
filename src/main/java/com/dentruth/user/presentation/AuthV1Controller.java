@@ -4,11 +4,11 @@ import com.dentruth.common.jwt.CustomUserDetails;
 import com.dentruth.common.response.ApiResponse;
 import com.dentruth.common.response.code.SuccessStatus;
 import com.dentruth.user.application.AuthFacade;
-import com.dentruth.user.application.AuthService;
+import com.dentruth.user.application.dto.response.TokenResponse;
 import com.dentruth.user.presentation.dto.request.LoginRequest;
+import com.dentruth.user.presentation.dto.request.ResetPasswordRequest;
 import com.dentruth.user.presentation.dto.request.SignupRequest;
 import com.dentruth.user.presentation.dto.request.TokenRefreshRequest;
-import com.dentruth.user.application.dto.response.TokenResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import java.util.UUID;
@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,12 +28,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthV1Controller {
 
     private final AuthFacade authFacade;
-    private final AuthService authService;
 
     @PostMapping("/signup/local")
     @Operation(summary = "로컬 회원가입")
     public ResponseEntity<ApiResponse<?>> signup(@Valid @RequestBody SignupRequest signupRequest) {
-        authService.signup(signupRequest.toApplicationRequest());
+        authFacade.signup(signupRequest.toApplicationRequest());
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.onSuccess(SuccessStatus.CREATED, null));
     }
 
@@ -55,6 +55,13 @@ public class AuthV1Controller {
     public ApiResponse<TokenResponse> reissueToken(@RequestBody @Valid TokenRefreshRequest request) {
         TokenResponse response = authFacade.reissue(request.getRefreshToken());
         return ApiResponse.onSuccess(SuccessStatus.OK, response);
+    }
+
+    @PatchMapping("/password")
+    @Operation(summary = "비밀번호 초기화")
+    public ApiResponse<Void> resetPassword(@RequestBody @Valid ResetPasswordRequest request) {
+        authFacade.resetPassword(request.toApplicationRequest());
+        return ApiResponse.onSuccess(SuccessStatus.OK, null);
     }
 
 }
