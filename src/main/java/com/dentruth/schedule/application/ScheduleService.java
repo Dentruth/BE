@@ -3,12 +3,12 @@ package com.dentruth.schedule.application;
 import com.dentruth.common.exception.DentruthException;
 import com.dentruth.common.response.code.ErrorStatus;
 import com.dentruth.schedule.application.dto.response.*;
+import com.dentruth.schedule.domain.WeekRange;
 import com.dentruth.schedule.domain.entity.enums.ScheduleType;
 import com.dentruth.schedule.presentation.dto.request.CreateScheduleRequest;
 import com.dentruth.schedule.presentation.dto.request.UpdateScheduleRequest;
 import com.dentruth.schedule.domain.entity.Schedule;
 import com.dentruth.schedule.domain.repository.ScheduleRepository;
-import com.dentruth.user.domain.repository.UserRepository;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -118,17 +118,13 @@ public class ScheduleService {
 
         LocalDate today = LocalDate.now();
 
-        LocalDate startDate =
-                today.minusDays(today.getDayOfWeek().getValue() % 7);
+        WeekRange weekRange = WeekRange.from(today);
 
-        LocalDate endDate =
-                startDate.plusDays(6);
-
-        List<Schedule> schedules = scheduleRepository
-                .findAllByUserIdAndStartDateBetween(
+        List<Schedule> schedules =
+                scheduleRepository.findAllByUserIdAndStartDateBetween(
                         userId,
-                        startDate,
-                        endDate
+                        weekRange.startDate(),
+                        weekRange.endDate()
                 );
 
         return schedules.stream()
