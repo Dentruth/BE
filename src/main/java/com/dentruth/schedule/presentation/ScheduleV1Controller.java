@@ -41,34 +41,46 @@ public class ScheduleV1Controller {
 
     @PutMapping("/{scheduleId}")
     public ApiResponse<ScheduleDetailResponse> updateSchedule(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable Long scheduleId,
             @Valid @RequestBody UpdateScheduleRequest request
     ) {
 
         return ApiResponse.onSuccess(
                 SuccessStatus.OK,
-                scheduleService.updateSchedule(scheduleId, request)
+                scheduleService.updateSchedule(
+                        scheduleId,
+                        UUID.fromString(userDetails.getUserId()),
+                        request)
         );
     }
 
     @DeleteMapping("/{scheduleId}")
     public ApiResponse<Void> deleteSchedule(
-            @PathVariable Long scheduleId
+            @PathVariable Long scheduleId,
+            @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
 
-        scheduleService.deleteSchedule(scheduleId);
+        scheduleService.deleteSchedule(
+                scheduleId,
+                UUID.fromString(userDetails.getUserId())
+        );
 
         return ApiResponse.onSuccess(SuccessStatus.OK, null);
     }
 
     @GetMapping("/{scheduleId}")
     public ApiResponse<ScheduleDetailResponse> getSchedule(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable Long scheduleId
     ) {
 
         return ApiResponse.onSuccess(
                 SuccessStatus.OK,
-                scheduleService.getSchedule(scheduleId)
+                scheduleService.getSchedule(
+                        scheduleId,
+                        UUID.fromString(userDetails.getUserId())
+                )
         );
     }
 

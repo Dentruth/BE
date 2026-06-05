@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -27,14 +28,30 @@ public class ScheduleService {
 
     private final ScheduleRepository scheduleRepository;
 
-    private Schedule findScheduleById(Long scheduleId) {
+    private Schedule findScheduleById(Long scheduleId, UUID userId) {
         return scheduleRepository.findById(scheduleId)
-                .orElseThrow(() ->
-                        new DentruthException(ErrorStatus.SCHEDULE_NOT_FOUND));
+                .orElseThrow(() -> {
+
+                    log.warn(
+                            "일정을 찾을 수 없습니다. UserId=[{}], ScheduleId=[{}]",
+                            userId,
+                            scheduleId
+                    );
+
+                    return new DentruthException(
+                            ErrorStatus.SCHEDULE_NOT_FOUND
+                    );
+                });
     }
 
     @Transactional
     public CreateScheduleResponse createSchedule(UUID userId, CreateScheduleRequest request) {
+
+        log.info(
+                "일정 생성 요청. UserId=[{}], ScheduleName=[{}]",
+                userId,
+                request.getScheduleName()
+        );
 
         Schedule schedule =
                 Schedule.createCustomSchedule(userId, request);
@@ -49,10 +66,17 @@ public class ScheduleService {
     @Transactional
     public ScheduleDetailResponse updateSchedule(
             Long scheduleId,
+            UUID userId,
             UpdateScheduleRequest request
     ) {
 
-        Schedule schedule = findScheduleById(scheduleId);
+        log.info(
+                "일정 수정 요청. UserId=[{}], ScheduleId=[{}]",
+                userId,
+                scheduleId
+        );
+
+        Schedule schedule = findScheduleById(scheduleId, userId);
 
         schedule.updateSchedule(
                 request.getClinicName(),
@@ -70,16 +94,22 @@ public class ScheduleService {
     }
 
     @Transactional
-    public void deleteSchedule(Long scheduleId) {
+    public void deleteSchedule(Long scheduleId, UUID userId) {
 
-        Schedule schedule = findScheduleById(scheduleId);
+        log.info(
+                "일정 삭제 요청. UserId=[{}], ScheduleId=[{}]",
+                userId,
+                scheduleId
+        );
+
+        Schedule schedule = findScheduleById(scheduleId, userId);
 
         scheduleRepository.delete(schedule);
     }
 
-    public ScheduleDetailResponse getSchedule(Long scheduleId) {
+    public ScheduleDetailResponse getSchedule(Long scheduleId, UUID userId) {
 
-        Schedule schedule = findScheduleById(scheduleId);
+        Schedule schedule = findScheduleById(scheduleId, userId);
 
         return ScheduleDetailResponse.from(schedule);
     }
