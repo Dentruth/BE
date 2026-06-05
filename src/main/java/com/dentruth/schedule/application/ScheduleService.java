@@ -34,30 +34,8 @@ public class ScheduleService {
                         new DentruthException(ErrorStatus.SCHEDULE_NOT_FOUND));
     }
 
-    private void validateScheduleTime(
-            LocalDate startDate,
-            LocalTime startTime,
-            LocalDate endDate,
-            LocalTime endTime
-    ) {
-
-        LocalDateTime start = LocalDateTime.of(startDate, startTime);
-        LocalDateTime end = LocalDateTime.of(endDate, endTime);
-
-        if (start.isAfter(end)) {
-            throw new DentruthException(ErrorStatus.INVALID_SCHEDULE_TIME);
-        }
-    }
-
     @Transactional
     public CreateScheduleResponse createSchedule(UUID userId, CreateScheduleRequest request) {
-
-        validateScheduleTime(
-                request.getStartDate(),
-                request.getStartTime(),
-                request.getEndDate(),
-                request.getEndTime()
-        );
 
         Schedule schedule =
                 Schedule.createCustomSchedule(userId, request);
@@ -74,13 +52,6 @@ public class ScheduleService {
             Long scheduleId,
             UpdateScheduleRequest request
     ) {
-
-        validateScheduleTime(
-                request.getStartDate(),
-                request.getStartTime(),
-                request.getEndDate(),
-                request.getEndTime()
-        );
 
         Schedule schedule = findScheduleById(scheduleId);
 

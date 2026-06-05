@@ -1,12 +1,15 @@
 package com.dentruth.schedule.domain.entity;
 
 import com.dentruth.common.domain.BaseEntity;
+import com.dentruth.common.exception.DentruthException;
+import com.dentruth.common.response.code.ErrorStatus;
 import com.dentruth.schedule.domain.entity.enums.ClinicPurpose;
 import com.dentruth.schedule.domain.entity.enums.ScheduleType;
 import com.dentruth.schedule.presentation.dto.request.CreateScheduleRequest;
 import com.dentruth.user.domain.entity.User;
 import jakarta.persistence.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.UUID;
 
@@ -59,6 +62,14 @@ public class Schedule extends BaseEntity {
             UUID userId,
             CreateScheduleRequest request
     ) {
+
+        validateScheduleTime(
+                request.getStartDate(),
+                request.getStartTime(),
+                request.getEndDate(),
+                request.getEndTime()
+        );
+
         return Schedule.builder()
                 .clinicName(request.getClinicName())
                 .clinicPurpose(request.getClinicPurpose())
@@ -84,6 +95,14 @@ public class Schedule extends BaseEntity {
             String memo,
             ScheduleType scheduleType
     ) {
+
+        validateScheduleTime(
+                startDate,
+                startTime,
+                endDate,
+                endTime
+        );
+
         this.clinicName = clinicName;
         this.clinicPurpose = clinicPurpose;
         this.scheduleName = scheduleName;
@@ -93,5 +112,20 @@ public class Schedule extends BaseEntity {
         this.endTime = endTime;
         this.memo = memo;
         this.scheduleType = scheduleType;
+    }
+
+    private static void validateScheduleTime(
+            LocalDate startDate,
+            LocalTime startTime,
+            LocalDate endDate,
+            LocalTime endTime
+    ) {
+
+        LocalDateTime start = LocalDateTime.of(startDate, startTime);
+        LocalDateTime end = LocalDateTime.of(endDate, endTime);
+
+        if (start.isAfter(end)) {
+            throw new DentruthException(ErrorStatus.INVALID_SCHEDULE_TIME);
+        }
     }
 }
