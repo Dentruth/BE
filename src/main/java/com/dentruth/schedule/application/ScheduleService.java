@@ -9,13 +9,12 @@ import com.dentruth.schedule.presentation.dto.request.CreateScheduleRequest;
 import com.dentruth.schedule.presentation.dto.request.UpdateScheduleRequest;
 import com.dentruth.schedule.domain.entity.Schedule;
 import com.dentruth.schedule.domain.repository.ScheduleRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
