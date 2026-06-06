@@ -3,15 +3,14 @@ package com.dentruth.consultprepare.domain.entity;
 import com.dentruth.common.domain.BaseEntity;
 import com.dentruth.consultprepare.domain.entity.enums.*;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Getter
+@Builder
+@AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ConsultPrepare extends BaseEntity {
 
@@ -20,7 +19,7 @@ public class ConsultPrepare extends BaseEntity {
     private Long id;
 
     @Column(nullable = false)
-    private Long userId;
+    private String userId;
 
     @Column(nullable = false)
     private LocalDateTime appointmentDate;
@@ -59,4 +58,5 @@ public class ConsultPrepare extends BaseEntity {
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private ExerciseLevel exercise;
+
 }
