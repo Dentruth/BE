@@ -175,7 +175,7 @@ class UserV1ControllerOnboardingTest extends ControllerTestSupport {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.isSuccess").value(false))
                 .andExpect(jsonPath("$.code").value("COMMON_400"))
-                .andExpect(jsonPath("$.result.name").value("이름은 필수 입력입니다."));
+                .andExpect(jsonPath("$.result.name").value("Please enter your name"));
 
         User updatedUser = userRepository.findById(userId)
                 .orElseThrow();
@@ -216,7 +216,7 @@ class UserV1ControllerOnboardingTest extends ControllerTestSupport {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.isSuccess").value(false))
                 .andExpect(jsonPath("$.code").value("COMMON_400"))
-                .andExpect(jsonPath("$.result.name").value("이름은 2~50자 사이여야 합니다."));
+                .andExpect(jsonPath("$.result.name").value("Name cannot exceed 50 characters"));
 
         User updatedUser = userRepository.findById(userId)
                 .orElseThrow();
@@ -257,7 +257,7 @@ class UserV1ControllerOnboardingTest extends ControllerTestSupport {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.isSuccess").value(false))
                 .andExpect(jsonPath("$.code").value("COMMON_400"))
-                .andExpect(jsonPath("$.result.name").value("이름은 2~50자 사이여야 합니다."));
+                .andExpect(jsonPath("$.result.name").value("Name cannot exceed 50 characters"));
 
         User updatedUser = userRepository.findById(userId)
                 .orElseThrow();
@@ -297,7 +297,7 @@ class UserV1ControllerOnboardingTest extends ControllerTestSupport {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.isSuccess").value(false))
                 .andExpect(jsonPath("$.code").value("COMMON_400"))
-                .andExpect(jsonPath("$.result.birthDate").value("생년월일은 필수입니다."));
+                .andExpect(jsonPath("$.result.birthDate").value("Please select your date of birth"));
 
         User updatedUser = userRepository.findById(userId)
                 .orElseThrow();
@@ -417,7 +417,7 @@ class UserV1ControllerOnboardingTest extends ControllerTestSupport {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.isSuccess").value(false))
                 .andExpect(jsonPath("$.code").value("COMMON_400"))
-                .andExpect(jsonPath("$.result.region").value("거주지역은 필수입니다."));
+                .andExpect(jsonPath("$.result.region").value("Please select your region"));
 
         User updatedUser = userRepository.findById(userId)
                 .orElseThrow();
@@ -457,7 +457,7 @@ class UserV1ControllerOnboardingTest extends ControllerTestSupport {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.isSuccess").value(false))
                 .andExpect(jsonPath("$.code").value("COMMON_400"))
-                .andExpect(jsonPath("$.result.language").value("언어 선택은 필수입니다."));
+                .andExpect(jsonPath("$.result.language").value("Please select a language"));
 
         User updatedUser = userRepository.findById(userId)
                 .orElseThrow();
@@ -538,7 +538,7 @@ class UserV1ControllerOnboardingTest extends ControllerTestSupport {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.isSuccess").value(false))
                 .andExpect(jsonPath("$.code").value("COMMON_400"))
-                .andExpect(jsonPath("$.result.gender").value("성별은 필수입니다."));
+                .andExpect(jsonPath("$.result.gender").value("Please select your gender"));
 
         User updatedUser = userRepository.findById(userId)
                 .orElseThrow();
@@ -619,7 +619,7 @@ class UserV1ControllerOnboardingTest extends ControllerTestSupport {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.isSuccess").value(false))
                 .andExpect(jsonPath("$.code").value("COMMON_400"))
-                .andExpect(jsonPath("$.result.stayDuration").value("체류기간은 필수입니다."));
+                .andExpect(jsonPath("$.result.stayDuration").value("Please select your duration of stay"));
 
         User updatedUser = userRepository.findById(userId)
                 .orElseThrow();
@@ -700,7 +700,7 @@ class UserV1ControllerOnboardingTest extends ControllerTestSupport {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.isSuccess").value(false))
                 .andExpect(jsonPath("$.code").value("COMMON_400"))
-                .andExpect(jsonPath("$.result.insuranceStatus").value("보험 여부는 필수입니다."));
+                .andExpect(jsonPath("$.result.insuranceStatus").value("Please select your insurance status"));
 
         User updatedUser = userRepository.findById(userId)
                 .orElseThrow();
