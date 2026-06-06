@@ -4,6 +4,7 @@ import com.dentruth.common.domain.BaseEntity;
 import com.dentruth.consultprepare.domain.entity.enums.*;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -18,15 +19,19 @@ public class ConsultPrepare extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     private Long userId;
 
+    @Column(nullable = false)
     private LocalDateTime appointmentDate;
 
     private String clinicName;
 
+    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private CurrentStatus currentStatus;
 
+    @Column(nullable = false)
     private Boolean painExistence;
 
     private String painLocation;
@@ -43,12 +48,15 @@ public class ConsultPrepare extends BaseEntity {
 
     private String question;
 
+    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private SmokingLevel smoking;
 
+    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private DrinkingLevel drinking;
 
+    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private ExerciseLevel exercise;
 }
