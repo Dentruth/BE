@@ -63,4 +63,35 @@ public class ConsultPrepare extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private ExerciseLevel exercise;
 
+    public void update(
+            String title,
+            LocalDateTime appointmentDate,
+            CurrentStatus currentStatus,
+            Boolean painExistence,
+            String painLocation,
+            PainLevel painLevel,
+            PainPersistence painPersistence,
+            String painDuration,
+            String worriedIssue,
+            String question,
+            SmokingLevel smoking,
+            DrinkingLevel drinking,
+            ExerciseLevel exercise
+    ) {
+
+        this.title = title;
+        this.appointmentDate = appointmentDate;
+        this.currentStatus = currentStatus;
+        this.painExistence = painExistence;
+        this.painLocation = painLocation;
+        this.painLevel = painLevel;
+        this.painPersistence = painPersistence;
+        this.painDuration = painDuration;
+        this.worriedIssue = worriedIssue;
+        this.question = question;
+        this.smoking = smoking;
+        this.drinking = drinking;
+        this.exercise = exercise;
+    }
+
 }

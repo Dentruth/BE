@@ -14,4 +14,8 @@ public interface ConsultMedicalHistoryRepository
             Long consultPrepareId
     );
 
+    void deleteAllByConsultPrepareId(
+            Long consultPrepareId
+    );
+
 }

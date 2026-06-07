@@ -1,6 +1,7 @@
 package com.dentruth.consultprepare.application;
 
 import com.dentruth.consultprepare.application.dto.request.CreateConsultCardRequest;
+import com.dentruth.consultprepare.application.dto.request.UpdateConsultCardRequest;
 import com.dentruth.consultprepare.application.dto.response.ConsultCardDetailResponse;
 import com.dentruth.consultprepare.application.dto.response.ConsultCardListItemResponse;
 import com.dentruth.consultprepare.application.dto.response.CreateConsultCardResponse;
@@ -324,6 +325,85 @@ public class ConsultPrepareService {
             case MODERATE -> "Moderate";
             case SEVERE -> "Severe";
         };
+    }
+
+    @Transactional
+    public void updateConsultCard(
+            UUID userId, Long consultCardId,
+            UpdateConsultCardRequest request
+    ) {
+
+        ConsultPrepare consultPrepare =
+                consultPrepareRepository
+                        .findByIdAndUserId(
+                                consultCardId,
+                                userId
+                        )
+                        .orElseThrow(() ->
+                                new RuntimeException(
+                                        "상담카드를 찾을 수 없습니다."
+                                )
+                        );
+
+        consultPrepare.update(
+                request.getTitle(),
+                request.getVisitInfo()
+                        .getVisitDate()
+                        .atStartOfDay(),
+                request.getVisitInfo()
+                        .getCurrentStatus(),
+                request.getSymptomInfo()
+                        .getPainExistence(),
+                request.getSymptomInfo()
+                        .getPainArea(),
+                request.getSymptomInfo()
+                        .getPainLevel(),
+                request.getSymptomInfo()
+                        .getPainPersistence(),
+                request.getSymptomInfo()
+                        .getPainDuration(),
+                request.getMemoInfo()
+                        .getConcerns(),
+                request.getMemoInfo()
+                        .getQuestion(),
+                request.getMedicalHistories()
+                        .getSocialHistory()
+                        .getSmoking(),
+                request.getMedicalHistories()
+                        .getSocialHistory()
+                        .getDrinking(),
+                request.getMedicalHistories()
+                        .getSocialHistory()
+                        .getExercise()
+        );
+
+        consultDentalHistoryRepository
+                .deleteAllByConsultPrepareId(
+                        consultCardId
+                );
+
+        consultMedicalHistoryRepository
+                .deleteAllByConsultPrepareId(
+                        consultCardId
+                );
+
+        saveDentalHistories(
+                consultCardId,
+                request.getMedicalHistories()
+                        .getDentalHistories()
+        );
+
+        saveMedicalHistories(
+                consultCardId,
+                request.getMedicalHistories()
+                        .getMedicalHistories()
+        );
+
+        log.info(
+                "[상담카드 수정] consultPrepareId={}, userId={}",
+                consultCardId,
+                userId
+        );
     }
 
     @Transactional
