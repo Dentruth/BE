@@ -423,6 +423,12 @@ public class ConsultPrepareService {
         consultPrepareRepository.delete(
                 consultPrepare
         );
+
+        log.info(
+                "[상담카드 삭제] consultPrepareId={}, userId={}",
+                consultCardId,
+                userId
+        );
     }
 
 }
