@@ -102,6 +102,18 @@ public class ConsultPrepareService {
         ConsultPrepare saved =
                 consultPrepareRepository.save(consultPrepare);
 
+        saveDentalHistories(
+                saved.getId(),
+                request.getMedicalHistories()
+                        .getDentalHistories()
+        );
+
+        saveMedicalHistories(
+                saved.getId(),
+                request.getMedicalHistories()
+                        .getMedicalHistories()
+        );
+
         log.info(
                 "[상담카드 생성] 저장 완료 consultPrepareId={}, userId={}",
                 saved.getId(),
@@ -136,6 +148,64 @@ public class ConsultPrepareService {
                         )
                 )
                 .toList();
+    }
+
+    private void saveDentalHistories(
+            Long consultPrepareId,
+            List<String> dentalHistoryNames
+    ) {
+
+        if (dentalHistoryNames == null ||
+                dentalHistoryNames.isEmpty()) {
+            return;
+        }
+
+        for (String name : dentalHistoryNames) {
+
+            DentalHistory dentalHistory =
+                    dentalHistoryRepository.findByName(name)
+                            .orElseThrow(() ->
+                                    new RuntimeException(
+                                            "존재하지 않는 치과 병력입니다."
+                                    )
+                            );
+
+            consultDentalHistoryRepository.save(
+                    new ConsultDentalHistory(
+                            consultPrepareId,
+                            dentalHistory.getId()
+                    )
+            );
+        }
+    }
+
+    private void saveMedicalHistories(
+            Long consultPrepareId,
+            List<String> medicalHistoryNames
+    ) {
+
+        if (medicalHistoryNames == null ||
+                medicalHistoryNames.isEmpty()) {
+            return;
+        }
+
+        for (String name : medicalHistoryNames) {
+
+            MedicalHistory medicalHistory =
+                    medicalHistoryRepository.findByName(name)
+                            .orElseThrow(() ->
+                                    new RuntimeException(
+                                            "존재하지 않는 전신 병력입니다."
+                                    )
+                            );
+
+            consultMedicalHistoryRepository.save(
+                    new ConsultMedicalHistory(
+                            consultPrepareId,
+                            medicalHistory.getId()
+                    )
+            );
+        }
     }
 
     @Transactional
