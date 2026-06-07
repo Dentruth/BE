@@ -326,5 +326,23 @@ public class ConsultPrepareService {
         };
     }
 
+    @Transactional
+    public void deleteConsultCard(
+            UUID userId,
+            Long consultCardId
+    ) {
+
+        ConsultPrepare consultPrepare =
+                consultPrepareRepository
+                        .findByIdAndUserId(
+                                consultCardId,
+                                userId
+                        )
+                        .orElseThrow();
+
+        consultPrepareRepository.delete(
+                consultPrepare
+        );
+    }
 
 }

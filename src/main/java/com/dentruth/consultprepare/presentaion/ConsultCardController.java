@@ -67,4 +67,24 @@ public class ConsultCardController {
         );
     }
 
+    @DeleteMapping("/{consultCardId}")
+    public ApiResponse<Void> deleteConsultCard(
+            @AuthenticationPrincipal
+            CustomUserDetails userDetails,
+
+            @PathVariable
+            Long consultCardId
+    ) {
+
+        consultPrepareService.deleteConsultCard(
+                UUID.fromString(userDetails.getUserId()),
+                consultCardId
+        );
+
+        return ApiResponse.onSuccess(
+                SuccessStatus.OK,
+                null
+        );
+    }
+
 }
