@@ -4,15 +4,15 @@ import com.dentruth.common.jwt.CustomUserDetails;
 import com.dentruth.common.response.ApiResponse;
 import com.dentruth.common.response.code.SuccessStatus;
 import com.dentruth.consultprepare.application.ConsultPrepareService;
+import com.dentruth.consultprepare.application.dto.request.ConsultCardListItemResponse;
 import com.dentruth.consultprepare.application.dto.request.CreateConsultCardRequest;
 import com.dentruth.consultprepare.application.dto.response.CreateConsultCardResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -32,6 +32,19 @@ public class ConsultCardController {
                 consultPrepareService.createConsultCard(
                         userDetails.getUserId(),
                         request
+                )
+        );
+    }
+
+    @GetMapping
+    public ApiResponse<List<ConsultCardListItemResponse>> getConsultCards(
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+
+        return ApiResponse.onSuccess(
+                SuccessStatus.OK,
+                consultPrepareService.getConsultCards(
+                        userDetails.getUserId()
                 )
         );
     }

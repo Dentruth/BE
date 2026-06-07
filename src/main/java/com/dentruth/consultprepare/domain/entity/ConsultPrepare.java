@@ -24,6 +24,9 @@ public class ConsultPrepare extends BaseEntity {
     @Column(nullable = false)
     private LocalDateTime appointmentDate;
 
+    @Column(nullable = false)
+    private String title;
+
     private String clinicName;
 
     @Column(nullable = false)

@@ -21,4 +21,12 @@ public class ConsultMedicalHistory extends BaseEntity {
     private Long consultPrepareId;
 
     private Long medicalHistoryId;
+
+    public ConsultMedicalHistory(
+            Long consultPrepareId,
+            Long medicalHistoryId
+    ) {
+        this.consultPrepareId = consultPrepareId;
+        this.medicalHistoryId = medicalHistoryId;
+    }
 }

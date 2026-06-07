@@ -14,6 +14,7 @@ import java.util.List;
 @Builder
 public class CreateConsultCardRequest {
 
+    private String title;
     private VisitInfo visitInfo;
     private SymptomInfo symptomInfo;
     private MedicalHistories medicalHistories;
