@@ -4,8 +4,8 @@ import com.dentruth.common.jwt.CustomUserDetails;
 import com.dentruth.common.response.ApiResponse;
 import com.dentruth.common.response.code.SuccessStatus;
 import com.dentruth.consultprepare.application.ConsultPrepareService;
-import com.dentruth.consultprepare.application.dto.request.ConsultCardListItemResponse;
 import com.dentruth.consultprepare.application.dto.request.CreateConsultCardRequest;
+import com.dentruth.consultprepare.application.dto.response.ConsultCardListItemResponse;
 import com.dentruth.consultprepare.application.dto.response.CreateConsultCardResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -39,7 +39,7 @@ public class ConsultCardController {
     }
 
     @GetMapping
-    public ApiResponse<List<ConsultCardListItemResponse>> getConsultCards(
+    public ApiResponse<List<ConsultCardListItemResponse.ConsultCardListItemResponse>> getConsultCards(
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
 

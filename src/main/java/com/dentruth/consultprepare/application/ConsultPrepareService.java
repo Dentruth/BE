@@ -1,7 +1,7 @@
 package com.dentruth.consultprepare.application;
 
-import com.dentruth.consultprepare.application.dto.request.ConsultCardListItemResponse;
 import com.dentruth.consultprepare.application.dto.request.CreateConsultCardRequest;
+import com.dentruth.consultprepare.application.dto.response.ConsultCardListItemResponse;
 import com.dentruth.consultprepare.application.dto.response.CreateConsultCardResponse;
 import com.dentruth.consultprepare.domain.entity.ConsultPrepare;
 import com.dentruth.consultprepare.domain.repository.ConsultPrepareRepository;
@@ -102,7 +102,7 @@ public class ConsultPrepareService {
     }
 
     @Transactional
-    public List<ConsultCardListItemResponse> getConsultCards(
+    public List<com.dentruth.consultprepare.application.dto.response.ConsultCardListItemResponse.ConsultCardListItemResponse> getConsultCards(
             String userId
     ) {
 
@@ -114,7 +114,7 @@ public class ConsultPrepareService {
                 .findAllByUserIdOrderByAppointmentDateDesc(uuid)
                 .stream()
                 .map(consultPrepare ->
-                        new ConsultCardListItemResponse(
+                        new ConsultCardListItemResponse.ConsultCardListItemResponse(
                                 consultPrepare.getId(),
                                 consultPrepare.getTitle(),
                                 consultPrepare.getAppointmentDate().toLocalDate(),
