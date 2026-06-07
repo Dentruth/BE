@@ -16,8 +16,7 @@ public class ConsultCardDetailResponse {
 
     private String painArea;
 
-    private String painLevel;
-    private String painDuration;
+    private String painLevelDuration;
 
     private String socialHistory;
 

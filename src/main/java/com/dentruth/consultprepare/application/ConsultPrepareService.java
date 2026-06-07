@@ -274,15 +274,8 @@ public class ConsultPrepareService {
                         .map(MedicalHistory::getName)
                         .toList();
 
-        String painLevel =
-                getPainLevel(
-                        consultPrepare.getPainLevel()
-                );
-
-        String painDuration =
-                getPainLevel(
-                        consultPrepare.getPainLevel()
-                )
+        String painLevelDuration =
+                getPainLevel(consultPrepare.getPainLevel())
                         + " · "
                         + consultPrepare.getPainDuration();
 
@@ -291,17 +284,21 @@ public class ConsultPrepareService {
                         consultPrepare.getDrinking()
                 );
 
+        String concerns =
+                consultPrepare.getWorriedIssue()
+                        + " / "
+                        + consultPrepare.getQuestion();
+
         return new ConsultCardDetailResponse(
                 consultPrepare.getAppointmentDate()
                         .toLocalDate(),
                 stayStatus,
                 consultPrepare.getPainLocation(),
-                painLevel,
-                consultPrepare.getPainDuration(),
+                painLevelDuration,
                 socialHistory,
                 dentalHistories,
                 medicalHistories,
-                consultPrepare.getWorriedIssue()
+                concerns
         );
     }
 
