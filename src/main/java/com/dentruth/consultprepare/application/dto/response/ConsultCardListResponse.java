@@ -9,5 +9,5 @@ import java.util.List;
 @AllArgsConstructor
 public class ConsultCardListResponse {
 
-    private List<ConsultCardListItemResponse.ConsultCardListItemResponse> result;
+    private List<ConsultCardListItemResponse> result;
 }

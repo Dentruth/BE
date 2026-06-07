@@ -16,17 +16,4 @@ public class ConsultCardListItemResponse {
     private LocalDate consultDate;
 
     private Boolean consultStatus;
-
-    @Getter
-    @AllArgsConstructor
-    public static class ConsultCardListItemResponse {
-
-        private Long consultCardId;
-
-        private String consultTitle;
-
-        private LocalDate consultDate;
-
-        private Boolean consultStatus;
-    }
 }

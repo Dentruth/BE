@@ -4,6 +4,7 @@ import com.dentruth.consultprepare.domain.entity.ConsultPrepare;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface ConsultPrepareRepository
@@ -15,5 +16,9 @@ public interface ConsultPrepareRepository
 
     List<ConsultPrepare> findAllByUserId(UUID userId);
 
+    Optional<ConsultPrepare> findByIdAndUserId(
+            Long id,
+            UUID userId
+    );
 
 }
