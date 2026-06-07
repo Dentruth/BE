@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import java.util.UUID;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/consult-cards")
@@ -30,7 +32,7 @@ public class ConsultCardController {
         return ApiResponse.onSuccess(
                 SuccessStatus.CREATED,
                 consultPrepareService.createConsultCard(
-                        userDetails.getUserId(),
+                        UUID.fromString(userDetails.getUserId()),
                         request
                 )
         );

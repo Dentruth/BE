@@ -6,11 +6,12 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 @Getter
 @Builder
-@AllArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ConsultPrepare extends BaseEntity {
 
@@ -19,13 +20,13 @@ public class ConsultPrepare extends BaseEntity {
     private Long id;
 
     @Column(nullable = false)
-    private String userId;
-
-    @Column(nullable = false)
-    private LocalDateTime appointmentDate;
+    private UUID userId;
 
     @Column(nullable = false)
     private String title;
+
+    @Column(nullable = false)
+    private LocalDateTime appointmentDate;
 
     private String clinicName;
 
