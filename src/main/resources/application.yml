@@ -154,3 +154,7 @@ email:
   google:
     email: ${EMAIL_GOOGLE_EMAIL}
     password: ${EMAIL_GOOGLE_PASSWORD}
+
+consultation-summary:
+  scheduler-fixed-rate: 10000
+  scheduler-initial-delay: 10000

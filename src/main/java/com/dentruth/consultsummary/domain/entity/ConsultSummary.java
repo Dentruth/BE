@@ -98,4 +98,8 @@ public class ConsultSummary extends BaseEntity {
         }
     }
 
+    public void changeStatus(SummaryStatus summaryStatus) {
+        this.status = summaryStatus;
+    }
+
 }
