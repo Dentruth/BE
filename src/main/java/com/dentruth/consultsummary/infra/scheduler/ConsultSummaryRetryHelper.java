@@ -16,7 +16,7 @@ public class ConsultSummaryRetryHelper {
 
     @Transactional
     public List<ConsultSummary> getFailedConsultSummaries() {
-        List<ConsultSummary> summaries = consultSummaryRepository.findAllByStatus(SummaryStatus.FAILED);
+        List<ConsultSummary> summaries = consultSummaryRepository.findAllByStatusAndIsDeletedFalse(SummaryStatus.FAILED);
 
         summaries.forEach(s -> s.changeStatus(SummaryStatus.RETRYING));
 

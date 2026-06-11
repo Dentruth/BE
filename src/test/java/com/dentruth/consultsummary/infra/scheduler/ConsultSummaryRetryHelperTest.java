@@ -34,7 +34,7 @@ class ConsultSummaryRetryHelperTest {
         ConsultSummary summary1 = mock(ConsultSummary.class);
         ConsultSummary summary2 = mock(ConsultSummary.class);
 
-        given(consultSummaryRepository.findAllByStatus(SummaryStatus.FAILED))
+        given(consultSummaryRepository.findAllByStatusAndIsDeletedFalse(SummaryStatus.FAILED))
                 .willReturn(List.of(summary1, summary2));
 
         //when
@@ -50,7 +50,7 @@ class ConsultSummaryRetryHelperTest {
     @Test
     void shouldReturnEmptyList_whenNoFailedSummaries() {
         //given
-        given(consultSummaryRepository.findAllByStatus(SummaryStatus.FAILED))
+        given(consultSummaryRepository.findAllByStatusAndIsDeletedFalse(SummaryStatus.FAILED))
                 .willReturn(List.of());
 
         //when
@@ -66,7 +66,7 @@ class ConsultSummaryRetryHelperTest {
         //given
         ConsultSummary summary = mock(ConsultSummary.class);
 
-        given(consultSummaryRepository.findAllByStatus(SummaryStatus.FAILED))
+        given(consultSummaryRepository.findAllByStatusAndIsDeletedFalse(SummaryStatus.FAILED))
                 .willReturn(List.of(summary));
 
         //when
@@ -81,17 +81,17 @@ class ConsultSummaryRetryHelperTest {
     @Test
     void shouldQueryOnlyFailedStatus() {
         //given
-        given(consultSummaryRepository.findAllByStatus(SummaryStatus.FAILED))
+        given(consultSummaryRepository.findAllByStatusAndIsDeletedFalse(SummaryStatus.FAILED))
                 .willReturn(List.of());
 
         //when
         consultSummaryRetryHelper.getFailedConsultSummaries();
 
         //then
-        verify(consultSummaryRepository, times(1)).findAllByStatus(SummaryStatus.FAILED);
-        verify(consultSummaryRepository, never()).findAllByStatus(SummaryStatus.RETRYING);
-        verify(consultSummaryRepository, never()).findAllByStatus(SummaryStatus.COMPLETED);
-        verify(consultSummaryRepository, never()).findAllByStatus(SummaryStatus.PENDING);
+        verify(consultSummaryRepository, times(1)).findAllByStatusAndIsDeletedFalse(SummaryStatus.FAILED);
+        verify(consultSummaryRepository, never()).findAllByStatusAndIsDeletedFalse(SummaryStatus.RETRYING);
+        verify(consultSummaryRepository, never()).findAllByStatusAndIsDeletedFalse(SummaryStatus.COMPLETED);
+        verify(consultSummaryRepository, never()).findAllByStatusAndIsDeletedFalse(SummaryStatus.PENDING);
     }
 
 }

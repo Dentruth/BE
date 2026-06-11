@@ -30,6 +30,6 @@ public interface ConsultSummaryRepository extends JpaRepository<ConsultSummary, 
                                       @Param("cursorCreatedAt") Instant cursorCreatedAt,
                                       UUID cursorId, PageRequest pageRequest);
 
-    List<ConsultSummary> findAllByStatus(SummaryStatus summaryStatus);
+    List<ConsultSummary> findAllByStatusAndIsDeletedFalse(SummaryStatus status);
 
 }
