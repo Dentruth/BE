@@ -60,8 +60,11 @@ public class ConsultSummary extends BaseEntity {
 
     private String practitionerName;
     private String licenseType;
-    private String licenseNumber;
     private String institution;
+
+    @Convert(converter = EncryptedStringConverter.class)
+    private String licenseNumber;
+
 
     public static ConsultSummary create(UUID userId, String audioLink, String clinicName) {
         return ConsultSummary.builder()

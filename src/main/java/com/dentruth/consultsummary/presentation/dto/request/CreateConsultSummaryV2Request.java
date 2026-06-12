@@ -25,10 +25,7 @@ public class CreateConsultSummaryV2Request {
     @NotBlank(message = "면허 종류는 필수입니다.")
     private String licenseType;
 
-    @NotBlank(message = "면허 번호는 필수입니다.")
     private String licenseNumber;
-
-    @NotBlank(message = "소속은 필수입니다.")
     private String institution;
 
     public CreateConsultSummaryApplicationRequest toApplicationRequest(){
