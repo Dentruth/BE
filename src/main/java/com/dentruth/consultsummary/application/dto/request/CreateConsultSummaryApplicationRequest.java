@@ -9,5 +9,9 @@ public class CreateConsultSummaryApplicationRequest {
 
     private String clinicName;
     private String audioLink;
+    private String practitionerName;
+    private String licenseType;
+    private String licenseNumber;
+    private String institution;
 
 }

@@ -64,6 +64,25 @@ public class ConsultSummaryFacade {
                 .build();
     }
 
+    public CreateConsultSummaryResponse createConsultSummaryV2(UUID userId,
+                                                             CreateConsultSummaryApplicationRequest request) {
+        log.info("상담 요약 기록 생성 요청. userId : [{}]", userId);
+        findUser(userId, "상담 요약 기록 생성");
+
+        ConsultSummary savedSummary =
+                consultSummaryService.saveCreateConsultSummary(userId, request);
+
+        transcriptionEventPublisher.publish(savedSummary.getId(), request.getAudioLink(), request.getClinicName(),
+                convertToLocalDateTime(savedSummary.getCreatedAt()).toString());
+
+        return CreateConsultSummaryResponse.builder()
+                .id(savedSummary.getId())
+                .clinicName(savedSummary.getClinicName())
+                .status(savedSummary.getStatus())
+                .createdAt(convertToLocalDateTime(savedSummary.getCreatedAt()))
+                .build();
+    }
+
     public GetConsultSummaryResponse getDetail(UUID userId, UUID consultSummaryId) {
         findUser(userId, "ai 요약 내용 조회");
         ConsultSummary consultSummary = consultSummaryService.findById(consultSummaryId, userId);

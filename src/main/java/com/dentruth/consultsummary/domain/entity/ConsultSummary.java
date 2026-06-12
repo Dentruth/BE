@@ -58,6 +58,11 @@ public class ConsultSummary extends BaseEntity {
 
     private Boolean isDeleted;
 
+    private String practitionerName;
+    private String licenseType;
+    private String licenseNumber;
+    private String institution;
+
     public static ConsultSummary create(UUID userId, String audioLink, String clinicName) {
         return ConsultSummary.builder()
                 .id(UUID.randomUUID())
@@ -66,6 +71,22 @@ public class ConsultSummary extends BaseEntity {
                 .clinicName(clinicName)
                 .status(SummaryStatus.PENDING)
                 .isDeleted(false)
+                .build();
+    }
+
+    public static ConsultSummary create(UUID userId, String audioLink, String clinicName, String practitionerName,
+                                        String licenseType, String licenseNumber, String institution) {
+        return ConsultSummary.builder()
+                .id(UUID.randomUUID())
+                .userId(userId)
+                .audioLink(audioLink)
+                .clinicName(clinicName)
+                .status(SummaryStatus.PENDING)
+                .isDeleted(false)
+                .licenseType(licenseType)
+                .licenseNumber(licenseNumber)
+                .practitionerName(practitionerName)
+                .institution(institution)
                 .build();
     }
 
