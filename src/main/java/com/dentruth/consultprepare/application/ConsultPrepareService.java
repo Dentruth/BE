@@ -1,6 +1,9 @@
 package com.dentruth.consultprepare.application;
 
+import com.dentruth.common.exception.DentruthException;
+import com.dentruth.common.response.code.ErrorStatus;
 import com.dentruth.consultprepare.application.dto.request.CreateConsultCardRequest;
+import com.dentruth.consultprepare.application.dto.request.UpdateConsultCardRequest;
 import com.dentruth.consultprepare.application.dto.response.ConsultCardDetailResponse;
 import com.dentruth.consultprepare.application.dto.response.ConsultCardListItemResponse;
 import com.dentruth.consultprepare.application.dto.response.CreateConsultCardResponse;
@@ -10,7 +13,7 @@ import com.dentruth.consultprepare.domain.entity.enums.PainLevel;
 import com.dentruth.consultprepare.domain.repository.*;
 import com.dentruth.user.domain.entity.User;
 import com.dentruth.user.domain.repository.UserRepository;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -38,8 +41,6 @@ public class ConsultPrepareService {
     ) {
 
         log.info("상담카드 생성 요청 userId={}", userId);
-
-        System.out.println(request.toString());
 
         ConsultPrepare consultPrepare =
                 ConsultPrepare.builder()
@@ -123,17 +124,15 @@ public class ConsultPrepareService {
         return new CreateConsultCardResponse(saved.getId());
     }
 
-    @Transactional
-    public List<com.dentruth.consultprepare.application.dto.response.ConsultCardListItemResponse> getConsultCards(
-            String userId
+    @Transactional(readOnly = true)
+    public List<ConsultCardListItemResponse> getConsultCards(
+            UUID userId
     ) {
 
         LocalDate today = LocalDate.now();
 
-        UUID uuid = UUID.fromString(userId);
-
         return consultPrepareRepository
-                .findAllByUserIdOrderByAppointmentDateDesc(uuid)
+                .findAllByUserIdAndDeletedAtIsNullOrderByAppointmentDateDesc(userId)
                 .stream()
                 .map(consultPrepare ->
                         new ConsultCardListItemResponse(
@@ -164,11 +163,15 @@ public class ConsultPrepareService {
 
             DentalHistory dentalHistory =
                     dentalHistoryRepository.findByName(name)
-                            .orElseThrow(() ->
-                                    new RuntimeException(
-                                            "존재하지 않는 치과 병력입니다."
-                                    )
-                            );
+                            .orElseThrow(() -> {
+                                log.info(
+                                        "존재하지 않는 치과 병력입니다. name={}",
+                                        name
+                                );
+                                return new DentruthException(
+                                        ErrorStatus.INVALID_DENTAL_HISTORY
+                                );
+                            });
 
             consultDentalHistoryRepository.save(
                     new ConsultDentalHistory(
@@ -193,11 +196,15 @@ public class ConsultPrepareService {
 
             MedicalHistory medicalHistory =
                     medicalHistoryRepository.findByName(name)
-                            .orElseThrow(() ->
-                                    new RuntimeException(
-                                            "존재하지 않는 전신 병력입니다."
-                                    )
-                            );
+                            .orElseThrow(() -> {
+                                log.info(
+                                        "존재하지 않는 전신 병력입니다. name={}",
+                                        name
+                                );
+                                return new DentruthException(
+                                        ErrorStatus.INVALID_MEDICAL_HISTORY
+                                );
+                            });
 
             consultMedicalHistoryRepository.save(
                     new ConsultMedicalHistory(
@@ -208,30 +215,38 @@ public class ConsultPrepareService {
         }
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public ConsultCardDetailResponse getConsultCardDetail(
-            String userId,
+            UUID userId,
             Long consultCardId
     ) {
 
-        UUID uuid = UUID.fromString(userId);
-
         ConsultPrepare consultPrepare =
                 consultPrepareRepository
-                        .findByIdAndUserId(
+                        .findByIdAndUserIdAndDeletedAtIsNull(
                                 consultCardId,
-                                uuid
-                        )
-                        .orElseThrow(() ->
-                                new RuntimeException("상담카드를 찾을 수 없습니다.")
-                        );
+                                userId
+                        ).orElseThrow(() -> {
+                            log.info(
+                                    "상담카드가 존재하지 않습니다. consultCardId={}",
+                                    consultCardId
+                            );
+                            return new DentruthException(
+                                    ErrorStatus.CONSULT_CARD_NOT_FOUND
+                            );
+                        });
 
         User user =
-                userRepository.findById(
-                        UUID.fromString(userId)
-                ).orElseThrow(() ->
-                        new RuntimeException("사용자를 찾을 수 없습니다.")
-                );
+                userRepository.findById(userId)
+                    .orElseThrow(() -> {
+                        log.info(
+                                "유저 정보가 존재하지 않습니다. userId={}",
+                                userId
+                        );
+                        return new DentruthException(
+                                ErrorStatus.USER_NOT_FOUND
+                        );
+                    });
 
         String stayStatus =
                 user.getStayDuration().getEng()
@@ -326,5 +341,120 @@ public class ConsultPrepareService {
         };
     }
 
+    @Transactional
+    public void updateConsultCard(
+            UUID userId, Long consultCardId,
+            UpdateConsultCardRequest request
+    ) {
+
+        ConsultPrepare consultPrepare =
+                consultPrepareRepository
+                        .findByIdAndUserIdAndDeletedAtIsNull(
+                                consultCardId,
+                                userId
+                        )
+                        .orElseThrow(() -> {
+                            log.info(
+                                    "상담카드가 존재하지 않습니다. consultCardId={}, userId={}",
+                                    consultCardId,
+                                    userId
+                            );
+                            return new DentruthException(
+                                    ErrorStatus.CONSULT_CARD_NOT_FOUND
+                            );
+                        });
+
+        consultPrepare.update(
+                request.getTitle(),
+                request.getVisitInfo()
+                        .getVisitDate()
+                        .atStartOfDay(),
+                request.getVisitInfo()
+                        .getCurrentStatus(),
+                request.getSymptomInfo()
+                        .getPainExistence(),
+                request.getSymptomInfo()
+                        .getPainArea(),
+                request.getSymptomInfo()
+                        .getPainLevel(),
+                request.getSymptomInfo()
+                        .getPainPersistence(),
+                request.getSymptomInfo()
+                        .getPainDuration(),
+                request.getMemoInfo()
+                        .getConcerns(),
+                request.getMemoInfo()
+                        .getQuestion(),
+                request.getMedicalHistories()
+                        .getSocialHistory()
+                        .getSmoking(),
+                request.getMedicalHistories()
+                        .getSocialHistory()
+                        .getDrinking(),
+                request.getMedicalHistories()
+                        .getSocialHistory()
+                        .getExercise()
+        );
+
+        consultDentalHistoryRepository
+                .deleteAllByConsultPrepareId(
+                        consultCardId
+                );
+
+        consultMedicalHistoryRepository
+                .deleteAllByConsultPrepareId(
+                        consultCardId
+                );
+
+        saveDentalHistories(
+                consultCardId,
+                request.getMedicalHistories()
+                        .getDentalHistories()
+        );
+
+        saveMedicalHistories(
+                consultCardId,
+                request.getMedicalHistories()
+                        .getMedicalHistories()
+        );
+
+        log.info(
+                "[상담카드 수정] consultPrepareId={}, userId={}",
+                consultCardId,
+                userId
+        );
+    }
+
+    @Transactional
+    public void deleteConsultCard(
+            UUID userId,
+            Long consultCardId
+    ) {
+
+        ConsultPrepare consultPrepare =
+                consultPrepareRepository
+                        .findByIdAndUserIdAndDeletedAtIsNull(
+                                consultCardId,
+                                userId
+                        )
+                        .orElseThrow(() -> {
+                            log.info(
+                                    "상담카드가 존재하지 않습니다. consultCardId={}, userId={}",
+                                    consultCardId,
+                                    userId
+                            );
+                            return new DentruthException(
+                                    ErrorStatus.CONSULT_CARD_NOT_FOUND
+                            );
+                        });
+
+        consultPrepare.softDelete();
+
+        log.info(
+                "[상담카드 삭제] consultPrepareId={}, userId={}",
+                consultCardId,
+                userId
+        );
+    }
 
 }

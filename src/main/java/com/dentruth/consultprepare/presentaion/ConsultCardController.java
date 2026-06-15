@@ -5,6 +5,7 @@ import com.dentruth.common.response.ApiResponse;
 import com.dentruth.common.response.code.SuccessStatus;
 import com.dentruth.consultprepare.application.ConsultPrepareService;
 import com.dentruth.consultprepare.application.dto.request.CreateConsultCardRequest;
+import com.dentruth.consultprepare.application.dto.request.UpdateConsultCardRequest;
 import com.dentruth.consultprepare.application.dto.response.ConsultCardDetailResponse;
 import com.dentruth.consultprepare.application.dto.response.ConsultCardListItemResponse;
 import com.dentruth.consultprepare.application.dto.response.CreateConsultCardResponse;
@@ -47,7 +48,9 @@ public class ConsultCardController {
         return ApiResponse.onSuccess(
                 SuccessStatus.OK,
                 consultPrepareService.getConsultCards(
-                        userDetails.getUserId()
+                        UUID.fromString(
+                                userDetails.getUserId()
+                        )
                 )
         );
     }
@@ -61,9 +64,50 @@ public class ConsultCardController {
         return ApiResponse.onSuccess(
                 SuccessStatus.OK,
                 consultPrepareService.getConsultCardDetail(
-                        userDetails.getUserId(),
+                        UUID.fromString(
+                                userDetails.getUserId()
+                        ),
                         consultCardId
                 )
+        );
+    }
+
+    @PutMapping("/{consultCardId}")
+    public ApiResponse<Void> updateConsultCard(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable Long consultCardId,
+            @RequestBody UpdateConsultCardRequest request
+    ) {
+
+        consultPrepareService.updateConsultCard(
+                UUID.fromString(userDetails.getUserId()),
+                consultCardId,
+                request
+        );
+
+        return ApiResponse.onSuccess(
+                SuccessStatus.OK,
+                null
+        );
+    }
+
+    @DeleteMapping("/{consultCardId}")
+    public ApiResponse<Void> deleteConsultCard(
+            @AuthenticationPrincipal
+            CustomUserDetails userDetails,
+
+            @PathVariable
+            Long consultCardId
+    ) {
+
+        consultPrepareService.deleteConsultCard(
+                UUID.fromString(userDetails.getUserId()),
+                consultCardId
+        );
+
+        return ApiResponse.onSuccess(
+                SuccessStatus.OK,
+                null
         );
     }
 

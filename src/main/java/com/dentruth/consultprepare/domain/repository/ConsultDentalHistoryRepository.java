@@ -13,4 +13,8 @@ public interface ConsultDentalHistoryRepository
     List<ConsultDentalHistory> findAllByConsultPrepareId(
             Long consultPrepareId
     );
+
+    void deleteAllByConsultPrepareId(
+            Long consultPrepareId
+    );
 }

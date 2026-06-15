@@ -23,4 +23,8 @@ public abstract class BaseEntity {
 
     protected Instant deletedAt;
 
+    public void softDelete() {
+        this.deletedAt = Instant.now();
+    }
+
 }
