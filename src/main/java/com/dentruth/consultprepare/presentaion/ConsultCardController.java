@@ -48,7 +48,9 @@ public class ConsultCardController {
         return ApiResponse.onSuccess(
                 SuccessStatus.OK,
                 consultPrepareService.getConsultCards(
-                        userDetails.getUserId()
+                        UUID.fromString(
+                                userDetails.getUserId()
+                        )
                 )
         );
     }
@@ -62,7 +64,9 @@ public class ConsultCardController {
         return ApiResponse.onSuccess(
                 SuccessStatus.OK,
                 consultPrepareService.getConsultCardDetail(
-                        userDetails.getUserId(),
+                        UUID.fromString(
+                                userDetails.getUserId()
+                        ),
                         consultCardId
                 )
         );

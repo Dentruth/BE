@@ -10,14 +10,13 @@ import java.util.UUID;
 public interface ConsultPrepareRepository
         extends JpaRepository<ConsultPrepare, Long> {
 
-    List<ConsultPrepare> findAllByUserIdOrderByAppointmentDateDesc(
+    Optional<ConsultPrepare> findByIdAndUserIdAndDeletedAtIsNull(
+            Long id,
             UUID userId
     );
 
-    List<ConsultPrepare> findAllByUserId(UUID userId);
-
-    Optional<ConsultPrepare> findByIdAndUserId(
-            Long id,
+    List<ConsultPrepare>
+    findAllByUserIdAndDeletedAtIsNullOrderByAppointmentDateDesc(
             UUID userId
     );
 
