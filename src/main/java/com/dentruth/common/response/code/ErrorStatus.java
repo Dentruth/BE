@@ -37,12 +37,15 @@ public enum ErrorStatus implements BaseErrorCode {
     INVALID_FILE_TYPE(HttpStatus.BAD_REQUEST, "CON_004", "지원하지 않는 파일 형식입니다."),
     WHISPER_API_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "CON_005", "Whisper STT 변환에 실패했습니다."),
     SUMMARIZATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "CON_006", "AI 요약에 실패했습니다."),
-
+  
     //consult-prepare
     CONSULT_CARD_NOT_FOUND(HttpStatus.NOT_FOUND,"PRE_001", "상담카드를 찾을 수 없습니다."),
     INVALID_DENTAL_HISTORY(HttpStatus.BAD_REQUEST, "PRE_002", "존재하지 않는 치과 병력입니다."),
-    INVALID_MEDICAL_HISTORY(HttpStatus.BAD_REQUEST, "PRE_003", "존재하지 않는 전신 병력입니다.");
-
+    INVALID_MEDICAL_HISTORY(HttpStatus.BAD_REQUEST, "PRE_003", "존재하지 않는 전신 병력입니다."),
+  
+    // schedule
+    SCHEDULE_NOT_FOUND(HttpStatus.NOT_FOUND, "SCHEDULE_404", "일정을 찾을 수 없습니다."),
+    INVALID_SCHEDULE_TIME(HttpStatus.BAD_REQUEST, "SCHEDULE_001", "시작 시간은 종료 시간보다 이전이어야 합니다.");
 
 
     private final HttpStatus httpStatus;

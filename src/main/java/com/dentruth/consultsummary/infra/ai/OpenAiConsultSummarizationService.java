@@ -81,15 +81,13 @@ public class OpenAiConsultSummarizationService implements ConsultSummarizationSe
         try {
             JsonNode root = objectMapper.readTree(aiJsonContent);
 
-            String diagnosis = root.path("diagnosticResults").path("title").asText("");
-            String treatmentPlan = root.path("treatmentPlan").toString();
+            String diagnosis = root.path("diagnosticResults").asText("");
             String title = root.path("treatmentSummary").asText("");
 
             return SummarizedResult.builder()
                     .rawJson(aiJsonContent)
                     .diagnosis(diagnosis)
                     .title(title)
-                    .treatmentPlan(treatmentPlan)
                     .build();
         } catch (Exception e) {
             log.error("Open AI 응답 Json 파싱 실패.", e);

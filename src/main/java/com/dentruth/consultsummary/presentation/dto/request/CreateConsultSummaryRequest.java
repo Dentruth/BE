@@ -1,4 +1,4 @@
-package com.dentruth.consultsummary.presentation.dto.reqeust;
+package com.dentruth.consultsummary.presentation.dto.request;
 
 import com.dentruth.consultsummary.application.dto.request.CreateConsultSummaryApplicationRequest;
 import jakarta.validation.constraints.NotBlank;
