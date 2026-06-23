@@ -3,6 +3,7 @@ package com.dentruth.consultsummary.application;
 import com.dentruth.common.exception.DentruthException;
 import com.dentruth.common.response.code.ErrorStatus;
 import com.dentruth.consultsummary.application.dto.SummarizedResult;
+import com.dentruth.consultsummary.application.dto.request.CreateConsultSummaryApplicationRequest;
 import com.dentruth.consultsummary.application.dto.request.UpdateSummaryApplicationRequest;
 import com.dentruth.consultsummary.domain.entity.ConsultSummary;
 import com.dentruth.consultsummary.domain.repository.ConsultSummaryRepository;
@@ -27,6 +28,14 @@ public class ConsultSummaryService {
     @Transactional
     public ConsultSummary saveCreateConsultSummary(UUID userId, String audioLink, String clinicName) {
         ConsultSummary consultSummary = ConsultSummary.create(userId, audioLink, clinicName);
+        return consultSummaryRepository.save(consultSummary);
+    }
+
+    @Transactional
+    public ConsultSummary saveCreateConsultSummary(UUID userId, CreateConsultSummaryApplicationRequest request) {
+        ConsultSummary consultSummary = ConsultSummary.create(userId, request.getAudioLink(), request.getClinicName(),
+                request.getPractitionerName(), request.getLicenseType(), request.getLicenseNumber(),
+                request.getInstitution());
         return consultSummaryRepository.save(consultSummary);
     }
 
