@@ -6,6 +6,7 @@ import com.dentruth.common.event.OAuth2UnlinkRequestEvent;
 import com.dentruth.common.util.SecurityUtils;
 import com.dentruth.config.oauth.user.OAuth2Provider;
 import com.dentruth.user.domain.entity.User;
+import com.dentruth.user.domain.entity.enums.UserStatus;
 import com.dentruth.user.domain.entity.enums.UserType;
 import com.dentruth.user.domain.repository.UserRepository;
 import java.util.UUID;
@@ -29,24 +30,36 @@ public class OAuth2UserEventHandler {
         String maskedEmail = SecurityUtils.convertToMaskedEmail(event.getEmail());
         userRepository.findByEmail(event.getEmail())
                 .ifPresentOrElse(
-                        user -> {
-                            log.info("소셜 로그인 기존 유저. email: [{}]", maskedEmail);
-                            event.setResult(user.getId().toString(), user.getStatus().name());
-                        },
-                        () -> {
-                            log.info("소셜 로그인 신규 유저. email: [{}]", maskedEmail);
-                            UUID userId = UUID.randomUUID();
-                            UserType userType = resolveUserType(event.getProvider());
-                            User newUser = User.oauthSignupUser(
-                                    userId,
-                                    event.getEmail(),
-                                    event.getName(),
-                                    userType
-                            );
-                            userRepository.save(newUser);
-                            event.setResult(userId.toString(), newUser.getStatus().name());
-                        }
+                        user -> handleExistingUser(event, user, maskedEmail),
+                        () -> handleNewUser(event, maskedEmail)
                 );
+    }
+
+    private void handleExistingUser(OAuth2LoginRequestEvent event, User user, String maskedEmail) {
+        UserStatus status = user.getStatus();
+
+        if (status == UserStatus.WITHDRAWN || status == UserStatus.DELETED) {
+            log.warn("탈퇴/삭제된 계정의 소셜 로그인 시도. email: [{}], status: [{}]", maskedEmail, status);
+            event.setFailure("WITHDRAWN_OR_DELETED_ACCOUNT");
+            return;
+        }
+
+        log.info("소셜 로그인 기존 유저. email: [{}]", maskedEmail);
+        event.setResult(user.getId().toString(), status.name());
+    }
+
+    private void handleNewUser(OAuth2LoginRequestEvent event, String maskedEmail) {
+        log.info("소셜 로그인 신규 유저. email: [{}]", maskedEmail);
+        UUID userId = UUID.randomUUID();
+        UserType userType = resolveUserType(event.getProvider());
+        User newUser = User.oauthSignupUser(
+                userId,
+                event.getEmail(),
+                event.getName(),
+                userType
+        );
+        userRepository.save(newUser);
+        event.setResult(userId.toString(), newUser.getStatus().name());
     }
 
     @EventListener
