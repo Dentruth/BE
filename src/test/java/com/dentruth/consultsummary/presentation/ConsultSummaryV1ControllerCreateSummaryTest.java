@@ -80,7 +80,7 @@ class ConsultSummaryV1ControllerCreateSummaryTest extends ControllerTestSupport 
 
         CreateConsultSummaryRequest request = CreateConsultSummaryRequest.builder()
                 .clinicName("강남 병원")
-                .audioLink("test/asdfqwer/asdfqer.m4a")
+                .audioLink("consultations/" + userId + "/" + UUID.randomUUID() + ".m4a")
                 .build();
 
         //when

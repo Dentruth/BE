@@ -78,7 +78,7 @@ class ConsultSummaryV2ControllerCreateSummaryTest extends ControllerTestSupport 
 
         String accessToken = jwtProvider.generateAccessToken(userId.toString(), Language.KOREAN.name());
 
-        CreateConsultSummaryV2Request request = createValidRequest();
+        CreateConsultSummaryV2Request request = createValidRequest(userId);
 
         //when
         MvcResult mvcResult = mockMvc.perform(post("/api/v2/consult-summaries")
@@ -117,7 +117,7 @@ class ConsultSummaryV2ControllerCreateSummaryTest extends ControllerTestSupport 
         mockMvc.perform(post("/api/v2/consult-summaries")
                         .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(createValidRequest())))
+                        .content(objectMapper.writeValueAsString(createValidRequest(userId))))
                 //then
                 .andExpect(status().isForbidden())
                 .andExpect(jsonPath("$.isSuccess").value(false))
@@ -140,7 +140,7 @@ class ConsultSummaryV2ControllerCreateSummaryTest extends ControllerTestSupport 
         mockMvc.perform(post("/api/v2/consult-summaries")
                         .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(createValidRequest())))
+                        .content(objectMapper.writeValueAsString(createValidRequest(userId))))
                 //then
                 .andExpect(status().isForbidden())
                 .andExpect(jsonPath("$.isSuccess").value(false))
@@ -165,7 +165,7 @@ class ConsultSummaryV2ControllerCreateSummaryTest extends ControllerTestSupport 
         mockMvc.perform(post("/api/v2/consult-summaries")
                         .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(createValidRequest())))
+                        .content(objectMapper.writeValueAsString(createValidRequest(userId))))
                 //then
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.isSuccess").value(false))
@@ -186,7 +186,7 @@ class ConsultSummaryV2ControllerCreateSummaryTest extends ControllerTestSupport 
         mockMvc.perform(post("/api/v2/consult-summaries")
                         .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(createValidRequest())))
+                        .content(objectMapper.writeValueAsString(createValidRequest(userId))))
                 //then
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.isSuccess").value(false))
@@ -202,7 +202,7 @@ class ConsultSummaryV2ControllerCreateSummaryTest extends ControllerTestSupport 
         //when
         mockMvc.perform(post("/api/v2/consult-summaries")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(createValidRequest())))
+                        .content(objectMapper.writeValueAsString(createValidRequest(UUID.randomUUID()))))
                 //then
                 .andExpect(status().isUnauthorized());
 
@@ -227,7 +227,7 @@ class ConsultSummaryV2ControllerCreateSummaryTest extends ControllerTestSupport 
         mockMvc.perform(post("/api/v2/consult-summaries")
                         .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(createValidRequest())))
+                        .content(objectMapper.writeValueAsString(createValidRequest(userId))))
                 //then
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.isSuccess").value(false))
@@ -244,7 +244,7 @@ class ConsultSummaryV2ControllerCreateSummaryTest extends ControllerTestSupport 
         UUID userId = UUID.randomUUID();
         String accessToken = jwtProvider.generateAccessToken(userId.toString(), Language.KOREAN.name());
 
-        CreateConsultSummaryV2Request request = createValidRequest().toBuilder().clinicName(null).build();
+        CreateConsultSummaryV2Request request = createValidRequest(userId).toBuilder().clinicName(null).build();
 
         //when
         mockMvc.perform(post("/api/v2/consult-summaries")
@@ -267,7 +267,7 @@ class ConsultSummaryV2ControllerCreateSummaryTest extends ControllerTestSupport 
         UUID userId = UUID.randomUUID();
         String accessToken = jwtProvider.generateAccessToken(userId.toString(), Language.KOREAN.name());
 
-        CreateConsultSummaryV2Request request = createValidRequest().toBuilder().clinicName("병").build();
+        CreateConsultSummaryV2Request request = createValidRequest(userId).toBuilder().clinicName("병").build();
 
         //when
         mockMvc.perform(post("/api/v2/consult-summaries")
@@ -290,7 +290,7 @@ class ConsultSummaryV2ControllerCreateSummaryTest extends ControllerTestSupport 
         UUID userId = UUID.randomUUID();
         String accessToken = jwtProvider.generateAccessToken(userId.toString(), Language.KOREAN.name());
 
-        CreateConsultSummaryV2Request request = createValidRequest().toBuilder().clinicName("병".repeat(101)).build();
+        CreateConsultSummaryV2Request request = createValidRequest(userId).toBuilder().clinicName("병".repeat(101)).build();
 
         //when
         mockMvc.perform(post("/api/v2/consult-summaries")
@@ -313,7 +313,7 @@ class ConsultSummaryV2ControllerCreateSummaryTest extends ControllerTestSupport 
         UUID userId = UUID.randomUUID();
         String accessToken = jwtProvider.generateAccessToken(userId.toString(), Language.KOREAN.name());
 
-        CreateConsultSummaryV2Request request = createValidRequest().toBuilder().audioLink(null).build();
+        CreateConsultSummaryV2Request request = createValidRequest(userId).toBuilder().audioLink(null).build();
 
         //when
         mockMvc.perform(post("/api/v2/consult-summaries")
@@ -336,7 +336,7 @@ class ConsultSummaryV2ControllerCreateSummaryTest extends ControllerTestSupport 
         UUID userId = UUID.randomUUID();
         String accessToken = jwtProvider.generateAccessToken(userId.toString(), Language.KOREAN.name());
 
-        CreateConsultSummaryV2Request request = createValidRequest().toBuilder().audioLink("  ").build();
+        CreateConsultSummaryV2Request request = createValidRequest(userId).toBuilder().audioLink("  ").build();
 
         //when
         mockMvc.perform(post("/api/v2/consult-summaries")
@@ -359,7 +359,7 @@ class ConsultSummaryV2ControllerCreateSummaryTest extends ControllerTestSupport 
         UUID userId = UUID.randomUUID();
         String accessToken = jwtProvider.generateAccessToken(userId.toString(), Language.KOREAN.name());
 
-        CreateConsultSummaryV2Request request = createValidRequest().toBuilder().practitionerName(null).build();
+        CreateConsultSummaryV2Request request = createValidRequest(userId).toBuilder().practitionerName(null).build();
 
         //when
         mockMvc.perform(post("/api/v2/consult-summaries")
@@ -382,7 +382,7 @@ class ConsultSummaryV2ControllerCreateSummaryTest extends ControllerTestSupport 
         UUID userId = UUID.randomUUID();
         String accessToken = jwtProvider.generateAccessToken(userId.toString(), Language.KOREAN.name());
 
-        CreateConsultSummaryV2Request request = createValidRequest().toBuilder().practitionerName("  ").build();
+        CreateConsultSummaryV2Request request = createValidRequest(userId).toBuilder().practitionerName("  ").build();
 
         //when
         mockMvc.perform(post("/api/v2/consult-summaries")
@@ -405,7 +405,7 @@ class ConsultSummaryV2ControllerCreateSummaryTest extends ControllerTestSupport 
         UUID userId = UUID.randomUUID();
         String accessToken = jwtProvider.generateAccessToken(userId.toString(), Language.KOREAN.name());
 
-        CreateConsultSummaryV2Request request = createValidRequest().toBuilder().licenseType(null).build();
+        CreateConsultSummaryV2Request request = createValidRequest(userId).toBuilder().licenseType(null).build();
 
         //when
         mockMvc.perform(post("/api/v2/consult-summaries")
@@ -428,7 +428,7 @@ class ConsultSummaryV2ControllerCreateSummaryTest extends ControllerTestSupport 
         UUID userId = UUID.randomUUID();
         String accessToken = jwtProvider.generateAccessToken(userId.toString(), Language.KOREAN.name());
 
-        CreateConsultSummaryV2Request request = createValidRequest().toBuilder().licenseType("  ").build();
+        CreateConsultSummaryV2Request request = createValidRequest(userId).toBuilder().licenseType("  ").build();
 
         //when
         mockMvc.perform(post("/api/v2/consult-summaries")
@@ -444,10 +444,10 @@ class ConsultSummaryV2ControllerCreateSummaryTest extends ControllerTestSupport 
         verify(transcriptionEventPublisher, never()).publish(any(), any(), any(), any());
     }
 
-    private CreateConsultSummaryV2Request createValidRequest() {
+    private CreateConsultSummaryV2Request createValidRequest(UUID userId) {
         return CreateConsultSummaryV2Request.builder()
                 .clinicName("강남 병원")
-                .audioLink("test/asdfqwer/asdfqer.m4a")
+                .audioLink("consultations/" + userId + "/" + UUID.randomUUID() + ".m4a")
                 .practitionerName("홍길동")
                 .licenseType("의사")
                 .licenseNumber("12345")
