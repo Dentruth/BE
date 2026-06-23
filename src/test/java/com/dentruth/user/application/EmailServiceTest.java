@@ -4,13 +4,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatNoException;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import com.dentruth.common.exception.DentruthException;
 import com.dentruth.common.response.code.ErrorStatus;
+import com.dentruth.common.util.RateLimiter;
 import com.dentruth.user.application.dto.request.VerifyEmailApplicationRequest;
+import java.time.Duration;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -25,11 +30,78 @@ class EmailServiceTest {
     @Mock
     private EmailAuthCodeStore emailAuthCodeStore;
 
+
     @Mock
-    private EmailSender emailSender;
+    private EmailAsyncSender emailAsyncSender;
+
+    @Mock
+    private RateLimiter rateLimiter;
 
     @InjectMocks
     private EmailService emailService;
+
+    private final String testEmail = "test@example.com";
+    private final String testIp = "1.2.3.4";
+
+
+    @DisplayName("IP, 이메일 쿨다운 모두 통과하면 비동기 발송을 호출한다.")
+    @Test
+    void shouldDispatchAsyncSend_whenRateLimitsPass() {
+        //given
+        given(rateLimiter.tryAcquire(any(), anyInt(), any(Duration.class))).willReturn(true);
+        given(emailAuthCodeStore.tryAcquireSendCooldown(testEmail)).willReturn(true);
+
+        //when
+        emailService.sendVerifyEmail(testEmail, testIp);
+
+        //then
+        verify(emailAsyncSender, times(1)).send(eq(testEmail));
+    }
+
+    @DisplayName("IP 요청 횟수 제한에 걸리면 예외를 던지고 이메일 쿨다운은 체크하지 않는다.")
+    @Test
+    void shouldThrowTooManyRequests_whenIpRateLimitExceeded() {
+        //given
+        given(rateLimiter.tryAcquire(any(), anyInt(), any(Duration.class))).willReturn(false);
+
+        //when, then
+        assertThatThrownBy(() -> emailService.sendVerifyEmail(testEmail, testIp))
+                .isInstanceOf(DentruthException.class)
+                .hasMessage("Too many requests. Please try again later.");
+
+        verify(emailAuthCodeStore, never()).tryAcquireSendCooldown(any());
+        verify(emailAsyncSender, never()).send(any());
+    }
+
+    @DisplayName("IP 제한은 통과했지만 이메일 쿨다운 중이면 예외를 던지고 발송하지 않는다.")
+    @Test
+    void shouldThrowEmailSendRateLimit_whenEmailCooldownActive() {
+        //given
+        given(rateLimiter.tryAcquire(any(), anyInt(), any(Duration.class))).willReturn(true);
+        given(emailAuthCodeStore.tryAcquireSendCooldown(testEmail)).willReturn(false);
+
+        //when, then
+        assertThatThrownBy(() -> emailService.sendVerifyEmail(testEmail, testIp))
+                .isInstanceOf(DentruthException.class)
+                .hasMessage("Please wait before requesting another code.");
+
+        verify(emailAsyncSender, never()).send(any());
+    }
+
+    @DisplayName("IP별로 사용한 레이트리밋 키에 해당 IP가 포함된다.")
+    @Test
+    void shouldUseClientIpInRateLimitKey() {
+        //given
+        given(rateLimiter.tryAcquire(any(), anyInt(), any(Duration.class))).willReturn(true);
+        given(emailAuthCodeStore.tryAcquireSendCooldown(testEmail)).willReturn(true);
+
+        //when
+        emailService.sendVerifyEmail(testEmail, testIp);
+
+        //then
+        verify(rateLimiter, times(1)).tryAcquire(
+                eq("dentruth:rateLimit:email:ip:" + testIp), eq(5), eq(Duration.ofMinutes(1)));
+    }
 
     @DisplayName("인증 코드가 일치하면 이메일 인증에 성공한다.")
     @Test

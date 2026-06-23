@@ -3,17 +3,20 @@ package com.dentruth.user.presentation;
 import com.dentruth.common.jwt.CustomUserDetails;
 import com.dentruth.common.response.ApiResponse;
 import com.dentruth.common.response.code.SuccessStatus;
+import com.dentruth.common.util.IpAddressUtil;
 import com.dentruth.user.application.EmailService;
 import com.dentruth.user.application.UserFacade;
 import com.dentruth.user.application.UserService;
 import com.dentruth.user.application.dto.response.UserInfoResponse;
 import com.dentruth.user.application.dto.response.VerifyEmailResponse;
 import com.dentruth.user.presentation.dto.request.OnboardingRequest;
+import com.dentruth.user.presentation.dto.request.SendVerifyEmailRequest;
 import com.dentruth.user.presentation.dto.request.UpdatePasswordRequest;
 import com.dentruth.user.presentation.dto.request.UpdateUserInfoRequest;
-import com.dentruth.user.presentation.dto.request.SendVerifyEmailRequest;
 import com.dentruth.user.presentation.dto.request.VerifyEmailRequest;
 import com.dentruth.user.presentation.dto.request.WithdrawnRequest;
+import io.swagger.v3.oas.annotations.Operation;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -72,9 +75,12 @@ public class UserV1Controller {
     }
 
     @PostMapping("/email/verification")
-    public ApiResponse<Void> sendVerifyEmail(@Valid @RequestBody SendVerifyEmailRequest request) {
-        emailService.sendVerifyEmail(request.toApplicationRequest());
-        return ApiResponse.onSuccess(SuccessStatus.OK, null);
+    @Operation(summary = "이메일 인증 코드 전송")
+    public ResponseEntity<Void> sendVerifyEmail(@Valid @RequestBody SendVerifyEmailRequest request,
+                                                HttpServletRequest httpRequest) {
+        String clientIp = IpAddressUtil.getClientIp(httpRequest);
+        emailService.sendVerifyEmail(request.getEmail(), clientIp);
+        return ResponseEntity.accepted().build();
     }
 
     @PatchMapping("/email/verification")

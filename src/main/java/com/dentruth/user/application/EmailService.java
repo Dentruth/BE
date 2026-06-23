@@ -2,10 +2,11 @@ package com.dentruth.user.application;
 
 import com.dentruth.common.exception.DentruthException;
 import com.dentruth.common.response.code.ErrorStatus;
-import com.dentruth.user.application.dto.request.SendVerifyEmailApplicationRequest;
+import com.dentruth.common.util.RateLimiter;
+import com.dentruth.common.util.SecurityUtils;
 import com.dentruth.user.application.dto.request.VerifyEmailApplicationRequest;
 import com.dentruth.user.application.dto.response.VerifyEmailResponse;
-import java.security.SecureRandom;
+import java.time.Duration;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,13 +18,25 @@ import org.springframework.stereotype.Service;
 public class EmailService {
 
     private final EmailAuthCodeStore emailAuthCodeStore;
-    private final EmailSender emailSender;
-    private static final SecureRandom SECURE_RANDOM = new SecureRandom();
+    private final EmailAsyncSender emailAsyncSender;
+    private final RateLimiter rateLimiter;
 
-    public void sendVerifyEmail(SendVerifyEmailApplicationRequest request) {
-        String authCode = generateAuthCode();
-        emailSender.send(request.getEmail(), authCode);
-        emailAuthCodeStore.save(request.getEmail(), authCode);
+    private static final String IP_RATE_LIMIT_PREFIX = "dentruth:rateLimit:email:ip:";
+    private static final int IP_MAX_REQUEST = 5;
+    private static final Duration IP_WINDOW = Duration.ofMinutes(1);
+
+    public void sendVerifyEmail(String email, String clientIp) {
+        if (!rateLimiter.tryAcquire(IP_RATE_LIMIT_PREFIX + clientIp, IP_MAX_REQUEST, IP_WINDOW)) {
+            log.warn("이메일 발송 IP 제한 초과. IP : [{}]", clientIp);
+            throw new DentruthException(ErrorStatus.TOO_MANY_REQUESTS_BY_IP);
+        }
+
+        if (!emailAuthCodeStore.tryAcquireSendCooldown(email)) {
+            log.info("이메일 발송 요청 제한. 이메일 : [{}]", SecurityUtils.convertToMaskedEmail(email));
+            throw new DentruthException(ErrorStatus.EMAIL_SEND_COOLDOWN);
+        }
+
+        emailAsyncSender.send(email);
     }
 
     public VerifyEmailResponse verifyEmail(VerifyEmailApplicationRequest request) {
@@ -40,18 +53,6 @@ public class EmailService {
         emailAuthCodeStore.saveVerifiedToken(request.getEmail(), verifyToken, 5);
 
         return new VerifyEmailResponse(verifyToken);
-    }
-
-    private String generateAuthCode() {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < 6; i++) {
-            if (SECURE_RANDOM.nextBoolean()) {
-                sb.append((char) (SECURE_RANDOM.nextInt(10) + '0'));
-            } else {
-                sb.append((char) (SECURE_RANDOM.nextInt(26) + 'A'));
-            }
-        }
-        return sb.toString();
     }
 
 }
