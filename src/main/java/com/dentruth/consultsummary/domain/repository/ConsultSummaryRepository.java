@@ -1,6 +1,7 @@
 package com.dentruth.consultsummary.domain.repository;
 
 import com.dentruth.consultsummary.domain.entity.ConsultSummary;
+import com.dentruth.consultsummary.domain.entity.enums.SummaryStatus;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
@@ -28,5 +29,7 @@ public interface ConsultSummaryRepository extends JpaRepository<ConsultSummary, 
     List<ConsultSummary> findNextPage(@Param("userId") UUID userId,
                                       @Param("cursorCreatedAt") Instant cursorCreatedAt,
                                       UUID cursorId, PageRequest pageRequest);
+
+    List<ConsultSummary> findAllByStatusAndIsDeletedFalse(SummaryStatus status);
 
 }
