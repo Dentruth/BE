@@ -1,6 +1,5 @@
 package com.dentruth.consultsummary.presentation;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -245,6 +244,41 @@ class ConsultSummaryV1ControllerGetConsultSummaryTest extends ControllerTestSupp
                 .andExpect(jsonPath("$.isSuccess").value(false))
                 .andExpect(jsonPath("$.code").value("CON_001"))
                 .andExpect(jsonPath("$.message").value("요약 기록 정보가 없습니다."));
+    }
+
+    @DisplayName("본인 소유가 아닌 요약본 조회를 요청하면 403을 반환한다.")
+    @Test
+    void shouldReturn403_whenRequestingDetailOnOthersConsultSummary() throws Exception {
+        //given
+        UUID userId = UUID.randomUUID();
+        UUID anotherUserId = UUID.randomUUID();
+        UUID consultSummaryId = UUID.randomUUID();
+
+        ConsultSummary consultSummary = ConsultSummary.builder()
+                .id(consultSummaryId)
+                .userId(userId)
+                .audioLink("audioLink")
+                .failReason("[WHISPER_ERR] OpenAI STT Connection Timeout")
+                .status(SummaryStatus.COMPLETED)
+                .clinicName("강남 치과의원")
+                .title(null)
+                .diagnosticResult(mockJson)
+                .isDeleted(false)
+                .build();
+
+        consultSummaryRepository.save(consultSummary);
+        userRepository.save(getUser(userId, UserStatus.ACTIVE));
+        userRepository.save(getUser(anotherUserId, UserStatus.ACTIVE));
+
+        String token = jwtProvider.generateAccessToken(anotherUserId.toString(), Language.KOREAN.name());
+
+        //when, then
+        mockMvc.perform(get("/api/v1/consult-summaries/" + consultSummaryId)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + token))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.isSuccess").value(false))
+                .andExpect(jsonPath("$.code").value("COMMON_403"))
+                .andExpect(jsonPath("$.message").value("접근이 불가능합니다."));
     }
 
     @DisplayName("유저 상태가 WITHDRAWN, DELETED라면 404를 반환한다.")

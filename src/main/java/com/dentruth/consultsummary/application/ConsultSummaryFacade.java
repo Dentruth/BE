@@ -65,7 +65,7 @@ public class ConsultSummaryFacade {
     }
 
     public CreateConsultSummaryResponse createConsultSummaryV2(UUID userId,
-                                                             CreateConsultSummaryApplicationRequest request) {
+                                                               CreateConsultSummaryApplicationRequest request) {
         log.info("상담 요약 기록 생성 요청. userId : [{}]", userId);
         findUser(userId, "상담 요약 기록 생성");
 
@@ -86,6 +86,11 @@ public class ConsultSummaryFacade {
     public GetConsultSummaryResponse getDetail(UUID userId, UUID consultSummaryId) {
         findUser(userId, "ai 요약 내용 조회");
         ConsultSummary consultSummary = consultSummaryService.findById(consultSummaryId, userId);
+
+        if (!consultSummary.getUserId().equals(userId)) {
+            log.info("본인 소유가 아닌 요약 내용 조회 요청. User Id : [{}]. summary Id : [{}]", userId, consultSummaryId);
+            throw new DentruthException(ErrorStatus.FORBIDDEN);
+        }
 
         if (consultSummary.getIsDeleted().equals(Boolean.TRUE)) {
             throw new DentruthException(ErrorStatus.SUMMARY_RECORD_NOT_FOUND);

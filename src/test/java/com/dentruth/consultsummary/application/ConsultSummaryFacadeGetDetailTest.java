@@ -100,6 +100,7 @@ class ConsultSummaryFacadeGetDetailTest {
                 .clinicName("강남 치과의원")
                 .status(SummaryStatus.COMPLETED)
                 .diagnosticResult(mockJson)
+                .userId(userId)
                 .build();
         ReflectionTestUtils.setField(mockConsultSummary, "createdAt", Instant.parse("2026-06-01T23:00:00Z"));
         given(consultSummaryService.findById(consultSummaryId, userId)).willReturn(mockConsultSummary);
@@ -156,6 +157,7 @@ class ConsultSummaryFacadeGetDetailTest {
                 .status(status)
                 .failReason("[WHISPER_ERR] OpenAI STT Connection Timeout")
                 .diagnosticResult(mockJson)
+                .userId(userId)
                 .build();
         ReflectionTestUtils.setField(mockConsultSummary, "createdAt", Instant.parse("2026-06-01T23:00:00Z"));
         given(consultSummaryService.findById(consultSummaryId, userId)).willReturn(mockConsultSummary);
@@ -193,14 +195,48 @@ class ConsultSummaryFacadeGetDetailTest {
                 .status(SummaryStatus.COMPLETED)
                 .failReason("[WHISPER_ERR] OpenAI STT Connection Timeout")
                 .diagnosticResult(mockJson)
+                .userId(userId)
                 .build();
         ReflectionTestUtils.setField(mockConsultSummary, "createdAt", Instant.parse("2026-06-01T23:00:00Z"));
         given(consultSummaryService.findById(consultSummaryId, userId)).willReturn(mockConsultSummary);
 
         //when, then
-        assertThatThrownBy(()->consultSummaryFacade.getDetail(userId, consultSummaryId))
+        assertThatThrownBy(() -> consultSummaryFacade.getDetail(userId, consultSummaryId))
                 .isInstanceOf(DentruthException.class)
                 .hasMessage(ErrorStatus.SUMMARY_RECORD_NOT_FOUND.getMessage());
+    }
+
+    @DisplayName("본인 소유가 아닌 요약본 정보를 요청하면 예외가 발생한다.")
+    @Test
+    void shouldThrowException_whenRequestingDetailOnOthersConsultSummary() {
+        //given
+        UUID ownerId = UUID.randomUUID();
+        UUID requesterId = UUID.randomUUID();
+        User mockUser = User.builder()
+                .id(requesterId)
+                .status(UserStatus.ACTIVE)
+                .build();
+        given(userService.findById(requesterId, "ai 요약 내용 조회")).willReturn(mockUser);
+
+        UUID consultSummaryId = UUID.randomUUID();
+        ConsultSummary mockConsultSummary = ConsultSummary.builder()
+                .id(consultSummaryId)
+                .isDeleted(false)
+                .audioLink("audioLink")
+                .clinicName("강남 치과의원")
+                .status(SummaryStatus.COMPLETED)
+                .failReason("[WHISPER_ERR] OpenAI STT Connection Timeout")
+                .diagnosticResult(mockJson)
+                .userId(ownerId)
+                .build();
+
+        ReflectionTestUtils.setField(mockConsultSummary, "createdAt", Instant.parse("2026-06-01T23:00:00Z"));
+        given(consultSummaryService.findById(consultSummaryId, requesterId)).willReturn(mockConsultSummary);
+
+        //when, then
+        assertThatThrownBy(() -> consultSummaryFacade.getDetail(requesterId, consultSummaryId))
+                .isInstanceOf(DentruthException.class)
+                .hasMessage(ErrorStatus.FORBIDDEN.getMessage());
     }
 
 }
