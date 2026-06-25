@@ -34,7 +34,7 @@ class RedisEmailAuthCodeRepositoryTest {
 
     private static final String EMAIL = "test@test.com";
     private static final String AUTH_CODE = "ABC123";
-    private static final String KEY_PREFIX = "auth:email:";
+    private static final String KEY_PREFIX = "dentruth:auth:email:";
 
     @DisplayName("이메일 인증 코드를 저장할 수 있다.")
     @Test

@@ -4,6 +4,7 @@ import com.dentruth.common.exception.DentruthException;
 import com.dentruth.common.response.code.ErrorStatus;
 import com.dentruth.common.util.SecurityUtils;
 import com.dentruth.user.application.EmailAuthCodeStore;
+import java.time.Duration;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
@@ -18,10 +19,13 @@ public class RedisEmailAuthCodeRepository implements EmailAuthCodeStore {
 
     private final RedisTemplate<String, String> redisTemplate;
 
-    private static final String KEY_PREFIX = "auth:email:";
-    private static final String TOKEN_PREFIX = "verified:email:";
+    private static final String KEY_PREFIX = "dentruth:auth:email:";
+    private static final String TOKEN_PREFIX = "dentruth:verified:email:";
+    private static final String COOLDOWN_PREFIX = "dentruth:cooldown:email:";
+
     private static final long REDIS_TTL_MINUTES = 10L;
     private static final long AUTH_VALID_MINUTES = 5L;
+    private static final Duration SEND_COOLDOWN = Duration.ofSeconds(30);
 
     @Override
     public void save(String email, String authCode) {
@@ -106,6 +110,18 @@ public class RedisEmailAuthCodeRepository implements EmailAuthCodeStore {
         String key = TOKEN_PREFIX + email;
         log.info("이메일 인증 토큰 정보 삭제. 이메일 : [{}]", SecurityUtils.convertToMaskedEmail(email));
         redisTemplate.delete(key);
+    }
+
+    @Override
+    public boolean tryAcquireSendCooldown(String email) {
+        String key = COOLDOWN_PREFIX + email;
+        Boolean acquired = redisTemplate.opsForValue().setIfAbsent(key, "1", SEND_COOLDOWN);
+
+        if (!Boolean.TRUE.equals(acquired)) {
+            log.info("이메일 발송 쿨다운 중. 이메일 : [{}]", SecurityUtils.convertToMaskedEmail(email));
+            return false;
+        }
+        return true;
     }
 
 }

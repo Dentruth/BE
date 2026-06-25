@@ -29,6 +29,8 @@ public enum ErrorStatus implements BaseErrorCode {
     INVALID_AUTH_CODE(HttpStatus.BAD_REQUEST, "USER_008", "The verification code is incorrect"),
     EXPIRED_AUTH_CODE(HttpStatus.BAD_REQUEST, "USER_009", "The verification code has expired. Please request a new one"),
     UNAUTHORIZED_EMAIL_VERIFICATION(HttpStatus.FORBIDDEN, "USER_010", "Email verification has expired or access is invalid. Please verify again." ),
+    TOO_MANY_REQUESTS_BY_IP(HttpStatus.TOO_MANY_REQUESTS, "USER_011", "Too many requests. Please try again later."),
+    EMAIL_SEND_COOLDOWN(HttpStatus.TOO_MANY_REQUESTS, "USER_012", "Please wait before requesting another code."),
 
     //consult-summary,
     SUMMARY_RECORD_NOT_FOUND(HttpStatus.NOT_FOUND, "CON_001", "요약 기록 정보가 없습니다."),

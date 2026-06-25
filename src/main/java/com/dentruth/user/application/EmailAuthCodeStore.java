@@ -15,4 +15,6 @@ public interface EmailAuthCodeStore {
 
     void deleteVerifiedTokenByEmail(String email);
 
+    boolean tryAcquireSendCooldown(String email);
+
 }
