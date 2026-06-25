@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -57,40 +56,83 @@ class ConsultSummaryFacadeCreateSummaryTest {
 
     private final UUID userId = UUID.randomUUID();
 
-    @DisplayName("상담 요약 기록 생성에 성공한다.")
+    @DisplayName("본인 prefix의 S3 키로 요청하면 상담 요약이 정상적으로 생성된다.")
     @Test
-    void shouldCreateConsultSummarySuccessfully_whenValidRequestIsProvided() {
+    void shouldCreateConsultSummary_whenAudioLinkBelongsToRequester() {
         //given
-        CreateConsultSummaryApplicationRequest request = CreateConsultSummaryApplicationRequest.builder()
-                .clinicName("강남 병원")
-                .audioLink("test/asdfqwer1234")
-                .build();
-
-        User mockUser = mock(User.class);
+        UUID userId = UUID.randomUUID();
+        User mockUser = User.builder().id(userId).status(UserStatus.ACTIVE).build();
         given(userService.findById(userId, "상담 요약 기록 생성")).willReturn(mockUser);
 
-        ConsultSummary consultSummary = ConsultSummary.builder()
-                .id(UUID.randomUUID())
-                .clinicName(request.getClinicName())
-                .audioLink(request.getAudioLink())
-                .status(SummaryStatus.PENDING)
-                .userId(userId)
-                .isDeleted(false)
+        String ownAudioLink = "consultations/" + userId + "/" + UUID.randomUUID() + ".m4a";
+        CreateConsultSummaryApplicationRequest request = CreateConsultSummaryApplicationRequest.builder()
+                .clinicName("강남 치과의원")
+                .audioLink(ownAudioLink)
                 .build();
-        given(consultSummaryService.saveCreateConsultSummary(eq(userId), eq(request.getAudioLink()),
-                eq(request.getClinicName()))).willReturn(consultSummary);
-        ReflectionTestUtils.setField(consultSummary, "createdAt", Instant.now());
+
+        ConsultSummary savedSummary = ConsultSummary.builder()
+                .id(UUID.randomUUID())
+                .clinicName("강남 치과의원")
+                .status(SummaryStatus.PENDING)
+                .build();
+        ReflectionTestUtils.setField(savedSummary, "createdAt", Instant.now());
+
+        given(consultSummaryService.saveCreateConsultSummary(userId, ownAudioLink, "강남 치과의원"))
+                .willReturn(savedSummary);
 
         //when
         CreateConsultSummaryResponse response = consultSummaryFacade.createConsultSummary(userId, request);
 
         //then
-        assertThat(response.getId()).isEqualTo(consultSummary.getId());
-        assertThat(response.getClinicName()).isEqualTo(consultSummary.getClinicName());
-        assertThat(response.getStatus()).isEqualTo(consultSummary.getStatus());
-        assertThat(response.getCreatedAt()).isNotNull();
+        assertThat(response.getId()).isEqualTo(savedSummary.getId());
+        verify(transcriptionEventPublisher, times(1))
+                .publish(eq(savedSummary.getId()), eq(ownAudioLink), eq("강남 치과의원"), any());
+    }
 
-        verify(transcriptionEventPublisher, times(1)).publish(any(), any(), any(), any());
+    @DisplayName("본인 소유가 아닌 prefix의 S3 키로 요청하면 예외가 발생하고, 저장/이벤트 발행은 일어나지 않는다.")
+    @Test
+    void shouldThrowException_whenAudioLinkBelongsToAnotherUser() {
+        //given
+        UUID userId = UUID.randomUUID();
+        UUID victimUserId = UUID.randomUUID();
+
+        User mockUser = User.builder().id(userId).status(UserStatus.ACTIVE).build();
+        given(userService.findById(userId, "상담 요약 기록 생성")).willReturn(mockUser);
+
+        String othersAudioLink = "consultations/" + victimUserId + "/" + UUID.randomUUID() + ".m4a";
+        CreateConsultSummaryApplicationRequest request = CreateConsultSummaryApplicationRequest.builder()
+                .clinicName("강남 치과의원")
+                .audioLink(othersAudioLink)
+                .build();
+
+        //when, then
+        assertThatThrownBy(() -> consultSummaryFacade.createConsultSummary(userId, request))
+                .isInstanceOf(DentruthException.class)
+                .hasMessage(ErrorStatus.FORBIDDEN.getMessage());
+
+        verify(consultSummaryService, never()).saveCreateConsultSummary(any(), any(), any());
+        verify(transcriptionEventPublisher, never()).publish(any(), any(), any(), any());
+    }
+
+    @DisplayName("consultations/ 형식이 아닌 임의의 문자열을 audioLink로 보내면 예외가 발생한다.")
+    @Test
+    void shouldThrowException_whenAudioLinkIsArbitraryString() {
+        //given
+        UUID userId = UUID.randomUUID();
+        User mockUser = User.builder().id(userId).status(UserStatus.ACTIVE).build();
+        given(userService.findById(userId, "상담 요약 기록 생성")).willReturn(mockUser);
+
+        CreateConsultSummaryApplicationRequest request = CreateConsultSummaryApplicationRequest.builder()
+                .clinicName("강남 치과의원")
+                .audioLink("https://evil.com/payload.mp3")
+                .build();
+
+        //when, then
+        assertThatThrownBy(() -> consultSummaryFacade.createConsultSummary(userId, request))
+                .isInstanceOf(DentruthException.class)
+                .hasMessage(ErrorStatus.FORBIDDEN.getMessage());
+
+        verify(consultSummaryService, never()).saveCreateConsultSummary(any(), any(), any());
     }
 
     @DisplayName("SUSPENDED 유저면 상담 요약 기록 생성에 실패하고, 예외가 발생한다.")
@@ -154,6 +196,112 @@ class ConsultSummaryFacadeCreateSummaryTest {
                 .hasMessage(ErrorStatus.USER_NOT_FOUND.getMessage());
 
         verify(transcriptionEventPublisher, never()).publish(any(), any(), any(), any());
+    }
+
+    @DisplayName("V2 - 본인 prefix의 S3 키로 요청하면 상담 요약이 정상적으로 생성된다.")
+    @Test
+    void shouldCreateConsultSummaryV2_whenAudioLinkBelongsToRequester() {
+        //given
+        User mockUser = User.builder().id(userId).status(UserStatus.ACTIVE).build();
+        given(userService.findById(userId, "상담 요약 기록 생성")).willReturn(mockUser);
+
+        String ownAudioLink = "consultations/" + userId + "/" + UUID.randomUUID() + ".m4a";
+        CreateConsultSummaryApplicationRequest request = CreateConsultSummaryApplicationRequest.builder()
+                .clinicName("강남 치과의원")
+                .audioLink(ownAudioLink)
+                .practitionerName("김의사")
+                .licenseType("치과의사")
+                .licenseNumber("12345")
+                .institution("강남 치과의원")
+                .build();
+
+        ConsultSummary savedSummary = ConsultSummary.builder()
+                .id(UUID.randomUUID())
+                .clinicName("강남 치과의원")
+                .status(SummaryStatus.PENDING)
+                .build();
+        ReflectionTestUtils.setField(savedSummary, "createdAt", Instant.now());
+
+        given(consultSummaryService.saveCreateConsultSummary(userId, request)).willReturn(savedSummary);
+
+        //when
+        CreateConsultSummaryResponse response = consultSummaryFacade.createConsultSummaryV2(userId, request);
+
+        //then
+        assertThat(response.getId()).isEqualTo(savedSummary.getId());
+        verify(transcriptionEventPublisher, times(1))
+                .publish(eq(savedSummary.getId()), eq(ownAudioLink), eq("강남 치과의원"), any());
+    }
+
+    @DisplayName("V2 - 본인 소유가 아닌 prefix의 S3 키로 요청하면 예외가 발생하고, 저장/이벤트 발행은 일어나지 않는다.")
+    @Test
+    void shouldThrowException_whenV2AudioLinkBelongsToAnotherUser() {
+        //given
+        UUID victimUserId = UUID.randomUUID();
+        User mockUser = User.builder().id(userId).status(UserStatus.ACTIVE).build();
+        given(userService.findById(userId, "상담 요약 기록 생성")).willReturn(mockUser);
+
+        String othersAudioLink = "consultations/" + victimUserId + "/" + UUID.randomUUID() + ".m4a";
+        CreateConsultSummaryApplicationRequest request = CreateConsultSummaryApplicationRequest.builder()
+                .clinicName("강남 치과의원")
+                .audioLink(othersAudioLink)
+                .practitionerName("김의사")
+                .licenseType("치과의사")
+                .build();
+
+        //when, then
+        assertThatThrownBy(() -> consultSummaryFacade.createConsultSummaryV2(userId, request))
+                .isInstanceOf(DentruthException.class)
+                .hasMessage(ErrorStatus.FORBIDDEN.getMessage());
+
+        verify(consultSummaryService, never()).saveCreateConsultSummary(any(), any(CreateConsultSummaryApplicationRequest.class));
+        verify(transcriptionEventPublisher, never()).publish(any(), any(), any(), any());
+    }
+
+    @DisplayName("audioLink가 null이면 예외가 발생한다.")
+    @Test
+    void shouldThrowException_whenAudioLinkIsNull() {
+        //given
+        User mockUser = User.builder().id(userId).status(UserStatus.ACTIVE).build();
+        given(userService.findById(userId, "상담 요약 기록 생성")).willReturn(mockUser);
+
+        CreateConsultSummaryApplicationRequest request = CreateConsultSummaryApplicationRequest.builder()
+                .clinicName("강남 치과의원")
+                .audioLink(null)
+                .build();
+
+        //when, then
+        assertThatThrownBy(() -> consultSummaryFacade.createConsultSummary(userId, request))
+                .isInstanceOf(DentruthException.class)
+                .hasMessage(ErrorStatus.FORBIDDEN.getMessage());
+    }
+
+    @DisplayName("GUEST 상태인 유저도 상담 요약 기록을 생성할 수 있다.")
+    @Test
+    void shouldCreateConsultSummary_whenUserStatusIsGuest() {
+        //given
+        User mockUser = User.builder().id(userId).status(UserStatus.GUEST).build();
+        given(userService.findById(userId, "상담 요약 기록 생성")).willReturn(mockUser);
+
+        String ownAudioLink = "consultations/" + userId + "/" + UUID.randomUUID() + ".m4a";
+        CreateConsultSummaryApplicationRequest request = CreateConsultSummaryApplicationRequest.builder()
+                .clinicName("강남 치과의원")
+                .audioLink(ownAudioLink)
+                .build();
+
+        ConsultSummary savedSummary = ConsultSummary.builder()
+                .id(UUID.randomUUID())
+                .clinicName("강남 치과의원")
+                .status(SummaryStatus.PENDING)
+                .build();
+        ReflectionTestUtils.setField(savedSummary, "createdAt", Instant.now());
+
+        given(consultSummaryService.saveCreateConsultSummary(userId, ownAudioLink, "강남 치과의원"))
+                .willReturn(savedSummary);
+
+        //when, then
+        CreateConsultSummaryResponse response = consultSummaryFacade.createConsultSummary(userId, request);
+        assertThat(response.getId()).isEqualTo(savedSummary.getId());
     }
 
     private User getUser(UserStatus userStatus) {

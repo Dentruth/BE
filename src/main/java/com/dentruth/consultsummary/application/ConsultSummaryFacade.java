@@ -36,6 +36,8 @@ public class ConsultSummaryFacade {
     private final TranscriptionEventPublisher transcriptionEventPublisher;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
+    private static final String AUDIO_KEY_PREFIX = "consultations/";
+
     public PresignedUrlResponse getUploadUrl(String filename, String contentType, UUID userId) {
         log.info("Presigned URL 발급 요청. filename: [{}], contentType: [{}], User Id : [{}]",
                 filename, contentType, userId);
@@ -49,6 +51,7 @@ public class ConsultSummaryFacade {
                                                              CreateConsultSummaryApplicationRequest request) {
         log.info("상담 요약 기록 생성 요청. userId : [{}]", userId);
         findUser(userId, "상담 요약 기록 생성");
+        validateAudioLinkOwnership(request.getAudioLink(), userId);
 
         ConsultSummary savedSummary =
                 consultSummaryService.saveCreateConsultSummary(userId, request.getAudioLink(), request.getClinicName());
@@ -65,9 +68,10 @@ public class ConsultSummaryFacade {
     }
 
     public CreateConsultSummaryResponse createConsultSummaryV2(UUID userId,
-                                                             CreateConsultSummaryApplicationRequest request) {
+                                                               CreateConsultSummaryApplicationRequest request) {
         log.info("상담 요약 기록 생성 요청. userId : [{}]", userId);
         findUser(userId, "상담 요약 기록 생성");
+        validateAudioLinkOwnership(request.getAudioLink(), userId);
 
         ConsultSummary savedSummary =
                 consultSummaryService.saveCreateConsultSummary(userId, request);
@@ -86,6 +90,11 @@ public class ConsultSummaryFacade {
     public GetConsultSummaryResponse getDetail(UUID userId, UUID consultSummaryId) {
         findUser(userId, "ai 요약 내용 조회");
         ConsultSummary consultSummary = consultSummaryService.findById(consultSummaryId, userId);
+
+        if (!consultSummary.getUserId().equals(userId)) {
+            log.info("본인 소유가 아닌 요약 내용 조회 요청. User Id : [{}]. summary Id : [{}]", userId, consultSummaryId);
+            throw new DentruthException(ErrorStatus.FORBIDDEN);
+        }
 
         if (consultSummary.getIsDeleted().equals(Boolean.TRUE)) {
             throw new DentruthException(ErrorStatus.SUMMARY_RECORD_NOT_FOUND);
@@ -142,6 +151,14 @@ public class ConsultSummaryFacade {
     public void findUser(UUID userId, String method) {
         User user = userService.findById(userId, method);
         user.validateStatus();
+    }
+
+    private void validateAudioLinkOwnership(String audioLink, UUID userId) {
+        String expectedPrefix = AUDIO_KEY_PREFIX + userId + "/";
+        if (audioLink == null || !audioLink.startsWith(expectedPrefix)) {
+            log.warn("본인 소유가 아닌 S3 키로 상담 생성 시도. User Id : [{}], audioLink : [{}]", userId, audioLink);
+            throw new DentruthException(ErrorStatus.FORBIDDEN);
+        }
     }
 
     private LocalDateTime convertToLocalDateTime(Instant time) {
