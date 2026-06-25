@@ -74,18 +74,17 @@ class OAuth2SuccessHandlerTest {
         );
     }
 
-    /** Google OAuth2 principal 을 만들어주는 헬퍼 */
     private OAuth2UserPrincipal createPrincipal(String email, String name) {
         Map<String, Object> attributes = Map.of(
                 "sub", "google-sub-id",
                 "email", email,
-                "name", name
+                "name", name,
+                "email_verified", true
         );
         GoogleUserInfo userInfo = new GoogleUserInfo(attributes, "google-access-token");
         return new OAuth2UserPrincipal(userInfo);
     }
 
-    /** OAuth2LoginRequestEvent 발행 시 결과를 자동으로 세팅해주는 헬퍼 */
     private void stubLoginEvent(String userId, String userStatus) {
         willAnswer(invocation -> {
             Object event = invocation.getArgument(0);
@@ -276,4 +275,5 @@ class OAuth2SuccessHandlerTest {
             assertThat(targetUrl).contains("error=unknown_mode");
         }
     }
+
 }

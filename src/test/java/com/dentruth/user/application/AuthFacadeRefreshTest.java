@@ -11,12 +11,13 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 
+import com.dentruth.common.domain.enums.Language;
+import com.dentruth.common.exception.DentruthException;
 import com.dentruth.common.exception.JwtAuthenticationException;
 import com.dentruth.common.jwt.JwtProvider;
 import com.dentruth.common.response.code.ErrorStatus;
 import com.dentruth.user.application.dto.response.TokenResponse;
 import com.dentruth.user.domain.entity.User;
-import com.dentruth.common.domain.enums.Language;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -96,8 +97,10 @@ class AuthFacadeRefreshTest {
         String clientRefreshToken = "client.refresh.token";
         String dbDifferentToken = "different.db.refresh.token";
         UUID userId = UUID.randomUUID();
+        User user = mock(User.class);
 
         given(jwtProvider.getUserId(clientRefreshToken)).willReturn(userId.toString());
+        given(userService.findById(any(UUID.class), anyString())).willReturn(user);
         given(tokenService.getRefreshToken(any(UUID.class))).willReturn(dbDifferentToken);
 
         //when, then
@@ -115,14 +118,37 @@ class AuthFacadeRefreshTest {
         //given
         String clientRefreshToken = "client.refresh.token";
         UUID userId = UUID.randomUUID();
+        User user = mock(User.class);
 
         given(jwtProvider.getUserId(clientRefreshToken)).willReturn(userId.toString());
+        given(userService.findById(any(UUID.class), anyString())).willReturn(user);
         given(tokenService.getRefreshToken(any(UUID.class))).willReturn(null);
 
         //when, then
         assertThatThrownBy(() -> authFacade.reissue(clientRefreshToken))
                 .isInstanceOf(JwtAuthenticationException.class)
                 .hasMessage(ErrorStatus.INVALID_TOKEN.getMessage());
+    }
+
+    @DisplayName("탈퇴 또는 삭제된 유저는 토큰 재발급에 실패한다.")
+    @Test
+    void shouldThrowException_whenUserStatusIsInvalid() {
+        //given
+        String clientRefreshToken = "client.refresh.token";
+        UUID userId = UUID.randomUUID();
+        User user = mock(User.class);
+
+        given(jwtProvider.getUserId(clientRefreshToken)).willReturn(userId.toString());
+        given(userService.findById(any(UUID.class), anyString())).willReturn(user);
+        doThrow(new DentruthException(ErrorStatus.USER_NOT_FOUND))
+                .when(user).validateStatus();
+
+        //when, then
+        assertThatThrownBy(() -> authFacade.reissue(clientRefreshToken))
+                .isInstanceOf(DentruthException.class);
+
+        then(tokenService).should(times(0)).getRefreshToken(any());
+        then(jwtProvider).should(times(0)).generateAccessToken(anyString(), anyString());
     }
 
 }

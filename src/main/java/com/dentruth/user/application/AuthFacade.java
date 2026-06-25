@@ -65,7 +65,9 @@ public class AuthFacade {
 
         String userIdStr = jwtProvider.getUserId(refreshToken);
         UUID userId = UUID.fromString(userIdStr);
+
         User user = userService.findById(userId, "토큰 재발급");
+        user.validateStatus();
 
         String storedRefreshToken = tokenService.getRefreshToken(userId);
 
