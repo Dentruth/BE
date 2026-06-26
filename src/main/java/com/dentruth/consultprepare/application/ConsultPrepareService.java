@@ -293,6 +293,17 @@ public class ConsultPrepareService {
                         .map(MedicalHistory::getName)
                         .toList();
 
+        List<String> recommendedQuestions =
+                consultRecommendedQuestionRepository
+                        .findAllByConsultPrepareIdOrderByQuestionOrderAsc(
+                                consultCardId
+                        )
+                        .stream()
+                        .map(
+                                ConsultRecommendedQuestion::getQuestion
+                        )
+                        .toList();
+
         String painLevelDuration =
                 getPainLevel(consultPrepare.getPainLevel())
                         + " · "
@@ -317,7 +328,8 @@ public class ConsultPrepareService {
                 socialHistory,
                 dentalHistories,
                 medicalHistories,
-                concerns
+                concerns,
+                recommendedQuestions
         );
     }
 

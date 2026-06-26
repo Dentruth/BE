@@ -25,4 +25,7 @@ public class ConsultCardDetailResponse {
     private List<String> medicalHistories;
 
     private String concerns;
+
+    private List<String> recommendedQuestions;
+
 }
