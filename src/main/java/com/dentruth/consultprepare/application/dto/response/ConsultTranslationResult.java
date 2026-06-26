@@ -7,8 +7,10 @@ import lombok.Getter;
 @Getter
 @Builder
 @AllArgsConstructor
-public class PainSummaryResult {
+public class ConsultTranslationResult {
 
     private String painOrigin;
     private String painKo;
+    private String painLocationKo;
+    private String visitPurpose;
 }

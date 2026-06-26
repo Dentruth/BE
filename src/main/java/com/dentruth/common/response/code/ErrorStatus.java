@@ -44,6 +44,8 @@ public enum ErrorStatus implements BaseErrorCode {
     CONSULT_CARD_NOT_FOUND(HttpStatus.NOT_FOUND,"PRE_001", "상담카드를 찾을 수 없습니다."),
     INVALID_DENTAL_HISTORY(HttpStatus.BAD_REQUEST, "PRE_002", "존재하지 않는 치과 병력입니다."),
     INVALID_MEDICAL_HISTORY(HttpStatus.BAD_REQUEST, "PRE_003", "존재하지 않는 전신 병력입니다."),
+    OPENAI_REQUEST_FAILED(HttpStatus.BAD_REQUEST, "PRE_004", "OpenAI 응답 Json 파싱 실패"),
+    TRANSFER_FAILED(HttpStatus.BAD_REQUEST, "PRE_005", "상담카드 번역 실패"),
   
     // schedule
     SCHEDULE_NOT_FOUND(HttpStatus.NOT_FOUND, "SCHEDULE_404", "일정을 찾을 수 없습니다."),

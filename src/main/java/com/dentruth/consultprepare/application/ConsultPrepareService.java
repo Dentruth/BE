@@ -4,17 +4,13 @@ import com.dentruth.common.exception.DentruthException;
 import com.dentruth.common.response.code.ErrorStatus;
 import com.dentruth.consultprepare.application.dto.request.CreateConsultCardRequest;
 import com.dentruth.consultprepare.application.dto.request.UpdateConsultCardRequest;
-import com.dentruth.consultprepare.application.dto.response.ConsultCardDetailResponse;
-import com.dentruth.consultprepare.application.dto.response.ConsultCardListItemResponse;
-import com.dentruth.consultprepare.application.dto.response.ConsultDentistResponse;
-import com.dentruth.consultprepare.application.dto.response.CreateConsultCardResponse;
+import com.dentruth.consultprepare.application.dto.response.*;
 import com.dentruth.consultprepare.domain.entity.*;
 import com.dentruth.consultprepare.domain.entity.enums.DrinkingLevel;
 import com.dentruth.consultprepare.domain.entity.enums.PainLevel;
 import com.dentruth.consultprepare.domain.repository.*;
 import com.dentruth.user.domain.entity.User;
 import com.dentruth.user.domain.repository.UserRepository;
-import com.nimbusds.oauth2.sdk.GeneralException;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,6 +32,7 @@ public class ConsultPrepareService {
     private final DentalHistoryRepository dentalHistoryRepository;
     private final ConsultMedicalHistoryRepository consultMedicalHistoryRepository;
     private final MedicalHistoryRepository medicalHistoryRepository;
+    private final ConsultTranslationService consultTranslationService;
 
     public CreateConsultCardResponse createConsultCard(
             UUID userId,
@@ -464,7 +461,6 @@ public class ConsultPrepareService {
             Long consultCardId,
             UUID userId
     ) {
-
         ConsultPrepare consultPrepare =
                 consultPrepareRepository
                         .findByIdAndUserIdAndDeletedAtIsNull(
@@ -492,32 +488,35 @@ public class ConsultPrepareService {
                             );
                         });
 
-        String painOrigin = createPainOrigin(consultPrepare);
-
-        // TODO: GPT 연동 후 painOrigin을 자연스러운 한국어 주호소로 번역 예정
-        String painKo = painOrigin;
+        ConsultTranslationResult translation =
+                consultTranslationService.translate(
+                        createPainOrigin(consultPrepare),
+                        consultPrepare.getWorriedIssue(),
+                        consultPrepare.getQuestion()
+                );
 
         return ConsultDentistResponse.builder()
                 .insuranceStatus(user.getInsuranceStatus().getKo())
                 .painSummary(
                         ConsultDentistResponse.PainSummary.builder()
-                                .painOrigin(painOrigin)
-                                .painKo(painKo)
+                                .painOrigin(translation.getPainOrigin())
+                                .painKo(translation.getPainKo())
                                 .build()
                 )
-                .summaryInfo(createSummaryInfo(user, consultPrepare))
-                .visitPurpose(createVisitPurpose(consultPrepare))
+                .summaryInfo(createSummaryInfo(user, consultPrepare,translation))
+                .visitPurpose(translation.getVisitPurpose())
                 .build();
     }
 
     private ConsultDentistResponse.SummaryInfo createSummaryInfo(
             User user,
-            ConsultPrepare consultPrepare
+            ConsultPrepare consultPrepare,
+            ConsultTranslationResult translation
     ) {
 
         return ConsultDentistResponse.SummaryInfo.builder()
                 .stayStatus(user.getStayDuration().getKo())
-                .painLocation(consultPrepare.getPainLocation())
+                .painLocation(translation.getPainLocationKo())
                 .painInfo(createPainInfo(consultPrepare))
                 .dentalHistory(createDentalHistory(consultPrepare))
                 .medicalHistory(createMedicalHistory(consultPrepare))
@@ -579,28 +578,6 @@ public class ConsultPrepareService {
                 consultPrepare.getDrinking().getKo(),
                 consultPrepare.getExercise().getKo()
         );
-    }
-
-    private String createVisitPurpose(ConsultPrepare consultPrepare) {
-
-        String worriedIssue = consultPrepare.getWorriedIssue();
-        String question = consultPrepare.getQuestion();
-
-        if ((worriedIssue == null || worriedIssue.isBlank()) &&
-                (question == null || question.isBlank())) {
-            return "";
-        }
-
-        if (worriedIssue == null || worriedIssue.isBlank()) {
-            return question;
-        }
-
-        if (question == null || question.isBlank()) {
-            return worriedIssue;
-        }
-
-        // TODO: GPT 연동 후 worriedIssue + question을 자연스러운 방문 목적 문장으로 생성
-        return worriedIssue + "\n" + question;
     }
 
 }
