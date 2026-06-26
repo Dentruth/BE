@@ -8,6 +8,7 @@ import com.dentruth.consultprepare.application.dto.request.CreateConsultCardRequ
 import com.dentruth.consultprepare.application.dto.request.UpdateConsultCardRequest;
 import com.dentruth.consultprepare.application.dto.response.ConsultCardDetailResponse;
 import com.dentruth.consultprepare.application.dto.response.ConsultCardListItemResponse;
+import com.dentruth.consultprepare.application.dto.response.ConsultDentistResponse;
 import com.dentruth.consultprepare.application.dto.response.CreateConsultCardResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -108,6 +109,21 @@ public class ConsultCardController {
         return ApiResponse.onSuccess(
                 SuccessStatus.OK,
                 null
+        );
+    }
+
+    @GetMapping("/{consultCardId}/dentist")
+    public ApiResponse<ConsultDentistResponse> getConsultPatient(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable Long consultCardId
+    ) {
+        return ApiResponse.onSuccess(
+                SuccessStatus.OK,
+                consultPrepareService.getConsultPatient(
+                        consultCardId,
+                        UUID.fromString(userDetails.getUserId())
+                )
+
         );
     }
 

@@ -6,6 +6,7 @@ import com.dentruth.consultprepare.application.dto.request.CreateConsultCardRequ
 import com.dentruth.consultprepare.application.dto.request.UpdateConsultCardRequest;
 import com.dentruth.consultprepare.application.dto.response.ConsultCardDetailResponse;
 import com.dentruth.consultprepare.application.dto.response.ConsultCardListItemResponse;
+import com.dentruth.consultprepare.application.dto.response.ConsultDentistResponse;
 import com.dentruth.consultprepare.application.dto.response.CreateConsultCardResponse;
 import com.dentruth.consultprepare.domain.entity.*;
 import com.dentruth.consultprepare.domain.entity.enums.DrinkingLevel;
@@ -13,6 +14,7 @@ import com.dentruth.consultprepare.domain.entity.enums.PainLevel;
 import com.dentruth.consultprepare.domain.repository.*;
 import com.dentruth.user.domain.entity.User;
 import com.dentruth.user.domain.repository.UserRepository;
+import com.nimbusds.oauth2.sdk.GeneralException;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -455,6 +457,150 @@ public class ConsultPrepareService {
                 consultCardId,
                 userId
         );
+    }
+
+    @Transactional(readOnly = true)
+    public ConsultDentistResponse getConsultPatient(
+            Long consultCardId,
+            UUID userId
+    ) {
+
+        ConsultPrepare consultPrepare =
+                consultPrepareRepository
+                        .findByIdAndUserIdAndDeletedAtIsNull(
+                                consultCardId,
+                                userId
+                        ).orElseThrow(() -> {
+                            log.info(
+                                    "상담카드가 존재하지 않습니다. consultCardId={}",
+                                    consultCardId
+                            );
+                            return new DentruthException(
+                                    ErrorStatus.CONSULT_CARD_NOT_FOUND
+                            );
+                        });
+
+        User user =
+                userRepository.findById(userId)
+                        .orElseThrow(() -> {
+                            log.info(
+                                    "유저 정보가 존재하지 않습니다. userId={}",
+                                    userId
+                            );
+                            return new DentruthException(
+                                    ErrorStatus.USER_NOT_FOUND
+                            );
+                        });
+
+        String painOrigin = createPainOrigin(consultPrepare);
+
+        // TODO: GPT 연동 후 painOrigin을 자연스러운 한국어 주호소로 번역 예정
+        String painKo = painOrigin;
+
+        return ConsultDentistResponse.builder()
+                .insuranceStatus(user.getInsuranceStatus().getKo())
+                .painSummary(
+                        ConsultDentistResponse.PainSummary.builder()
+                                .painOrigin(painOrigin)
+                                .painKo(painKo)
+                                .build()
+                )
+                .summaryInfo(createSummaryInfo(user, consultPrepare))
+                .visitPurpose(createVisitPurpose(consultPrepare))
+                .build();
+    }
+
+    private ConsultDentistResponse.SummaryInfo createSummaryInfo(
+            User user,
+            ConsultPrepare consultPrepare
+    ) {
+
+        return ConsultDentistResponse.SummaryInfo.builder()
+                .stayStatus(user.getStayDuration().getKo())
+                .painLocation(consultPrepare.getPainLocation())
+                .painInfo(createPainInfo(consultPrepare))
+                .dentalHistory(createDentalHistory(consultPrepare))
+                .medicalHistory(createMedicalHistory(consultPrepare))
+                .socialHistory(createSocialHistory(consultPrepare))
+                .build();
+    }
+
+    private String createPainOrigin(ConsultPrepare consultPrepare) {
+
+        return String.format(
+                "%s pain has %s in %s for about %s.",
+                consultPrepare.getPainLevel().getEng().toLowerCase(),
+                consultPrepare.getPainPersistence().getEng().toLowerCase(),
+                consultPrepare.getPainLocation(),
+                consultPrepare.getPainDuration()
+        );
+    }
+
+    private String createPainInfo(ConsultPrepare consultPrepare) {
+
+        return consultPrepare.getPainLevel().getKo()
+                + " / "
+                + consultPrepare.getPainDuration();
+    }
+
+    private String createMedicalHistory(ConsultPrepare consultPrepare) {
+
+        List<String> medicalHistories =
+                consultMedicalHistoryRepository.findMedicalHistoryNames(
+                        consultPrepare.getId()
+                );
+
+        if (medicalHistories.isEmpty()) {
+            return "특이사항 없음";
+        }
+
+        return String.join(", ", medicalHistories);
+
+    }
+
+    private String createDentalHistory(ConsultPrepare consultPrepare) {
+
+        List<String> dentalHistories =
+                consultDentalHistoryRepository.findDentalHistoryNames(
+                        consultPrepare.getId()
+                );
+
+        if (dentalHistories.isEmpty()) {
+            return "특이사항 없음";
+        }
+
+        return String.join(", ", dentalHistories);
+    }
+
+    private String createSocialHistory(ConsultPrepare consultPrepare) {
+
+        return String.join(", ",
+                consultPrepare.getSmoking().getKo(),
+                consultPrepare.getDrinking().getKo(),
+                consultPrepare.getExercise().getKo()
+        );
+    }
+
+    private String createVisitPurpose(ConsultPrepare consultPrepare) {
+
+        String worriedIssue = consultPrepare.getWorriedIssue();
+        String question = consultPrepare.getQuestion();
+
+        if ((worriedIssue == null || worriedIssue.isBlank()) &&
+                (question == null || question.isBlank())) {
+            return "";
+        }
+
+        if (worriedIssue == null || worriedIssue.isBlank()) {
+            return question;
+        }
+
+        if (question == null || question.isBlank()) {
+            return worriedIssue;
+        }
+
+        // TODO: GPT 연동 후 worriedIssue + question을 자연스러운 방문 목적 문장으로 생성
+        return worriedIssue + "\n" + question;
     }
 
 }
