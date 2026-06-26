@@ -16,4 +16,7 @@ public interface ConsultRecommendedQuestionRepository
     void deleteAllByConsultPrepareId(
             Long consultPrepareId
     );
+
+    boolean existsByConsultPrepareId(Long consultPrepareId);
+
 }

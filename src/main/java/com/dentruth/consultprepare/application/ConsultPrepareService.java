@@ -219,7 +219,7 @@ public class ConsultPrepareService {
         }
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public ConsultCardDetailResponse getConsultCardDetail(
             UUID userId,
             Long consultCardId
@@ -293,6 +293,8 @@ public class ConsultPrepareService {
                         .map(MedicalHistory::getName)
                         .toList();
 
+        generateRecommendQuestionsIfAbsent(consultPrepare);
+
         List<String> recommendedQuestions =
                 consultRecommendedQuestionRepository
                         .findAllByConsultPrepareIdOrderByQuestionOrderAsc(
@@ -330,6 +332,44 @@ public class ConsultPrepareService {
                 medicalHistories,
                 concerns,
                 recommendedQuestions
+        );
+    }
+
+    private void generateRecommendQuestionsIfAbsent(
+            ConsultPrepare consultPrepare
+    ) {
+        Long consultCardId = consultPrepare.getId();
+
+        boolean exists = consultRecommendedQuestionRepository
+                .existsByConsultPrepareId(consultCardId);
+
+        if (exists) {
+            return;
+        }
+
+        log.info("추천 질문이 존재하지 않습니다. 생성 시작. consultCardId={}", consultCardId);
+
+        RecommendQuestionResult result =
+                recommendQuestionService.recommendQuestions(consultPrepare);
+
+        List<ConsultRecommendedQuestion> questions = new ArrayList<>();
+
+        for (int i = 0; i < result.getRecommendedQuestions().size(); i++) {
+            questions.add(
+                    new ConsultRecommendedQuestion(
+                            consultCardId,
+                            i + 1,
+                            result.getRecommendedQuestions().get(i)
+                    )
+            );
+        }
+
+        consultRecommendedQuestionRepository.saveAll(questions);
+
+        log.info(
+                "추천 질문 생성 완료. consultCardId={}, count={}",
+                consultCardId,
+                questions.size()
         );
     }
 
