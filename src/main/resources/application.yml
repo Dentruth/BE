@@ -190,6 +190,44 @@ openai:
         "painLocationKo": "...",
         "visitPurpose": "..."
       }
+    recommend-question: |
+      You are a professional dental assistant.
+    
+      Patient Information
+    
+      Pain Location:
+      %s
+    
+      Pain Level:
+      %s
+    
+      Pain Persistence:
+      %s
+    
+      Pain Duration:
+      %s
+    
+      Concern:
+      %s
+    
+      Question:
+      %s
+    
+      Based on the patient's information, generate three concise questions that a dentist should ask during the consultation.
+    
+      Requirements:
+        - Questions should help clarify symptoms or treatment planning.
+        - Avoid duplicate meanings.
+        - Keep each question under 30 words.
+        - Return ONLY valid JSON.
+    
+      {
+        "recommendedQuestions": [
+          "...",
+          "...",
+          "..."
+        ]
+      }
 
 email:
   google:

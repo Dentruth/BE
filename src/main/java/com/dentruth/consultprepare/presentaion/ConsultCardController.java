@@ -6,10 +6,7 @@ import com.dentruth.common.response.code.SuccessStatus;
 import com.dentruth.consultprepare.application.ConsultPrepareService;
 import com.dentruth.consultprepare.application.dto.request.CreateConsultCardRequest;
 import com.dentruth.consultprepare.application.dto.request.UpdateConsultCardRequest;
-import com.dentruth.consultprepare.application.dto.response.ConsultCardDetailResponse;
-import com.dentruth.consultprepare.application.dto.response.ConsultCardListItemResponse;
-import com.dentruth.consultprepare.application.dto.response.ConsultDentistResponse;
-import com.dentruth.consultprepare.application.dto.response.CreateConsultCardResponse;
+import com.dentruth.consultprepare.application.dto.response.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -124,6 +121,28 @@ public class ConsultCardController {
                         UUID.fromString(userDetails.getUserId())
                 )
 
+        );
+    }
+
+    @PostMapping("/{consultCardId}/recommended-questions")
+    public ApiResponse<RecommendQuestionResponse>
+    generateRecommendQuestions(
+            @AuthenticationPrincipal
+            CustomUserDetails userDetails,
+
+            @PathVariable
+            Long consultCardId
+    ) {
+
+        return ApiResponse.onSuccess(
+                SuccessStatus.OK,
+                consultPrepareService
+                        .generateRecommendQuestions(
+                                consultCardId,
+                                UUID.fromString(
+                                        userDetails.getUserId()
+                                )
+                        )
         );
     }
 

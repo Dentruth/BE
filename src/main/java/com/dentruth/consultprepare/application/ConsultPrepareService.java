@@ -17,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -33,6 +34,10 @@ public class ConsultPrepareService {
     private final ConsultMedicalHistoryRepository consultMedicalHistoryRepository;
     private final MedicalHistoryRepository medicalHistoryRepository;
     private final ConsultTranslationService consultTranslationService;
+    private final RecommendQuestionService recommendQuestionService;
+    private final ConsultRecommendedQuestionRepository
+            consultRecommendedQuestionRepository;
+
 
     public CreateConsultCardResponse createConsultCard(
             UUID userId,
@@ -578,6 +583,77 @@ public class ConsultPrepareService {
                 consultPrepare.getDrinking().getKo(),
                 consultPrepare.getExercise().getKo()
         );
+    }
+
+    @Transactional
+    public RecommendQuestionResponse generateRecommendQuestions(
+            Long consultCardId,
+            UUID userId
+    ) {
+
+        ConsultPrepare consultPrepare =
+                consultPrepareRepository
+                        .findByIdAndUserIdAndDeletedAtIsNull(
+                                consultCardId,
+                                userId
+                        ).orElseThrow(() -> {
+                            log.info(
+                                    "상담카드가 존재하지 않습니다. consultCardId={}",
+                                    consultCardId
+                            );
+                            return new DentruthException(
+                                    ErrorStatus.CONSULT_CARD_NOT_FOUND
+                            );
+                        });
+
+        log.info(
+                "추천 질문 생성 시작. consultCardId={}",
+                consultCardId
+        );
+
+        RecommendQuestionResult result =
+                recommendQuestionService
+                        .recommendQuestions(consultPrepare);
+
+        consultRecommendedQuestionRepository
+                .deleteAllByConsultPrepareId(
+                        consultCardId
+                );
+
+        List<ConsultRecommendedQuestion> questions =
+                new ArrayList<>();
+
+        for (int i = 0;
+             i < result.getRecommendedQuestions().size();
+             i++) {
+
+            questions.add(
+                    new ConsultRecommendedQuestion(
+                            consultCardId,
+                            i + 1,
+                            result.getRecommendedQuestions().get(i)
+                    )
+            );
+        }
+
+        consultRecommendedQuestionRepository.saveAll(
+                questions
+        );
+
+        log.info(
+                "추천 질문 저장 완료. consultCardId={}, count={}",
+                consultCardId,
+                questions.size()
+        );
+
+        return RecommendQuestionResponse.builder()
+                .consultCardId(
+                        consultCardId
+                )
+                .recommendedQuestions(
+                        result.getRecommendedQuestions()
+                )
+                .build();
     }
 
 }
