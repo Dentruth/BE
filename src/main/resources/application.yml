@@ -149,6 +149,47 @@ openai:
           "treatmentDelay": [],
           "treatmentAfterCare": []
         }
+    consult-translation: |
+      You are a professional dental interpreter.
+
+      Based on the information below, generate a JSON object.
+
+      Chief Complaint:
+      %s
+
+      Concern:
+      %s
+
+      Question:
+      %s
+
+      Tasks:
+      1. Rewrite the chief complaint as a natural, professional English sentence suitable for a dentist.
+         Save it as "painOrigin".
+
+      2. Translate "painOrigin" into natural Korean.
+         Save it as "painKo".
+
+      3. Extract the pain location mentioned in "painOrigin" and translate ONLY the pain location into Korean.
+         Save it as "painLocationKo".
+
+         Examples:
+         - Lower right molar → 오른쪽 아래 어금니
+         - Upper left incisor → 왼쪽 위 앞니
+         - Left cheek → 왼쪽 볼
+         - Lower jaw → 아래턱
+
+      4. Summarize the concern and question into one concise Korean sentence.
+         Save it as "visitPurpose".
+
+      Return ONLY valid JSON.
+
+      {
+        "painOrigin": "...",
+        "painKo": "...",
+        "painLocationKo": "...",
+        "visitPurpose": "..."
+      }
 
 email:
   google:
