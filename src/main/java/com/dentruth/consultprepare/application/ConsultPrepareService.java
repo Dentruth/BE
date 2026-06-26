@@ -637,12 +637,12 @@ public class ConsultPrepareService {
         );
     }
 
+
     @Transactional
-    public RecommendQuestionResponse generateRecommendQuestions(
+    public RecommendQuestionResponse regenerateRecommendQuestions(
             Long consultCardId,
             UUID userId
     ) {
-
         ConsultPrepare consultPrepare =
                 consultPrepareRepository
                         .findByIdAndUserIdAndDeletedAtIsNull(
@@ -658,22 +658,17 @@ public class ConsultPrepareService {
                             );
                         });
 
+        consultRecommendedQuestionRepository
+                .deleteAllByConsultPrepareId(consultCardId);
+
         log.info(
-                "추천 질문 생성 시작. consultCardId={}",
-                consultCardId
+                "추천 질문 생성 시작. consultCardId={}", consultCardId
         );
 
         RecommendQuestionResult result =
-                recommendQuestionService
-                        .recommendQuestions(consultPrepare);
+                recommendQuestionService.recommendQuestions(consultPrepare);
 
-        consultRecommendedQuestionRepository
-                .deleteAllByConsultPrepareId(
-                        consultCardId
-                );
-
-        List<ConsultRecommendedQuestion> questions =
-                new ArrayList<>();
+        List<ConsultRecommendedQuestion> questions = new ArrayList<>();
 
         for (int i = 0;
              i < result.getRecommendedQuestions().size();
@@ -688,14 +683,10 @@ public class ConsultPrepareService {
             );
         }
 
-        consultRecommendedQuestionRepository.saveAll(
-                questions
-        );
+        consultRecommendedQuestionRepository.saveAll(questions);
 
         log.info(
-                "추천 질문 저장 완료. consultCardId={}, count={}",
-                consultCardId,
-                questions.size()
+                "추천 질문 저장 완료. consultCardId={}, count={}", consultCardId, questions.size()
         );
 
         return RecommendQuestionResponse.builder()

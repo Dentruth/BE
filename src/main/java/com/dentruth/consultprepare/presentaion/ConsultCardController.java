@@ -124,24 +124,18 @@ public class ConsultCardController {
         );
     }
 
-    @PostMapping("/{consultCardId}/recommended-questions")
-    public ApiResponse<RecommendQuestionResponse>
-    generateRecommendQuestions(
-            @AuthenticationPrincipal
-            CustomUserDetails userDetails,
-
-            @PathVariable
-            Long consultCardId
+    @PutMapping("/{consultCardId}/recommended-questions")
+    public ApiResponse<RecommendQuestionResponse> regenerateRecommendQuestions(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable Long consultCardId
     ) {
 
         return ApiResponse.onSuccess(
                 SuccessStatus.OK,
                 consultPrepareService
-                        .generateRecommendQuestions(
+                        .regenerateRecommendQuestions(
                                 consultCardId,
-                                UUID.fromString(
-                                        userDetails.getUserId()
-                                )
+                                UUID.fromString(userDetails.getUserId())
                         )
         );
     }
