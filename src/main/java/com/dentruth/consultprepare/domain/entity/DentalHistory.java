@@ -17,4 +17,10 @@ public class DentalHistory extends BaseEntity {
 
     @Column(nullable = false, unique = true)
     private String name;
+
+    @Column(nullable = false)
+    private String nameKo;
+
+    @Column(nullable = false)
+    private String nameEn;
 }
