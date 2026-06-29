@@ -628,7 +628,9 @@ public class ConsultPrepareService {
                 + consultPrepare.getPainDuration();
     }
 
-    private String createMedicalHistory(ConsultPrepare consultPrepare) {
+    private List<String> createMedicalHistory(
+            ConsultPrepare consultPrepare
+    ) {
 
         List<String> medicalHistories =
                 consultMedicalHistoryRepository.findMedicalHistoryNames(
@@ -636,14 +638,14 @@ public class ConsultPrepareService {
                 );
 
         if (medicalHistories.isEmpty()) {
-            return "특이사항 없음";
+            return List.of("특이사항 없음");
         }
 
-        return String.join(", ", medicalHistories);
+        return medicalHistories;
 
     }
 
-    private String createDentalHistory(ConsultPrepare consultPrepare) {
+    private List<String> createDentalHistory(ConsultPrepare consultPrepare) {
 
         List<String> dentalHistories =
                 consultDentalHistoryRepository.findDentalHistoryNames(
@@ -651,10 +653,10 @@ public class ConsultPrepareService {
                 );
 
         if (dentalHistories.isEmpty()) {
-            return "특이사항 없음";
+            return List.of("특이사항 없음");
         }
 
-        return String.join(", ", dentalHistories);
+        return dentalHistories;
     }
 
     private String createSocialHistory(ConsultPrepare consultPrepare) {

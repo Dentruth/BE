@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.util.List;
+
 @Getter
 @Builder
 @AllArgsConstructor
@@ -35,9 +37,9 @@ public class ConsultDentistResponse {
 
         private String painInfo;
 
-        private String dentalHistory;
+        private List<String> dentalHistory;
 
-        private String medicalHistory;
+        private List<String> medicalHistory;
 
         private String socialHistory;
     }
