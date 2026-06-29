@@ -46,13 +46,6 @@ public class OpenAiConsultTranslationService implements ConsultTranslationServic
     ) {
         try {
 
-            log.info(
-                    "OpenAI 상담카드 번역 요청 시작. painOrigin={}, worriedIssue={}, question={}",
-                    painOrigin,
-                    worriedIssue,
-                    question
-            );
-
             String prompt = promptTemplate.formatted(
                     painOrigin,
                     worriedIssue,
@@ -80,11 +73,6 @@ public class OpenAiConsultTranslationService implements ConsultTranslationServic
             HttpEntity<Map<String, Object>> requestEntity =
                     new HttpEntity<>(body, headers);
 
-            log.info(
-                    "OpenAI API 호출. model={}",
-                    chatModel
-            );
-
             ResponseEntity<Map> response =
                     restTemplate.postForEntity(
                             chatUrl,
@@ -94,24 +82,17 @@ public class OpenAiConsultTranslationService implements ConsultTranslationServic
 
             String aiJsonContent = extractContent(response.getBody());
 
-            log.info(
-                    "OpenAI 상담카드 번역 응답 수신."
-            );
-
             ConsultTranslationResult result = parseResult(aiJsonContent);
-
-            log.info(
-                    "OpenAI 응답 파싱 완료. painOrigin={}, painLocationKo={}",
-                    result.getPainOrigin(),
-                    result.getPainLocationKo()
-            );
 
             return result;
 
 
         } catch (Exception e) {
 
-            log.error("OpenAI 상담카드 번역 실패.", e);
+            log.debug(
+                    "OpenAI 상담카드 번역 중 예외 발생.",
+                    e
+            );
 
             throw new DentruthException(
                     ErrorStatus.TRANSFER_FAILED

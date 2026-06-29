@@ -378,7 +378,7 @@ public class ConsultPrepareService {
     ) {
 
         return switch (drinkingLevel) {
-            case NON_SMOKER -> "Non Drinker";
+            case NON_DRINK -> "Non Drinker";
             case OCCASIONAL -> "Alcohol Once a Week";
             case REGULAR -> "Alcohol Several Times a Week";
             case HEAVY -> "Alcohol Daily";
@@ -545,12 +545,41 @@ public class ConsultPrepareService {
                             );
                         });
 
-        ConsultTranslationResult translation =
+        ConsultTranslationResult translation;
+
+        try {
+
+        log.info(
+                "OpenAI 상담카드 번역 요청. consultCardId={}, userId={}",
+                consultCardId,
+                userId
+        );
+
+
+        translation =
                 consultTranslationService.translate(
                         createPainOrigin(consultPrepare),
                         consultPrepare.getWorriedIssue(),
                         consultPrepare.getQuestion()
                 );
+
+        log.info(
+                "OpenAI 상담카드 번역 완료. consultCardId={}, userId={}",
+                consultCardId,
+                userId
+        );
+
+        } catch (Exception e) {
+
+            log.error(
+                    "OpenAI 상담카드 번역 실패. consultCardId={}, userId={}",
+                    consultCardId,
+                    userId,
+                    e
+            );
+
+            throw e;
+        }
 
         return ConsultDentistResponse.builder()
                 .insuranceStatus(user.getInsuranceStatus().getKo())
@@ -650,8 +679,9 @@ public class ConsultPrepareService {
                                 userId
                         ).orElseThrow(() -> {
                             log.info(
-                                    "상담카드가 존재하지 않습니다. consultCardId={}",
-                                    consultCardId
+                                    "상담카드가 존재하지 않습니다. consultCardId={}","userId={}",
+                                    consultCardId,
+                                    userId
                             );
                             return new DentruthException(
                                     ErrorStatus.CONSULT_CARD_NOT_FOUND
