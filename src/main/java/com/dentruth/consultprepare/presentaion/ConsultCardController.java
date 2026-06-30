@@ -6,9 +6,7 @@ import com.dentruth.common.response.code.SuccessStatus;
 import com.dentruth.consultprepare.application.ConsultPrepareService;
 import com.dentruth.consultprepare.application.dto.request.CreateConsultCardRequest;
 import com.dentruth.consultprepare.application.dto.request.UpdateConsultCardRequest;
-import com.dentruth.consultprepare.application.dto.response.ConsultCardDetailResponse;
-import com.dentruth.consultprepare.application.dto.response.ConsultCardListItemResponse;
-import com.dentruth.consultprepare.application.dto.response.CreateConsultCardResponse;
+import com.dentruth.consultprepare.application.dto.response.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -108,6 +106,37 @@ public class ConsultCardController {
         return ApiResponse.onSuccess(
                 SuccessStatus.OK,
                 null
+        );
+    }
+
+    @GetMapping("/{consultCardId}/dentist")
+    public ApiResponse<ConsultDentistResponse> getConsultPatient(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable Long consultCardId
+    ) {
+        return ApiResponse.onSuccess(
+                SuccessStatus.OK,
+                consultPrepareService.getConsultPatient(
+                        consultCardId,
+                        UUID.fromString(userDetails.getUserId())
+                )
+
+        );
+    }
+
+    @PutMapping("/{consultCardId}/recommended-questions")
+    public ApiResponse<RecommendQuestionResponse> regenerateRecommendQuestions(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable Long consultCardId
+    ) {
+
+        return ApiResponse.onSuccess(
+                SuccessStatus.OK,
+                consultPrepareService
+                        .regenerateRecommendQuestions(
+                                consultCardId,
+                                UUID.fromString(userDetails.getUserId())
+                        )
         );
     }
 

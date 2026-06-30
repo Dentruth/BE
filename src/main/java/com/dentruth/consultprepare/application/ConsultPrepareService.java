@@ -4,9 +4,7 @@ import com.dentruth.common.exception.DentruthException;
 import com.dentruth.common.response.code.ErrorStatus;
 import com.dentruth.consultprepare.application.dto.request.CreateConsultCardRequest;
 import com.dentruth.consultprepare.application.dto.request.UpdateConsultCardRequest;
-import com.dentruth.consultprepare.application.dto.response.ConsultCardDetailResponse;
-import com.dentruth.consultprepare.application.dto.response.ConsultCardListItemResponse;
-import com.dentruth.consultprepare.application.dto.response.CreateConsultCardResponse;
+import com.dentruth.consultprepare.application.dto.response.*;
 import com.dentruth.consultprepare.domain.entity.*;
 import com.dentruth.consultprepare.domain.entity.enums.DrinkingLevel;
 import com.dentruth.consultprepare.domain.entity.enums.PainLevel;
@@ -19,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -34,6 +33,11 @@ public class ConsultPrepareService {
     private final DentalHistoryRepository dentalHistoryRepository;
     private final ConsultMedicalHistoryRepository consultMedicalHistoryRepository;
     private final MedicalHistoryRepository medicalHistoryRepository;
+    private final ConsultTranslationService consultTranslationService;
+    private final RecommendQuestionService recommendQuestionService;
+    private final ConsultRecommendedQuestionRepository
+            consultRecommendedQuestionRepository;
+
 
     public CreateConsultCardResponse createConsultCard(
             UUID userId,
@@ -215,7 +219,7 @@ public class ConsultPrepareService {
         }
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public ConsultCardDetailResponse getConsultCardDetail(
             UUID userId,
             Long consultCardId
@@ -289,6 +293,19 @@ public class ConsultPrepareService {
                         .map(MedicalHistory::getName)
                         .toList();
 
+        generateRecommendQuestionsIfAbsent(consultPrepare);
+
+        List<String> recommendedQuestions =
+                consultRecommendedQuestionRepository
+                        .findAllByConsultPrepareIdOrderByQuestionOrderAsc(
+                                consultCardId
+                        )
+                        .stream()
+                        .map(
+                                ConsultRecommendedQuestion::getQuestion
+                        )
+                        .toList();
+
         String painLevelDuration =
                 getPainLevel(consultPrepare.getPainLevel())
                         + " · "
@@ -313,7 +330,46 @@ public class ConsultPrepareService {
                 socialHistory,
                 dentalHistories,
                 medicalHistories,
-                concerns
+                concerns,
+                recommendedQuestions
+        );
+    }
+
+    private void generateRecommendQuestionsIfAbsent(
+            ConsultPrepare consultPrepare
+    ) {
+        Long consultCardId = consultPrepare.getId();
+
+        boolean exists = consultRecommendedQuestionRepository
+                .existsByConsultPrepareId(consultCardId);
+
+        if (exists) {
+            return;
+        }
+
+        log.info("추천 질문이 존재하지 않습니다. 생성 시작. consultCardId={}", consultCardId);
+
+        RecommendQuestionResult result =
+                recommendQuestionService.recommendQuestions(consultPrepare);
+
+        List<ConsultRecommendedQuestion> questions = new ArrayList<>();
+
+        for (int i = 0; i < result.getRecommendedQuestions().size(); i++) {
+            questions.add(
+                    new ConsultRecommendedQuestion(
+                            consultCardId,
+                            i + 1,
+                            result.getRecommendedQuestions().get(i)
+                    )
+            );
+        }
+
+        consultRecommendedQuestionRepository.saveAll(questions);
+
+        log.info(
+                "추천 질문 생성 완료. consultCardId={}, count={}",
+                consultCardId,
+                questions.size()
         );
     }
 
@@ -322,7 +378,7 @@ public class ConsultPrepareService {
     ) {
 
         return switch (drinkingLevel) {
-            case NON_SMOKER -> "Non Drinker";
+            case NON_DRINK -> "Non Drinker";
             case OCCASIONAL -> "Alcohol Once a Week";
             case REGULAR -> "Alcohol Several Times a Week";
             case HEAVY -> "Alcohol Daily";
@@ -455,6 +511,224 @@ public class ConsultPrepareService {
                 consultCardId,
                 userId
         );
+    }
+
+    @Transactional(readOnly = true)
+    public ConsultDentistResponse getConsultPatient(
+            Long consultCardId,
+            UUID userId
+    ) {
+        ConsultPrepare consultPrepare =
+                consultPrepareRepository
+                        .findByIdAndUserIdAndDeletedAtIsNull(
+                                consultCardId,
+                                userId
+                        ).orElseThrow(() -> {
+                            log.info(
+                                    "상담카드가 존재하지 않습니다. consultCardId={}",
+                                    consultCardId
+                            );
+                            return new DentruthException(
+                                    ErrorStatus.CONSULT_CARD_NOT_FOUND
+                            );
+                        });
+
+        User user =
+                userRepository.findById(userId)
+                        .orElseThrow(() -> {
+                            log.info(
+                                    "유저 정보가 존재하지 않습니다. userId={}",
+                                    userId
+                            );
+                            return new DentruthException(
+                                    ErrorStatus.USER_NOT_FOUND
+                            );
+                        });
+
+        ConsultTranslationResult translation;
+
+        try {
+
+        log.info(
+                "OpenAI 상담카드 번역 요청. consultCardId={}, userId={}",
+                consultCardId,
+                userId
+        );
+
+
+        translation =
+                consultTranslationService.translate(
+                        createPainOrigin(consultPrepare),
+                        consultPrepare.getWorriedIssue(),
+                        consultPrepare.getQuestion()
+                );
+
+        log.info(
+                "OpenAI 상담카드 번역 완료. consultCardId={}, userId={}",
+                consultCardId,
+                userId
+        );
+
+        } catch (Exception e) {
+
+            log.error(
+                    "OpenAI 상담카드 번역 실패. consultCardId={}, userId={}",
+                    consultCardId,
+                    userId,
+                    e
+            );
+
+            throw e;
+        }
+
+        return ConsultDentistResponse.builder()
+                .insuranceStatus(user.getInsuranceStatus().getKo())
+                .painSummary(
+                        ConsultDentistResponse.PainSummary.builder()
+                                .painOrigin(translation.getPainOrigin())
+                                .painKo(translation.getPainKo())
+                                .build()
+                )
+                .summaryInfo(createSummaryInfo(user, consultPrepare,translation))
+                .visitPurpose(translation.getVisitPurpose())
+                .build();
+    }
+
+    private ConsultDentistResponse.SummaryInfo createSummaryInfo(
+            User user,
+            ConsultPrepare consultPrepare,
+            ConsultTranslationResult translation
+    ) {
+
+        return ConsultDentistResponse.SummaryInfo.builder()
+                .stayStatus(user.getStayDuration().getKo())
+                .painLocation(translation.getPainLocationKo())
+                .painInfo(createPainInfo(consultPrepare))
+                .dentalHistory(createDentalHistory(consultPrepare))
+                .medicalHistory(createMedicalHistory(consultPrepare))
+                .socialHistory(createSocialHistory(consultPrepare))
+                .build();
+    }
+
+    private String createPainOrigin(ConsultPrepare consultPrepare) {
+
+        return String.format(
+                "%s pain has %s in %s for about %s.",
+                consultPrepare.getPainLevel().getEng().toLowerCase(),
+                consultPrepare.getPainPersistence().getEng().toLowerCase(),
+                consultPrepare.getPainLocation(),
+                consultPrepare.getPainDuration()
+        );
+    }
+
+    private String createPainInfo(ConsultPrepare consultPrepare) {
+
+        return consultPrepare.getPainLevel().getKo()
+                + " / "
+                + consultPrepare.getPainDuration();
+    }
+
+    private List<String> createMedicalHistory(
+            ConsultPrepare consultPrepare
+    ) {
+
+        List<String> medicalHistories =
+                consultMedicalHistoryRepository.findMedicalHistoryNames(
+                        consultPrepare.getId()
+                );
+
+        if (medicalHistories.isEmpty()) {
+            return List.of("특이사항 없음");
+        }
+
+        return medicalHistories;
+
+    }
+
+    private List<String> createDentalHistory(ConsultPrepare consultPrepare) {
+
+        List<String> dentalHistories =
+                consultDentalHistoryRepository.findDentalHistoryNames(
+                        consultPrepare.getId()
+                );
+
+        if (dentalHistories.isEmpty()) {
+            return List.of("특이사항 없음");
+        }
+
+        return dentalHistories;
+    }
+
+    private String createSocialHistory(ConsultPrepare consultPrepare) {
+
+        return String.join(", ",
+                consultPrepare.getSmoking().getKo(),
+                consultPrepare.getDrinking().getKo(),
+                consultPrepare.getExercise().getKo()
+        );
+    }
+
+
+    @Transactional
+    public RecommendQuestionResponse regenerateRecommendQuestions(
+            Long consultCardId,
+            UUID userId
+    ) {
+        ConsultPrepare consultPrepare =
+                consultPrepareRepository
+                        .findByIdAndUserIdAndDeletedAtIsNull(
+                                consultCardId,
+                                userId
+                        ).orElseThrow(() -> {
+                            log.info(
+                                    "상담카드가 존재하지 않습니다. consultCardId={}","userId={}",
+                                    consultCardId,
+                                    userId
+                            );
+                            return new DentruthException(
+                                    ErrorStatus.CONSULT_CARD_NOT_FOUND
+                            );
+                        });
+
+        consultRecommendedQuestionRepository
+                .deleteAllByConsultPrepareId(consultCardId);
+
+        log.info(
+                "추천 질문 생성 시작. consultCardId={}", consultCardId
+        );
+
+        RecommendQuestionResult result =
+                recommendQuestionService.recommendQuestions(consultPrepare);
+
+        List<ConsultRecommendedQuestion> questions = new ArrayList<>();
+
+        for (int i = 0;
+             i < result.getRecommendedQuestions().size();
+             i++) {
+
+            questions.add(
+                    new ConsultRecommendedQuestion(
+                            consultCardId,
+                            i + 1,
+                            result.getRecommendedQuestions().get(i)
+                    )
+            );
+        }
+
+        consultRecommendedQuestionRepository.saveAll(questions);
+
+        log.info(
+                "추천 질문 저장 완료. consultCardId={}, count={}", consultCardId, questions.size()
+        );
+
+        return RecommendQuestionResponse.builder()
+                .consultCardId(
+                        consultCardId
+                )
+                .recommendedQuestions(
+                        result.getRecommendedQuestions()
+                )
+                .build();
     }
 
 }
