@@ -21,7 +21,6 @@ import java.util.UUID;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-@Transactional
 public class ConsultPrepareService {
 
     private final ConsultPrepareRepository consultPrepareRepository;
@@ -34,6 +33,7 @@ public class ConsultPrepareService {
     private final ConsultRecommendedQuestionService consultRecommendedQuestionService;
 
 
+    @Transactional
     public CreateConsultCardResponse createConsultCard(
             UUID userId,
             CreateConsultCardRequest request
@@ -553,7 +553,6 @@ public class ConsultPrepareService {
     }
 
 
-    @Transactional
     public RecommendQuestionResponse regenerateRecommendQuestions(
             Long consultCardId,
             UUID userId
