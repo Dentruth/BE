@@ -3,6 +3,7 @@ package com.dentruth.consultprepare.presentaion;
 import com.dentruth.common.jwt.CustomUserDetails;
 import com.dentruth.common.response.ApiResponse;
 import com.dentruth.common.response.code.SuccessStatus;
+import com.dentruth.consultprepare.application.ConsultCardFacade;
 import com.dentruth.consultprepare.application.ConsultPrepareService;
 import com.dentruth.consultprepare.application.dto.request.CreateConsultCardRequest;
 import com.dentruth.consultprepare.application.dto.request.UpdateConsultCardRequest;
@@ -22,6 +23,7 @@ import java.util.UUID;
 public class ConsultCardController {
 
     private final ConsultPrepareService consultPrepareService;
+    private final ConsultCardFacade consultCardFacade;
 
     @PostMapping
     public ApiResponse<CreateConsultCardResponse> createConsultCard(
@@ -61,7 +63,7 @@ public class ConsultCardController {
 
         return ApiResponse.onSuccess(
                 SuccessStatus.OK,
-                consultPrepareService.getConsultCardDetail(
+                consultCardFacade.getConsultCardDetail(
                         UUID.fromString(
                                 userDetails.getUserId()
                         ),
