@@ -17,6 +17,4 @@ public interface ConsultRecommendedQuestionRepository
             Long consultPrepareId
     );
 
-    boolean existsByConsultPrepareId(Long consultPrepareId);
-
 }

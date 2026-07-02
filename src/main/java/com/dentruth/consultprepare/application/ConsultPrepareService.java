@@ -17,7 +17,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -34,9 +33,7 @@ public class ConsultPrepareService {
     private final ConsultMedicalHistoryRepository consultMedicalHistoryRepository;
     private final MedicalHistoryRepository medicalHistoryRepository;
     private final ConsultTranslationService consultTranslationService;
-    private final RecommendQuestionService recommendQuestionService;
-    private final ConsultRecommendedQuestionRepository
-            consultRecommendedQuestionRepository;
+    private final ConsultRecommendedQuestionService consultRecommendedQuestionService;
 
 
     public CreateConsultCardResponse createConsultCard(
@@ -293,18 +290,9 @@ public class ConsultPrepareService {
                         .map(MedicalHistory::getName)
                         .toList();
 
-        generateRecommendQuestionsIfAbsent(consultPrepare);
-
         List<String> recommendedQuestions =
-                consultRecommendedQuestionRepository
-                        .findAllByConsultPrepareIdOrderByQuestionOrderAsc(
-                                consultCardId
-                        )
-                        .stream()
-                        .map(
-                                ConsultRecommendedQuestion::getQuestion
-                        )
-                        .toList();
+                consultRecommendedQuestionService
+                        .generateIfAbsent(consultPrepare);
 
         String painLevelDuration =
                 getPainLevel(consultPrepare.getPainLevel())
@@ -332,44 +320,6 @@ public class ConsultPrepareService {
                 medicalHistories,
                 concerns,
                 recommendedQuestions
-        );
-    }
-
-    private void generateRecommendQuestionsIfAbsent(
-            ConsultPrepare consultPrepare
-    ) {
-        Long consultCardId = consultPrepare.getId();
-
-        boolean exists = consultRecommendedQuestionRepository
-                .existsByConsultPrepareId(consultCardId);
-
-        if (exists) {
-            return;
-        }
-
-        log.info("추천 질문이 존재하지 않습니다. 생성 시작. consultCardId={}", consultCardId);
-
-        RecommendQuestionResult result =
-                recommendQuestionService.recommendQuestions(consultPrepare);
-
-        List<ConsultRecommendedQuestion> questions = new ArrayList<>();
-
-        for (int i = 0; i < result.getRecommendedQuestions().size(); i++) {
-            questions.add(
-                    new ConsultRecommendedQuestion(
-                            consultCardId,
-                            i + 1,
-                            result.getRecommendedQuestions().get(i)
-                    )
-            );
-        }
-
-        consultRecommendedQuestionRepository.saveAll(questions);
-
-        log.info(
-                "추천 질문 생성 완료. consultCardId={}, count={}",
-                consultCardId,
-                questions.size()
         );
     }
 
@@ -690,43 +640,16 @@ public class ConsultPrepareService {
                             );
                         });
 
-        consultRecommendedQuestionRepository
-                .deleteAllByConsultPrepareId(consultCardId);
-
-        log.info(
-                "추천 질문 생성 시작. consultCardId={}", consultCardId
-        );
-
-        RecommendQuestionResult result =
-                recommendQuestionService.recommendQuestions(consultPrepare);
-
-        List<ConsultRecommendedQuestion> questions = new ArrayList<>();
-
-        for (int i = 0;
-             i < result.getRecommendedQuestions().size();
-             i++) {
-
-            questions.add(
-                    new ConsultRecommendedQuestion(
-                            consultCardId,
-                            i + 1,
-                            result.getRecommendedQuestions().get(i)
-                    )
-            );
-        }
-
-        consultRecommendedQuestionRepository.saveAll(questions);
-
-        log.info(
-                "추천 질문 저장 완료. consultCardId={}, count={}", consultCardId, questions.size()
-        );
+        List<String> recommendedQuestions =
+                consultRecommendedQuestionService
+                        .regenerate(consultPrepare);
 
         return RecommendQuestionResponse.builder()
                 .consultCardId(
                         consultCardId
                 )
                 .recommendedQuestions(
-                        result.getRecommendedQuestions()
+                        recommendedQuestions
                 )
                 .build();
     }
