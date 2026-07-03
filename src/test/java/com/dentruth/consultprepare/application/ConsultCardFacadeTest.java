@@ -101,6 +101,51 @@ class ConsultCardFacadeTest {
         assertThat(response.getRecommendedQuestions()).containsExactly("어떤 치료를 받아야 하나요?");
     }
 
+    @DisplayName("painLevel이 없으면 예외 없이 기본값으로 응답을 반환한다.")
+    @Test
+    void shouldReturnDefaultPainLevel_whenPainLevelIsNull() {
+        //given
+        ConsultPrepare consultPrepare = ConsultPrepare.builder()
+                .id(CONSULT_CARD_ID)
+                .userId(USER_ID)
+                .title("정기 검진")
+                .appointmentDate(LocalDateTime.of(2026, 7, 10, 0, 0))
+                .currentStatus(CurrentStatus.SHORT_STAY)
+                .painExistence(false)
+                .painLocation(null)
+                .painLevel(null)
+                .painDuration(null)
+                .worriedIssue("특이사항 없어요")
+                .question("정기 검진 주기가 궁금해요")
+                .smoking(SmokingLevel.NON_SMOKER)
+                .drinking(DrinkingLevel.NON_DRINK)
+                .exercise(ExerciseLevel.REGULAR)
+                .build();
+
+        User user = User.builder()
+                .stayDuration(StayDuration.THREE_TO_SIX_M)
+                .insuranceStatus(InsuranceStatus.INSURED)
+                .build();
+
+        given(consultPrepareService.findOwnedConsultPrepare(USER_ID, CONSULT_CARD_ID))
+                .willReturn(consultPrepare);
+        given(userRepository.findById(USER_ID)).willReturn(Optional.of(user));
+        given(consultPrepareService.getDentalHistoryNames(CONSULT_CARD_ID))
+                .willReturn(List.of());
+        given(consultPrepareService.getMedicalHistoryNames(CONSULT_CARD_ID))
+                .willReturn(List.of());
+        given(consultRecommendedQuestionService.generateIfAbsent(consultPrepare))
+                .willReturn(List.of());
+
+        //when
+        ConsultCardDetailResponse response =
+                consultCardFacade.getConsultCardDetail(USER_ID, CONSULT_CARD_ID);
+
+        //then
+        assertThat(response.getPainLevelDuration()).isEqualTo("- · null");
+        assertThat(response.getSocialHistory()).isEqualTo("Non Drinker");
+    }
+
     @DisplayName("상담카드가 존재하지 않으면 예외가 전파된다.")
     @Test
     void shouldThrowException_whenConsultCardNotFound() {

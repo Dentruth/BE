@@ -4,7 +4,6 @@ import com.dentruth.common.exception.DentruthException;
 import com.dentruth.common.response.code.ErrorStatus;
 import com.dentruth.consultprepare.application.dto.response.ConsultCardDetailResponse;
 import com.dentruth.consultprepare.domain.entity.ConsultPrepare;
-import com.dentruth.consultprepare.domain.entity.enums.DrinkingLevel;
 import com.dentruth.consultprepare.domain.entity.enums.PainLevel;
 import com.dentruth.user.domain.entity.User;
 import com.dentruth.user.domain.repository.UserRepository;
@@ -64,15 +63,15 @@ public class ConsultCardFacade {
                 consultRecommendedQuestionService
                         .generateIfAbsent(consultPrepare);
 
+        PainLevel painLevel = consultPrepare.getPainLevel();
+
         String painLevelDuration =
-                getPainLevel(consultPrepare.getPainLevel())
+                (painLevel == null ? "-" : painLevel.getDescription())
                         + " · "
                         + consultPrepare.getPainDuration();
 
         String socialHistory =
-                getSocialHistory(
-                        consultPrepare.getDrinking()
-                );
+                consultPrepare.getDrinking().getDescription();
 
         String concerns =
                 consultPrepare.getWorriedIssue()
@@ -91,30 +90,6 @@ public class ConsultCardFacade {
                 concerns,
                 recommendedQuestions
         );
-    }
-
-    private String getSocialHistory(
-            DrinkingLevel drinkingLevel
-    ) {
-
-        return switch (drinkingLevel) {
-            case NON_DRINK -> "Non Drinker";
-            case OCCASIONAL -> "Alcohol Once a Week";
-            case REGULAR -> "Alcohol Several Times a Week";
-            case HEAVY -> "Alcohol Daily";
-        };
-    }
-
-    private String getPainLevel(
-            PainLevel painLevel
-    ) {
-
-        return switch (painLevel) {
-            case NONE -> "None";
-            case MILD -> "Mild";
-            case MODERATE -> "Moderate";
-            case SEVERE -> "Severe";
-        };
     }
 
 }
