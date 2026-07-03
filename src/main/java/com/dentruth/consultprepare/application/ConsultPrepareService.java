@@ -564,7 +564,7 @@ public class ConsultPrepareService {
                                 userId
                         ).orElseThrow(() -> {
                             log.info(
-                                    "상담카드가 존재하지 않습니다. consultCardId={}","userId={}",
+                                    "상담카드가 존재하지 않습니다. consultCardId={} userId={}",
                                     consultCardId,
                                     userId
                             );
