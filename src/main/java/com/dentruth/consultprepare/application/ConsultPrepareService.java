@@ -11,6 +11,7 @@ import com.dentruth.consultprepare.domain.entity.enums.PainLevel;
 import com.dentruth.consultprepare.domain.repository.*;
 import com.dentruth.user.domain.entity.User;
 import com.dentruth.user.domain.repository.UserRepository;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -463,7 +464,7 @@ public class ConsultPrepareService {
         );
     }
 
-    @Transactional(readOnly = true)
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public ConsultDentistResponse getConsultPatient(
             Long consultCardId,
             UUID userId
