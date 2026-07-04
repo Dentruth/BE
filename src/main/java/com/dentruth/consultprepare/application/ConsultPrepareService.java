@@ -6,8 +6,6 @@ import com.dentruth.consultprepare.application.dto.request.CreateConsultCardRequ
 import com.dentruth.consultprepare.application.dto.request.UpdateConsultCardRequest;
 import com.dentruth.consultprepare.application.dto.response.*;
 import com.dentruth.consultprepare.domain.entity.*;
-import com.dentruth.consultprepare.domain.entity.enums.DrinkingLevel;
-import com.dentruth.consultprepare.domain.entity.enums.PainLevel;
 import com.dentruth.consultprepare.domain.repository.*;
 import com.dentruth.user.domain.entity.User;
 import com.dentruth.user.domain.repository.UserRepository;
@@ -23,7 +21,6 @@ import java.util.UUID;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-@Transactional
 public class ConsultPrepareService {
 
     private final ConsultPrepareRepository consultPrepareRepository;
@@ -36,6 +33,7 @@ public class ConsultPrepareService {
     private final ConsultRecommendedQuestionService consultRecommendedQuestionService;
 
 
+    @Transactional
     public CreateConsultCardResponse createConsultCard(
             UUID userId,
             CreateConsultCardRequest request
@@ -216,43 +214,31 @@ public class ConsultPrepareService {
         }
     }
 
-    @Transactional
-    public ConsultCardDetailResponse getConsultCardDetail(
+    @Transactional(readOnly = true)
+    public ConsultPrepare findOwnedConsultPrepare(
             UUID userId,
             Long consultCardId
     ) {
 
-        ConsultPrepare consultPrepare =
-                consultPrepareRepository
-                        .findByIdAndUserIdAndDeletedAtIsNull(
-                                consultCardId,
-                                userId
-                        ).orElseThrow(() -> {
-                            log.info(
-                                    "상담카드가 존재하지 않습니다. consultCardId={}",
-                                    consultCardId
-                            );
-                            return new DentruthException(
-                                    ErrorStatus.CONSULT_CARD_NOT_FOUND
-                            );
-                        });
+        return consultPrepareRepository
+                .findByIdAndUserIdAndDeletedAtIsNull(
+                        consultCardId,
+                        userId
+                ).orElseThrow(() -> {
+                    log.info(
+                            "상담카드가 존재하지 않습니다. consultCardId={}",
+                            consultCardId
+                    );
+                    return new DentruthException(
+                            ErrorStatus.CONSULT_CARD_NOT_FOUND
+                    );
+                });
+    }
 
-        User user =
-                userRepository.findById(userId)
-                    .orElseThrow(() -> {
-                        log.info(
-                                "유저 정보가 존재하지 않습니다. userId={}",
-                                userId
-                        );
-                        return new DentruthException(
-                                ErrorStatus.USER_NOT_FOUND
-                        );
-                    });
-
-        String stayStatus =
-                user.getStayDuration().getEng()
-                        + " · "
-                        + user.getInsuranceStatus().getEng();
+    @Transactional(readOnly = true)
+    public List<String> getDentalHistoryNames(
+            Long consultCardId
+    ) {
 
         List<Long> dentalHistoryIds =
                 consultDentalHistoryRepository
@@ -265,12 +251,17 @@ public class ConsultPrepareService {
                         )
                         .toList();
 
-        List<String> dentalHistories =
-                dentalHistoryRepository
-                        .findAllById(dentalHistoryIds)
-                        .stream()
-                        .map(DentalHistory::getName)
-                        .toList();
+        return dentalHistoryRepository
+                .findAllById(dentalHistoryIds)
+                .stream()
+                .map(DentalHistory::getName)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<String> getMedicalHistoryNames(
+            Long consultCardId
+    ) {
 
         List<Long> medicalHistoryIds =
                 consultMedicalHistoryRepository
@@ -283,68 +274,11 @@ public class ConsultPrepareService {
                         )
                         .toList();
 
-        List<String> medicalHistories =
-                medicalHistoryRepository
-                        .findAllById(medicalHistoryIds)
-                        .stream()
-                        .map(MedicalHistory::getName)
-                        .toList();
-
-        List<String> recommendedQuestions =
-                consultRecommendedQuestionService
-                        .generateIfAbsent(consultPrepare);
-
-        String painLevelDuration =
-                getPainLevel(consultPrepare.getPainLevel())
-                        + " · "
-                        + consultPrepare.getPainDuration();
-
-        String socialHistory =
-                getSocialHistory(
-                        consultPrepare.getDrinking()
-                );
-
-        String concerns =
-                consultPrepare.getWorriedIssue()
-                        + " / "
-                        + consultPrepare.getQuestion();
-
-        return new ConsultCardDetailResponse(
-                consultPrepare.getAppointmentDate()
-                        .toLocalDate(),
-                stayStatus,
-                consultPrepare.getPainLocation(),
-                painLevelDuration,
-                socialHistory,
-                dentalHistories,
-                medicalHistories,
-                concerns,
-                recommendedQuestions
-        );
-    }
-
-    private String getSocialHistory(
-            DrinkingLevel drinkingLevel
-    ) {
-
-        return switch (drinkingLevel) {
-            case NON_DRINK -> "Non Drinker";
-            case OCCASIONAL -> "Alcohol Once a Week";
-            case REGULAR -> "Alcohol Several Times a Week";
-            case HEAVY -> "Alcohol Daily";
-        };
-    }
-
-    private String getPainLevel(
-            PainLevel painLevel
-    ) {
-
-        return switch (painLevel) {
-            case NONE -> "None";
-            case MILD -> "Mild";
-            case MODERATE -> "Moderate";
-            case SEVERE -> "Severe";
-        };
+        return medicalHistoryRepository
+                .findAllById(medicalHistoryIds)
+                .stream()
+                .map(MedicalHistory::getName)
+                .toList();
     }
 
     @Transactional
@@ -619,7 +553,6 @@ public class ConsultPrepareService {
     }
 
 
-    @Transactional
     public RecommendQuestionResponse regenerateRecommendQuestions(
             Long consultCardId,
             UUID userId
@@ -631,7 +564,7 @@ public class ConsultPrepareService {
                                 userId
                         ).orElseThrow(() -> {
                             log.info(
-                                    "상담카드가 존재하지 않습니다. consultCardId={}","userId={}",
+                                    "상담카드가 존재하지 않습니다. consultCardId={} userId={}",
                                     consultCardId,
                                     userId
                             );

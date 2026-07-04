@@ -7,12 +7,13 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum PainLevel {
 
-    NONE("통증 없음", "No pain"),
-    MILD("약함", "Mild"),
-    MODERATE("보통", "Moderate"),
-    SEVERE("심함", "Severe");
+    NONE("통증 없음", "No pain", "None"),
+    MILD("약함", "Mild", "Mild"),
+    MODERATE("보통", "Moderate", "Moderate"),
+    SEVERE("심함", "Severe", "Severe");
 
     private final String ko;
     private final String eng;
+    private final String description;
 
 }
