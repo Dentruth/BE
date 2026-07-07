@@ -65,6 +65,8 @@ public class ConsultSummary extends BaseEntity {
     @Convert(converter = EncryptedStringConverter.class)
     private String licenseNumber;
 
+    private String treatmentPlan;
+
 
     public static ConsultSummary create(UUID userId, String audioLink, String clinicName) {
         return ConsultSummary.builder()
@@ -78,7 +80,7 @@ public class ConsultSummary extends BaseEntity {
     }
 
     public static ConsultSummary create(UUID userId, String audioLink, String clinicName, String practitionerName,
-                                        String licenseType, String licenseNumber, String institution) {
+                                        String licenseType, String licenseNumber, String institution, String treatmentPlan) {
         return ConsultSummary.builder()
                 .id(UUID.randomUUID())
                 .userId(userId)
@@ -90,14 +92,16 @@ public class ConsultSummary extends BaseEntity {
                 .licenseNumber(licenseNumber)
                 .practitionerName(practitionerName)
                 .institution(institution)
+                .treatmentPlan(treatmentPlan)
                 .build();
     }
 
-    public void markAsCompleted(String diagnosticResult, String diagnosis, String title) {
+    public void markAsCompleted(String diagnosticResult, String diagnosis, String title, String treatmentPlan) {
         this.status = SummaryStatus.COMPLETED;
         this.diagnosis = diagnosis;
         this.title = title;
         this.diagnosticResult = diagnosticResult;
+        this.treatmentPlan = treatmentPlan;
     }
 
     public void markAsFailed(String failReason) {

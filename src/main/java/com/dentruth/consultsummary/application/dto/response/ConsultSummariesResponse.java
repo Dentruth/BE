@@ -17,6 +17,7 @@ public class ConsultSummariesResponse {
     private final LocalDate date;
     private final String diagnosis;
     private final String status;
+    private final String treatmentPlan;
 
     public static ConsultSummariesResponse from(ConsultSummary consultSummary) {
         return ConsultSummariesResponse.builder()
@@ -26,6 +27,7 @@ public class ConsultSummariesResponse {
                 .date(LocalDate.ofInstant(consultSummary.getCreatedAt(), ZoneId.of("Asia/Seoul")))
                 .diagnosis(consultSummary.getDiagnosis())
                 .status(consultSummary.getStatus().name())
+                .treatmentPlan(consultSummary.getTreatmentPlan())
                 .build();
     }
 
