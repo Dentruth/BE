@@ -10,5 +10,6 @@ public class SummarizedResult {
     private final String rawJson;
     private final String diagnosis;
     private final String title;
+    private final String treatmentPlan;
 
 }

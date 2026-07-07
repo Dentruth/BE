@@ -13,5 +13,6 @@ public class CreateConsultSummaryApplicationRequest {
     private String licenseType;
     private String licenseNumber;
     private String institution;
+    private String treatmentPlan;
 
 }

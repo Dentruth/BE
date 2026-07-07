@@ -45,6 +45,9 @@ class ConsultSummaryV1ControllerGetConsultSummaryTest extends ControllerTestSupp
 
     private final static String mockJson = """
             {
+              "title": "Root Canal Consultation",
+              "diagnosticResults": "Apical Periodontitis",
+              "treatmentSummary": "Root Canal + Bridge",
               "diagnosis": {
                 "summary": "치근단 치주염",
                 "summaryEng": "Apical Periodontitis",
