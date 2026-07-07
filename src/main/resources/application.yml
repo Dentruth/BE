@@ -77,17 +77,19 @@ openai:
   chat-url: "https://api.openai.com/v1/chat/completions"
   prompts:
     consultation-summary: |
-      You are an expert dental transcription and summarization AI. Your task is to analyze the provided Korean dental consultation transcript (STT) and extract accurate diagnostic results, treatment plans, potential risks of delayed treatment, and post-treatment instructions.
-      You must return the result as a raw JSON object matching the exact structure below. Do not include any conversational text, markdown formatting (like ```json), or code blocks in your response. Just return the pure JSON string.
+        You are an expert dental transcription and summarization AI. Your task is to analyze the provided Korean dental consultation transcript (STT) and extract accurate diagnostic results, treatment plans, potential risks of delayed treatment, and post-treatment instructions.
+        You must return the result as a raw JSON object matching the exact structure below. Do not include any conversational text, markdown formatting (like ```json), or code blocks in your response. Just return the pure JSON string.
         
-      [Strict Language Rule]
-      - All fields ending with 'Eng' must be professionally translated into English.
-      - All other fields (without 'Eng') must be in natural, polite Korean suitable for a patient-facing application.
+        [Strict Language Rule]
+        - "title", "diagnosticResults", and "treatmentSummary" are English-only fields. Write them directly in natural English. Do NOT write a Korean version of these three fields, and do NOT add "titleEng" or similar Eng-suffixed counterparts for them — they already are the English output.
+        - All other fields ending with 'Eng' must be professionally translated into English.
+        - All other fields (without 'Eng', excluding the three English-only fields above) must be in natural, polite Korean suitable for a patient-facing application.
         
-      [Expected Output JSON Schema]
+        [Expected Output JSON Schema]
         {
-          "diagnosticResults": "Short diagnosis name for display (Korean, max 20 characters)",
-          "treatmentSummary": "One-line summary of the entire treatment plan (Korean, max 30 characters)",
+          "title": "A natural, patient-facing headline summarizing what this visit was about (English, max 20 characters)",
+          "diagnosticResults": "Short diagnosis name for display (English, max 20 characters)",
+          "treatmentSummary": "One-line summary of the entire treatment plan (English, max 30 characters)",
           "diagnosis": {
             "summary": "Main diagnosis name in Korean",
             "summaryEng": "Main diagnosis name in English",
@@ -119,20 +121,23 @@ openai:
           ]
         }
         
-      [Contextual Rules for Extraction]
-      1. Tooth Numbers: If specific teeth are mentioned (e.g., #46, #45), include them accurately in both Korean and English fields.
-      2. Treatment Tone: The Korean 'description' must use polite and warm honorifics (e.g., '~한 상태예요', '~일 수 있어요').
-      3. Multi-unit Steps: Break down the treatment plan chronologically into separate array elements with sequential 'step' integers (1, 2, 3...).
-      4. Title Fields:
-        - "diagnosticResults" must be a concise version of "diagnosis.summary" (maximum 20 Korean characters).
-        - "treatmentSummary" must condense the entire treatment plan into one short phrase (maximum 30 Korean characters), suitable as a card title.
-        - Example: if diagnosis.summary is "치근단 치주염" → diagnosticResults.title is also "치근단 치주염".
-        - Example: if treatmentPlan involves root canal therapy and a bridge → treatmentSummary is "신경 치료 + 브릿지".
+        [Contextual Rules for Extraction]
+        1. Tooth Numbers: If specific teeth are mentioned (e.g., #46, #45), include them accurately in both Korean and English fields.
+        2. Treatment Tone: The Korean 'description' must use polite and warm honorifics (e.g., '~한 상태예요', '~일 수 있어요').
+        3. Multi-unit Steps: Break down the treatment plan chronologically into separate array elements with sequential 'step' integers (1, 2, 3...).
+        4. Title Fields (IMPORTANT: "title" and "treatmentSummary" must NOT be the same text — they serve different purposes):
+            - "title" is the headline of the visit itself, shown at the top of the record card, written directly in English. It should read like a short session/visit name (e.g. what kind of appointment or procedure this was), not a restatement of the treatment plan.
+            - "diagnosticResults" must be a concise English version of "diagnosis.summary" (maximum 20 English characters).
+            - "treatmentSummary" must condense the entire treatment plan into one short phrase (maximum 30 English characters), written directly in English, suitable as a plan/summary line inside the card body.
+            - Example: if diagnosis.summary is "치근단 치주염" → diagnosticResults is "Apical Periodontitis".
+            - Example: if the visit was a first-time root canal consultation → title is "Root Canal Consultation".
+            - Example: if treatmentPlan involves root canal therapy and a bridge → treatmentSummary is "Root Canal + Bridge".
         
-      [Example Output]
+        [Example Output]
         {
-          "diagnosticResults": "치근단 치주염",
-          "treatmentSummary": "신경 치료 + 브릿지",
+          "title": "Root Canal Consultation",
+          "diagnosticResults": "Apical Periodontitis",
+          "treatmentSummary": "Root Canal + Bridge",
           "diagnosis": {
             "summary": "치근단 치주염",
             "summaryEng": "Apical Periodontitis",

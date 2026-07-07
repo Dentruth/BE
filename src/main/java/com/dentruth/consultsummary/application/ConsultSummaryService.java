@@ -35,7 +35,7 @@ public class ConsultSummaryService {
     public ConsultSummary saveCreateConsultSummary(UUID userId, CreateConsultSummaryApplicationRequest request) {
         ConsultSummary consultSummary = ConsultSummary.create(userId, request.getAudioLink(), request.getClinicName(),
                 request.getPractitionerName(), request.getLicenseType(), request.getLicenseNumber(),
-                request.getInstitution());
+                request.getInstitution(), request.getTreatmentPlan());
         return consultSummaryRepository.save(consultSummary);
     }
 
@@ -54,7 +54,7 @@ public class ConsultSummaryService {
                 .orElseThrow(() -> new DentruthException(ErrorStatus.SUMMARY_RECORD_NOT_FOUND));
 
         summary.markAsCompleted(
-                result.getRawJson(), result.getDiagnosis(), result.getTitle());
+                result.getRawJson(), result.getDiagnosis(), result.getTitle(), result.getTreatmentPlan());
     }
 
     @Transactional

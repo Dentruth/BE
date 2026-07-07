@@ -59,7 +59,8 @@ class ConsultSummarizationServiceTest {
         String mockAiJsonContent = """
                 {
                   "diagnosticResults": "급성 치수염",
-                  "treatmentSummary": "치통으로 인한 크라운 치료 요약"
+                  "treatmentSummary": "크라운 치료",
+                  "title" : "치통으로 인한 크라운 치료 요약"
                 }
                 """;
 
@@ -78,6 +79,7 @@ class ConsultSummarizationServiceTest {
         assertThat(result).isNotNull();
         assertThat(result.getDiagnosis()).isEqualTo("급성 치수염");
         assertThat(result.getTitle()).isEqualTo("치통으로 인한 크라운 치료 요약");
+        assertThat(result.getTreatmentPlan()).isEqualTo("크라운 치료");
         assertThat(result.getRawJson()).isEqualTo(mockAiJsonContent);
     }
 
