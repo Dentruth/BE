@@ -27,7 +27,6 @@ public class ConsultSummaryRetryScheduler {
         List<ConsultSummary> consultSummaries = consultSummaryRetryHelper.getFailedConsultSummaries();
 
         if (consultSummaries.isEmpty()) {
-            log.info("재시도 대상 없음.");
             return;
         }
 
