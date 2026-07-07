@@ -1,16 +1,12 @@
 package com.dentruth.consultprepare.application;
 
-import com.dentruth.consultprepare.application.dto.response.RecommendQuestionResult;
 import com.dentruth.consultprepare.domain.entity.ConsultPrepare;
 import com.dentruth.consultprepare.domain.entity.ConsultRecommendedQuestion;
 import com.dentruth.consultprepare.domain.repository.ConsultRecommendedQuestionRepository;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Service
 @Slf4j
@@ -19,8 +15,8 @@ public class ConsultRecommendedQuestionService {
 
     private final RecommendQuestionService recommendQuestionService;
     private final ConsultRecommendedQuestionRepository consultRecommendedQuestionRepository;
+    private final ConsultRecommendedQuestionWriter consultRecommendedQuestionWriter;
 
-    @Transactional
     public List<String> generateIfAbsent(
             ConsultPrepare consultPrepare
     ) {
@@ -42,59 +38,52 @@ public class ConsultRecommendedQuestionService {
                 consultCardId
         );
 
-        return generateAndSave(consultCardId, consultPrepare);
+        List<String> questionTexts =
+                requestRecommendedQuestions(consultPrepare);
+
+        consultRecommendedQuestionWriter.save(consultCardId, questionTexts);
+
+        log.info(
+                "추천 질문 저장 완료. consultCardId={}, count={}",
+                consultCardId,
+                questionTexts.size()
+        );
+
+        return questionTexts;
     }
 
-    @Transactional
     public List<String> regenerate(
             ConsultPrepare consultPrepare
     ) {
 
         Long consultCardId = consultPrepare.getId();
 
-        consultRecommendedQuestionRepository
-                .deleteAllByConsultPrepareId(consultCardId);
-
         log.info(
                 "추천 질문 재생성 시작. consultCardId={}",
                 consultCardId
         );
 
-        return generateAndSave(consultCardId, consultPrepare);
-    }
-
-    private List<String> generateAndSave(
-            Long consultCardId,
-            ConsultPrepare consultPrepare
-    ) {
-
-        RecommendQuestionResult result =
-                recommendQuestionService.recommendQuestions(consultPrepare);
-
         List<String> questionTexts =
-                result.getRecommendedQuestions();
+                requestRecommendedQuestions(consultPrepare);
 
-        List<ConsultRecommendedQuestion> questions = new ArrayList<>();
-
-        for (int i = 0; i < questionTexts.size(); i++) {
-            questions.add(
-                    new ConsultRecommendedQuestion(
-                            consultCardId,
-                            i + 1,
-                            questionTexts.get(i)
-                    )
-            );
-        }
-
-        consultRecommendedQuestionRepository.saveAll(questions);
+        consultRecommendedQuestionWriter.replaceAll(consultCardId, questionTexts);
 
         log.info(
                 "추천 질문 저장 완료. consultCardId={}, count={}",
                 consultCardId,
-                questions.size()
+                questionTexts.size()
         );
 
         return questionTexts;
+    }
+
+    private List<String> requestRecommendedQuestions(
+            ConsultPrepare consultPrepare
+    ) {
+
+        return recommendQuestionService
+                .recommendQuestions(consultPrepare)
+                .getRecommendedQuestions();
     }
 
     private List<String> toQuestionTexts(
