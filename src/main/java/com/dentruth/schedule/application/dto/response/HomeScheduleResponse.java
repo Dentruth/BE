@@ -1,6 +1,5 @@
 package com.dentruth.schedule.application.dto.response;
 
-import com.dentruth.schedule.domain.entity.enums.ScheduleType;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -10,7 +9,6 @@ import java.time.LocalDate;
 public class HomeScheduleResponse {
     private Long id;
     private LocalDate date;
-    private ScheduleType scheduleType;
     private String scheduleName;
     private Integer extraCount;
 }

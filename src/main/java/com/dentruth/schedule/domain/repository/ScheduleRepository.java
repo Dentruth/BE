@@ -15,4 +15,9 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
             LocalDate endDate
     );
 
+    List<Schedule> findAllByUserIdAndStartDate(
+            UUID userId,
+            LocalDate startDate
+    );
+
 }
